@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -14,10 +15,10 @@ namespace UnifiedExperienceSystem
         {
             if (!Context.IsWorldReady) return;
 
+            //  Use uiViewport so position is not affected by UI scaling
+            skillButtonBounds = new Rectangle(Game1.uiViewport.Width / 2 - 500, Game1.uiViewport.Height - 100, 64, 64);
 
-            skillButtonBounds = new Rectangle(Game1.viewport.Width / 2 - 500, Game1.viewport.Height -100, 64, 64);
-
-            // Draw button
+            //  Draw brown menu-style box as button
             IClickableMenu.drawTextureBox(
                 b: e.SpriteBatch,
                 texture: Game1.menuTexture,
@@ -30,7 +31,7 @@ namespace UnifiedExperienceSystem
                 drawShadow: false
             );
 
-
+            //  Draw centered point number
             string pointText = SaveData.UnspentSkillPoints.ToString();
             Vector2 textSize = Game1.smallFont.MeasureString(pointText);
             Vector2 textPos = new Vector2(
@@ -45,7 +46,7 @@ namespace UnifiedExperienceSystem
             if (!Context.IsWorldReady)
                 return;
 
-            // Toggle menu with configured hotkey
+            //  Toggle menu with hotkey
             if (e.Button == Config.ToggleMenuKey)
             {
                 if (Game1.activeClickableMenu is SkillAllocationMenu)
@@ -62,18 +63,19 @@ namespace UnifiedExperienceSystem
                 return;
             }
 
-            // Open menu only on mouse click
+            //  Match mouse input space to skillButtonBounds space (scale-aware)
+            float scale = Game1.options.uiScale;
+            int scaledMouseX = (int)(e.Cursor.ScreenPixels.X / scale);
+            int scaledMouseY = (int)(e.Cursor.ScreenPixels.Y / scale);
+
             if (e.Button == SButton.MouseLeft &&
-                skillButtonBounds.Contains((int)e.Cursor.ScreenPixels.X, (int)e.Cursor.ScreenPixels.Y) &&
+                skillButtonBounds.Contains(scaledMouseX, scaledMouseY) &&
                 Game1.activeClickableMenu == null)
             {
                 Game1.activeClickableMenu = new SkillAllocationMenu(this);
                 Game1.playSound("bigSelect");
             }
         }
-
-
-
 
     }
 }
