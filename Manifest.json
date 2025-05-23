@@ -1,0 +1,18 @@
+{
+  "Name": "UnifiedExperienceSystem",
+  "Author": "Darkmushu1",
+  "Version": "1.0.0",
+  "Description": "Unifies all experiences gained, and allows you to manually allocate to the experience to each skills",
+  "UniqueID": "Darkmushu.UnifiedExperienceSystem",
+  "EntryDll": "UnifiedExperienceSystem.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": [],
+  "Dependencies": [
+    {
+      "UniqueID": "spacechase0.GenericModConfigMenu",
+      "IsRequired": false
+    }
+  ]
+}
+
+
