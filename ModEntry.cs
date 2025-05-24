@@ -21,7 +21,7 @@ namespace UnifiedExperienceSystem
              new Keybind(SButton.LeftTrigger, SButton.RightTrigger)
          );
 
-
+        public int UpdateIntervalTicks { get; set; } = 6;
 
         public bool LuckSkillIsEnabled { get; set; } = false;
 
@@ -108,6 +108,19 @@ namespace UnifiedExperienceSystem
                 getValue: () => Config.ToggleMenuKeys,
                 setValue: value => Config.ToggleMenuKeys = value
             );
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => "EXP Interval Check",
+                tooltip: () => "Number of game ticks between experience checks (60 ticks = 1 second).\n" +
+                               "Default is 6 ticks = 0.1 seconds.",
+                getValue: () => Config.UpdateIntervalTicks,
+                setValue: value => Config.UpdateIntervalTicks = value,
+                min: 1,
+                max: 60,
+                interval: 1
+            );
+
 
             gmcm.AddBoolOption(
                 mod: ModManifest,

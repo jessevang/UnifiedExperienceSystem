@@ -20,7 +20,7 @@ namespace UnifiedExperienceSystem
         {
             if (!Context.IsWorldReady || !e.IsMultipleOf(60)) return;
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < Config.UpdateIntervalTicks; i++)
             {
                 int currentXP = Game1.player.experiencePoints[i];
                 int baseXP = startOfDayExp.GetValueOrDefault(i, currentXP);
