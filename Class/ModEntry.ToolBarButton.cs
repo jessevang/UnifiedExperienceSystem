@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -15,10 +16,10 @@ namespace UnifiedExperienceSystem
         {
             if (!Context.IsWorldReady) return;
 
-            //  Use uiViewport so position is not affected by UI scaling
-            skillButtonBounds = new Rectangle(Game1.uiViewport.Width / 2 - 500, Game1.uiViewport.Height - 100, 64, 64);
+            Rectangle finalButtonBounds = GetButtonBounds();
 
-            //  Draw brown menu-style box as button
+            Rectangle skillButtonBounds = GetButtonBoundsForUI();
+
             IClickableMenu.drawTextureBox(
                 b: e.SpriteBatch,
                 texture: Game1.menuTexture,
@@ -31,7 +32,8 @@ namespace UnifiedExperienceSystem
                 drawShadow: false
             );
 
-            //  Draw centered point number
+
+
             string pointText = SaveData.UnspentSkillPoints.ToString();
             Vector2 textSize = Game1.smallFont.MeasureString(pointText);
             Vector2 textPos = new Vector2(
@@ -39,15 +41,65 @@ namespace UnifiedExperienceSystem
                 skillButtonBounds.Center.Y - textSize.Y / 2
             );
             e.SpriteBatch.DrawString(Game1.smallFont, pointText, textPos, Color.Black);
+
+
         }
+
+
+        private Rectangle GetButtonBoundsForUI()
+        {
+            int baseButtonWidth = 64;
+            int baseButtonHeight = 64;
+            int baseMargin = 10;
+
+            float uiScale = Game1.options.uiScale;
+            int buttonWidth = (int)(baseButtonWidth * uiScale);
+            int buttonHeight = (int)(baseButtonHeight * uiScale);
+            int margin = (int)(baseMargin * uiScale);
+
+            int x = margin;
+            int y = Game1.uiViewport.Height - buttonHeight - margin;
+
+            return new Rectangle(x, y, buttonWidth, buttonHeight);
+        }
+
+
+
+        private Rectangle GetButtonBounds()
+        {
+
+            int baseButtonWidth = 64;
+            int baseButtonHeight = 64;
+            int baseMargin = 10;
+
+            int screenWidth = Game1.graphics.GraphicsDevice.Viewport.Width;
+            int screenHeight = Game1.graphics.GraphicsDevice.Viewport.Height;
+
+
+
+            float currentUiScale = Game1.options.uiScale;
+            float currentZoom = Game1.options.zoomLevel;
+
+            int buttonWidth = (int)(baseButtonWidth * currentUiScale * currentZoom);
+            int buttonHeight = (int)(baseButtonHeight * currentUiScale * currentZoom);
+            int margin = (int)(baseMargin * currentUiScale * currentZoom);
+
+            int x = margin;
+            int y = Game1.viewport.Height - buttonHeight - margin;
+
+            return new Rectangle(x, y, buttonWidth, buttonHeight);
+        }
+
 
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             if (!Context.IsWorldReady)
                 return;
 
-            //  Toggle menu with hotkey
-            if (e.Button == Config.ToggleMenuKey)
+
+
+
+            if (Config.ToggleMenuKeys.JustPressed())
             {
                 if (Game1.activeClickableMenu is SkillAllocationMenu)
                 {
@@ -59,23 +111,30 @@ namespace UnifiedExperienceSystem
                     Game1.activeClickableMenu = new SkillAllocationMenu(this);
                     Game1.playSound("bigSelect");
                 }
-
                 return;
             }
 
-            //  Match mouse input space to skillButtonBounds space (scale-aware)
-            float scale = Game1.options.uiScale;
-            int scaledMouseX = (int)(e.Cursor.ScreenPixels.X / scale);
-            int scaledMouseY = (int)(e.Cursor.ScreenPixels.Y / scale);
+
+            Rectangle skillButtonBounds = GetButtonBounds();
+            int mouseX = Game1.getMouseX();
+            int mouseY = Game1.getMouseY();
+            Monitor.Log($"Mouse (Click Check): {mouseX}, {mouseY} | Button Bounds (Click Check): {skillButtonBounds}", LogLevel.Debug);
+
+
 
             if (e.Button == SButton.MouseLeft &&
-                skillButtonBounds.Contains(scaledMouseX, scaledMouseY) &&
+                skillButtonBounds.Contains(mouseX, mouseY) &&
                 Game1.activeClickableMenu == null)
             {
                 Game1.activeClickableMenu = new SkillAllocationMenu(this);
                 Game1.playSound("bigSelect");
             }
+
         }
+
+        
+        
+
 
     }
 }

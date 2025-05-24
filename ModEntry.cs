@@ -1,11 +1,12 @@
 ﻿using GenericModConfigMenu;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Utilities;
 
 /* Unified Experience System - Core Logic
  * 1. Stores all skill XP at the start of the day.
  * 2. Per-tick monitoring to detect EXP gain in any skills
- * 3. Remove delta gained that exceeds start of day Exp and apply it to global EXP
+ * 3. Remove delta gained that exceeds start of day Exp from each skill and apply it to global EXP
  * 4. Dynamic UI generation for all skills (vanilla + modded)
  * 5. Skill point allocation updates skill's start of day EXP to reset base snapshot
 */
@@ -15,7 +16,13 @@ namespace UnifiedExperienceSystem
 {
     public class ModConfig
     {
-        public SButton ToggleMenuKey { get; set; } = SButton.F2;
+        public KeybindList ToggleMenuKeys { get; set; } = new(
+             new Keybind(SButton.F2),
+             new Keybind(SButton.LeftTrigger, SButton.RightTrigger)
+         );
+
+
+
         public bool LuckSkillIsEnabled { get; set; } = false;
 
     }
@@ -73,7 +80,7 @@ namespace UnifiedExperienceSystem
         
         private void LoadSaveData()
         {
-            //Loads global exp + points, if it doesn't exist, creates them with value of 0
+
             SaveData = Helper.Data.ReadSaveData<SaveData>("PlayerExpData") ?? new SaveData();
         }
 
@@ -94,12 +101,12 @@ namespace UnifiedExperienceSystem
                 save: () => Helper.WriteConfig(Config)
             );
 
-            gmcm.AddKeybind(
+            gmcm.AddKeybindList(
                 mod: ModManifest,
-                name: () => "Toggle Menu Hotkey",
-                tooltip: () => "Which key opens the Unified Experience menu",
-                getValue: () => Config.ToggleMenuKey,
-                setValue: value => Config.ToggleMenuKey = value
+                name: () => "Toggle Menu Hotkeys",
+                tooltip: () => "Keys that open the Unified Experience menu",
+                getValue: () => Config.ToggleMenuKeys,
+                setValue: value => Config.ToggleMenuKeys = value
             );
 
             gmcm.AddBoolOption(
