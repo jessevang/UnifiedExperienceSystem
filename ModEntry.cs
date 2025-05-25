@@ -50,6 +50,20 @@ namespace UnifiedExperienceSystem
             helper.Events.Display.RenderedHud += OnRenderedHud;
             helper.Events.Input.ButtonPressed += OnButtonPressed;
 
+
+        }
+
+        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+        {
+            RegisterGMCM();
+            RegisterSpaceCore();
+
+
+        }
+
+        private void RegisterSpaceCore()
+        {
+            //registers Spacecore if it's on
             if (Helper.ModRegistry.IsLoaded("spacechase0.SpaceCore"))
             {
                 spaceCoreApi = Helper.ModRegistry.GetApi<ISpaceCoreApi>("spacechase0.SpaceCore");
@@ -57,11 +71,6 @@ namespace UnifiedExperienceSystem
                     ? "SpaceCore API loaded successfully."
                     : "Failed to load SpaceCore API.", LogLevel.Debug);
             }
-        }
-
-        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
-        {
-            RegisterGMCM();
         }
 
         private string GetVanillaSkillName(int index)
@@ -141,6 +150,7 @@ namespace UnifiedExperienceSystem
         {
             var result = new List<SkillEntry>();
 
+            // 1. Vanilla skills
             for (int i = 0; i <= 5; i++)
             {
                 result.Add(new SkillEntry
@@ -151,21 +161,31 @@ namespace UnifiedExperienceSystem
                 });
             }
 
+            // 2. Custom skills from SpaceCore
             if (spaceCoreApi != null)
             {
                 foreach (var skillId in spaceCoreApi.GetCustomSkills())
                 {
+
+                    //cleans up skill display name before adding it
+                    string friendlyName = skillId.Split('.').Last();
+                    friendlyName = char.ToUpper(friendlyName[0]) + friendlyName.Substring(1); 
                     result.Add(new SkillEntry
                     {
                         Id = skillId,
-                        DisplayName = skillId, // or use a prettier display name
+                        DisplayName = friendlyName,
                         IsVanilla = false
                     });
                 }
             }
 
+            //used to add fake skills for testing UI
+            /*for (int i = 0; i < 20; i++)
+                result.Add(new SkillEntry { Id = $"TestSkill{i}", DisplayName = $"Test Skill {i}", IsVanilla = false });
+            */
             return result;
         }
+
 
         public int GetExperience(Farmer farmer, SkillEntry skill)
         {
