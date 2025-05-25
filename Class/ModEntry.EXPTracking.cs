@@ -1,38 +1,63 @@
 ﻿using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using System.Collections.Generic;
 
 namespace UnifiedExperienceSystem
 {
     public partial class ModEntry
     {
+
         private void OnDayStarted(object sender, DayStartedEventArgs e)
         {
             startOfDayExp.Clear();
-            for (int i = 0; i < 6; i++)
+            skillList = LoadAllSkills();
+
+            foreach (var skill in skillList)
             {
-                int xp = Game1.player.experiencePoints[i];
-                startOfDayExp[i] = xp;
+                int xp = GetExperience(Game1.player, skill);
+                startOfDayExp[skill.Id] = xp;
             }
         }
 
         private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
         {
-            if (!Context.IsWorldReady || !e.IsMultipleOf(60)) return;
+            if (!Context.IsWorldReady || !e.IsMultipleOf((uint)Config.UpdateIntervalTicks))
+                return;
 
-            for (int i = 0; i < Config.UpdateIntervalTicks; i++)
+
+            foreach (var skill in skillList)
             {
-                int currentXP = Game1.player.experiencePoints[i];
-                int baseXP = startOfDayExp.GetValueOrDefault(i, currentXP);
+                int currentXP = GetExperience(Game1.player, skill);
+                int baseXP = startOfDayExp.GetValueOrDefault(skill.Id, currentXP);
                 int delta = currentXP - baseXP;
 
                 if (delta > 0)
                 {
-                    Game1.player.experiencePoints[i] = baseXP;
+                    // Subtract delta from the skill
+                    if (skill.IsVanilla)
+                    {
+                        Game1.player.experiencePoints[int.Parse(skill.Id)] = baseXP;
+                    }
+                    else if (spaceCoreApi != null)
+                    {
+                        spaceCoreApi.AddExperienceForCustomSkill(Game1.player, skill.Id, -delta);
+                    }
+
+                    // Add to global EXP
                     SaveData.GlobalEXP += delta;
-                    startOfDayExp[i] = baseXP;
+
+                    // Update snapshot to base value
+                    startOfDayExp[skill.Id] = baseXP;
+
+                    if (Config.DebugMode)
+                    {
+                        Monitor.Log($"[UnifiedEXP] Gained {delta} EXP in skill '{skill.DisplayName}' → transferred to global pool. New total: {SaveData.GlobalEXP}", LogLevel.Debug);
+                    }
                 }
             }
+
+
 
             while (SaveData.GlobalEXP >= EXP_PER_POINT)
             {
@@ -41,12 +66,16 @@ namespace UnifiedExperienceSystem
             }
         }
 
-        public void AllocateSkillPoint(int skillIndex)
+        public void AllocateSkillPoint(string skillId)
         {
-            if (SaveData.UnspentSkillPoints <= 0 || skillIndex < 0 || skillIndex >= 6) return;
+            if (SaveData.UnspentSkillPoints <= 0) return;
 
-            Game1.player.gainExperience(skillIndex, EXP_PER_POINT);
-            startOfDayExp[skillIndex] = Game1.player.experiencePoints[skillIndex];
+            var skill = skillList.Find(s => s.Id == skillId);
+            if (skill == null)
+                return;
+
+            AddExperience(Game1.player, skill, EXP_PER_POINT);
+            startOfDayExp[skill.Id] = GetExperience(Game1.player, skill);
             SaveData.UnspentSkillPoints--;
         }
     }

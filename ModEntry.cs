@@ -2,15 +2,8 @@
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
-
-/* Unified Experience System - Core Logic
- * 1. Stores all skill XP at the start of the day.
- * 2. Per-tick monitoring to detect EXP gain in any skills
- * 3. Remove delta gained that exceeds start of day Exp from each skill and apply it to global EXP
- * 4. Dynamic UI generation for all skills (vanilla + modded)
- * 5. Skill point allocation updates skill's start of day EXP to reset base snapshot
-*/
-
+using StardewValley;
+using System.Collections.Generic;
 
 namespace UnifiedExperienceSystem
 {
@@ -24,18 +17,26 @@ namespace UnifiedExperienceSystem
         public int UpdateIntervalTicks { get; set; } = 6;
 
         public bool LuckSkillIsEnabled { get; set; } = false;
-
+        public bool DebugMode { get; set; } = false;
     }
 
+    public class SkillEntry
+    {
+        public string Id { get; set; }
+        public string DisplayName { get; set; }
+        public bool IsVanilla { get; set; }
+    }
 
     public partial class ModEntry : Mod
     {
+        private ISpaceCoreApi spaceCoreApi;
+
         public int EXP_PER_POINT = 100;
         public SaveData SaveData { get; private set; } = new SaveData();
-
         public ModConfig Config { get; private set; }
+        public Dictionary<string, int> startOfDayExp = new();
+        private List<SkillEntry> skillList = new();
 
-        public Dictionary<int, int> startOfDayExp = new();
 
         public override void Entry(IModHelper helper)
         {
@@ -44,43 +45,41 @@ namespace UnifiedExperienceSystem
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
             helper.Events.GameLoop.SaveLoaded += (s, e) => LoadSaveData();
             helper.Events.GameLoop.DayEnding += (s, e) => SaveToFile();
-
             helper.Events.GameLoop.DayStarted += OnDayStarted;
             helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
             helper.Events.Display.RenderedHud += OnRenderedHud;
             helper.Events.Input.ButtonPressed += OnButtonPressed;
-           
-        }
 
+            if (Helper.ModRegistry.IsLoaded("spacechase0.SpaceCore"))
+            {
+                spaceCoreApi = Helper.ModRegistry.GetApi<ISpaceCoreApi>("spacechase0.SpaceCore");
+                Monitor.Log(spaceCoreApi != null
+                    ? "SpaceCore API loaded successfully."
+                    : "Failed to load SpaceCore API.", LogLevel.Debug);
+            }
+        }
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             RegisterGMCM();
         }
-        public string GetSkillName(int index)
+
+        private string GetVanillaSkillName(int index)
         {
-        
-                return index switch
-                {
-                    0 => "Farming",
-                    1 => "Fishing",
-                    2 => "Foraging",
-                    3 => "Mining",
-                    4 => "Combat",
-                    5 => "Luck",
-                    _ => "Unknown"
-                };
-            
-
-
-            
-           
+            return index switch
+            {
+                0 => "Farming",
+                1 => "Fishing",
+                2 => "Foraging",
+                3 => "Mining",
+                4 => "Combat",
+                5 => "Luck",
+                _ => "Unknown"
+            };
         }
 
-        
         private void LoadSaveData()
         {
-
             SaveData = Helper.Data.ReadSaveData<SaveData>("PlayerExpData") ?? new SaveData();
         }
 
@@ -112,15 +111,13 @@ namespace UnifiedExperienceSystem
             gmcm.AddNumberOption(
                 mod: ModManifest,
                 name: () => "EXP Interval Check",
-                tooltip: () => "Number of game ticks between experience checks (60 ticks = 1 second).\n" +
-                               "Default is 6 ticks = 0.1 seconds.",
+                tooltip: () => "Number of game ticks between experience checks (60 ticks = 1 second).\nDefault is 6 ticks = 0.1 seconds.",
                 getValue: () => Config.UpdateIntervalTicks,
                 setValue: value => Config.UpdateIntervalTicks = value,
                 min: 1,
                 max: 60,
                 interval: 1
             );
-
 
             gmcm.AddBoolOption(
                 mod: ModManifest,
@@ -129,9 +126,75 @@ namespace UnifiedExperienceSystem
                 getValue: () => Config.LuckSkillIsEnabled,
                 setValue: value => Config.LuckSkillIsEnabled = value
             );
+            
+            gmcm.AddBoolOption(
+                mod: ModManifest,
+                name: () => "Enable Debug Logging",
+                tooltip: () => "Enables detailed logging for skill EXP changes, point allocation, and skill tracking.",
+                getValue: () => Config.DebugMode,
+                setValue: value => Config.DebugMode = value
+            );
+
         }
+
+        public List<SkillEntry> LoadAllSkills()
+        {
+            var result = new List<SkillEntry>();
+
+            for (int i = 0; i <= 5; i++)
+            {
+                result.Add(new SkillEntry
+                {
+                    Id = i.ToString(),
+                    DisplayName = GetVanillaSkillName(i),
+                    IsVanilla = true
+                });
+            }
+
+            if (spaceCoreApi != null)
+            {
+                foreach (var skillId in spaceCoreApi.GetCustomSkills())
+                {
+                    result.Add(new SkillEntry
+                    {
+                        Id = skillId,
+                        DisplayName = skillId, // or use a prettier display name
+                        IsVanilla = false
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        public int GetExperience(Farmer farmer, SkillEntry skill)
+        {
+            if (skill.IsVanilla)
+                return farmer.experiencePoints[int.Parse(skill.Id)];
+            else if (spaceCoreApi != null)
+                return spaceCoreApi.GetExperienceForCustomSkill(farmer, skill.Id);
+
+            return 0;
+        }
+
+        public void AddExperience(Farmer farmer, SkillEntry skill, int amount)
+        {
+            if (skill.IsVanilla)
+                farmer.gainExperience(int.Parse(skill.Id), amount);
+            else if (spaceCoreApi != null)
+                spaceCoreApi.AddExperienceForCustomSkill(farmer, skill.Id, amount);
+        }
+
+        public int GetSkillLevel(Farmer farmer, SkillEntry skill)
+        {
+            if (skill.IsVanilla)
+                return farmer.GetSkillLevel(int.Parse(skill.Id));
+            else if (spaceCoreApi != null)
+                return spaceCoreApi.GetLevelForCustomSkill(farmer, skill.Id);
+
+            return 0;
+        }
+
 
     }
 }
-
-

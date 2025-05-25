@@ -118,7 +118,7 @@ namespace UnifiedExperienceSystem
             Rectangle skillButtonBounds = GetButtonBounds();
             int mouseX = Game1.getMouseX();
             int mouseY = Game1.getMouseY();
-            Monitor.Log($"Mouse (Click Check): {mouseX}, {mouseY} | Button Bounds (Click Check): {skillButtonBounds}", LogLevel.Debug);
+            //Monitor.Log($"Mouse (Click Check): {mouseX}, {mouseY} | Button Bounds (Click Check): {skillButtonBounds}", LogLevel.Debug);
 
 
 
