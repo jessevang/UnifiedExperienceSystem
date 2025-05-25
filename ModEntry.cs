@@ -180,9 +180,10 @@ namespace UnifiedExperienceSystem
             }
 
             //used to add fake skills for testing UI
-            /*for (int i = 0; i < 20; i++)
+           /* for (int i = 0; i < 20; i++)
                 result.Add(new SkillEntry { Id = $"TestSkill{i}", DisplayName = $"Test Skill {i}", IsVanilla = false });
-            */
+           */
+            
             return result;
         }
 
