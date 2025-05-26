@@ -43,6 +43,7 @@ namespace UnifiedExperienceSystem
             {
                 if (!Game1.player.newLevels.Contains(new Point(skillIndex, level)))
                     Game1.player.newLevels.Add(new Point(skillIndex, level));
+
             }
         }
 
@@ -97,7 +98,7 @@ namespace UnifiedExperienceSystem
 
 
 
-                        if (skill.IsVanilla && int.TryParse(skill.Id, out int skillIndex))
+                        if ((skill.IsVanilla || !skill.IsVanilla) && int.TryParse(skill.Id, out int skillIndex))
                         {
                             Game1.player.experiencePoints[skillIndex] = baseXP;
 
@@ -155,7 +156,7 @@ namespace UnifiedExperienceSystem
             int newLevel = GetSkillLevel(Game1.player, skill);
 
             // Track level-ups for the nightly level-up menu
-            if (skill.IsVanilla && int.TryParse(skill.Id, out int index))
+            if ((skill.IsVanilla||!skill.IsVanilla) && int.TryParse(skill.Id, out int index))
             {
                 for (int i = oldLevel + 1; i <= newLevel; i++)
                 {

@@ -99,6 +99,7 @@ namespace UnifiedExperienceSystem
 
 
             //Testing adding exp to see if skill delevels adds 100 exp to all skill
+           /*
             if (e.Button == SButton.F10) 
             {
                 if (!Context.IsWorldReady || skillList == null || skillList.Count == 0)
@@ -120,9 +121,8 @@ namespace UnifiedExperienceSystem
                 }
             }
 
+            */
 
-            if (!Config.ShowSkillPointButton)
-                return;
 
             if (Config.ToggleMenuKeys.JustPressed())
             {
