@@ -1,4 +1,5 @@
 ﻿using GenericModConfigMenu;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -13,9 +14,8 @@ namespace UnifiedExperienceSystem
              new Keybind(SButton.F2),
              new Keybind(SButton.LeftTrigger, SButton.RightTrigger)
          );
-
+        public bool ShowSkillPointButton { get; set; } = true;
         public int UpdateIntervalTicks { get; set; } = 6;
-
         public bool LuckSkillIsEnabled { get; set; } = false;
         public bool DebugMode { get; set; } = false;
     }
@@ -35,7 +35,11 @@ namespace UnifiedExperienceSystem
         public SaveData SaveData { get; private set; } = new SaveData();
         public ModConfig Config { get; private set; }
         public Dictionary<string, int> startOfDayExp = new();
+        private Dictionary<string, int> startOfDayLevel = new();
         private List<SkillEntry> skillList = new();
+        private readonly HashSet<(int skillIndex, int level)> manuallyAllocatedLevels = new();
+
+
 
 
         public override void Entry(IModHelper helper)
@@ -115,6 +119,14 @@ namespace UnifiedExperienceSystem
                 tooltip: () => "Keys that open the Unified Experience menu",
                 getValue: () => Config.ToggleMenuKeys,
                 setValue: value => Config.ToggleMenuKeys = value
+            );
+
+            gmcm.AddBoolOption(
+                mod: ModManifest,
+                name: () => "Show Skill Point Button",
+                tooltip: () => "Whether to display the skill button on the HUD toolbar.",
+                getValue: () => Config.ShowSkillPointButton,
+                setValue: value => Config.ShowSkillPointButton = value
             );
 
             gmcm.AddNumberOption(
@@ -206,6 +218,8 @@ namespace UnifiedExperienceSystem
                 spaceCoreApi.AddExperienceForCustomSkill(farmer, skill.Id, amount);
         }
 
+
+
         public int GetSkillLevel(Farmer farmer, SkillEntry skill)
         {
             if (skill.IsVanilla)
@@ -215,6 +229,9 @@ namespace UnifiedExperienceSystem
 
             return 0;
         }
+
+
+
 
 
     }

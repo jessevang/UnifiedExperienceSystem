@@ -14,7 +14,7 @@ namespace UnifiedExperienceSystem
 
         private void OnRenderedHud(object sender, RenderedHudEventArgs e)
         {
-            if (!Context.IsWorldReady) return;
+            if (!Context.IsWorldReady || !Config.ShowSkillPointButton) return;
 
             Rectangle finalButtonBounds = GetButtonBounds();
 
@@ -98,6 +98,31 @@ namespace UnifiedExperienceSystem
 
 
 
+            //Testing adding exp to see if skill delevels adds 100 exp to all skill
+            if (e.Button == SButton.F10) 
+            {
+                if (!Context.IsWorldReady || skillList == null || skillList.Count == 0)
+                    return;
+
+                foreach (var skill in skillList)
+                {
+                    if (skill.IsVanilla)
+                    {
+                        int skillIndex = int.Parse(skill.Id);
+                        Game1.player.gainExperience(skillIndex, 1000);
+                        Monitor.Log($"[DEBUG] Gave 1000 XP to vanilla skill '{skill.DisplayName}'", LogLevel.Debug);
+                    }
+                    else if (spaceCoreApi != null)
+                    {
+                        spaceCoreApi.AddExperienceForCustomSkill(Game1.player, skill.Id, 1000);
+                        Monitor.Log($"[DEBUG] Gave 1000 XP to custom skill '{skill.DisplayName}' (ID: {skill.Id})", LogLevel.Debug);
+                    }
+                }
+            }
+
+
+            if (!Config.ShowSkillPointButton)
+                return;
 
             if (Config.ToggleMenuKeys.JustPressed())
             {
@@ -114,13 +139,15 @@ namespace UnifiedExperienceSystem
                 return;
             }
 
+            if (!Config.ShowSkillPointButton)
+                return;
 
             Rectangle skillButtonBounds = GetButtonBounds();
             int mouseX = Game1.getMouseX();
             int mouseY = Game1.getMouseY();
             //Monitor.Log($"Mouse (Click Check): {mouseX}, {mouseY} | Button Bounds (Click Check): {skillButtonBounds}", LogLevel.Debug);
 
-
+     
 
             if (e.Button == SButton.MouseLeft &&
                 skillButtonBounds.Contains(mouseX, mouseY) &&

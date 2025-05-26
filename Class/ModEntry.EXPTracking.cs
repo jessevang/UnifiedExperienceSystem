@@ -1,4 +1,6 @@
-﻿using StardewModdingAPI;
+﻿using Microsoft.Xna.Framework;
+using Netcode;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using System.Collections.Generic;
@@ -10,15 +12,40 @@ namespace UnifiedExperienceSystem
 
         private void OnDayStarted(object sender, DayStartedEventArgs e)
         {
+
             startOfDayExp.Clear();
+            startOfDayLevel.Clear();
+            manuallyAllocatedLevels.Clear();
             skillList = LoadAllSkills();
 
             foreach (var skill in skillList)
             {
                 int xp = GetExperience(Game1.player, skill);
                 startOfDayExp[skill.Id] = xp;
+
+                if (skill.IsVanilla)
+                { 
+                    startOfDayLevel[skill.Id] = Game1.player.GetUnmodifiedSkillLevel(int.Parse(skill.Id));
+                }
+
+                if (Config.DebugMode && skill.IsVanilla)
+                    Monitor.Log($"[DayStart] Skill '{skill.DisplayName}' start of the day EXP: {xp} Start Of the Day Level: {startOfDayLevel[skill.Id].ToString() }", LogLevel.Debug);
+                
+
             }
         }
+
+        private void OnDayEnding(object sender, DayEndingEventArgs e)
+        {
+
+            //sets the skill gained throughout the day so level up screen appears
+            foreach (var (skillIndex, level) in manuallyAllocatedLevels)
+            {
+                if (!Game1.player.newLevels.Contains(new Point(skillIndex, level)))
+                    Game1.player.newLevels.Add(new Point(skillIndex, level));
+            }
+        }
+
 
         private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
         {
@@ -29,36 +56,79 @@ namespace UnifiedExperienceSystem
             foreach (var skill in skillList)
             {
                 int currentXP = GetExperience(Game1.player, skill);
-                int baseXP = startOfDayExp.GetValueOrDefault(skill.Id, currentXP);
-                int delta = currentXP - baseXP;
+                int baseXP = startOfDayExp.GetValueOrDefault(skill.Id, -1);
+                int delta = 0;
+
+
+                if (currentXP > baseXP && baseXP !=-1)
+                {
+                    delta = currentXP - baseXP;
+                }
 
                 if (delta > 0)
                 {
-                    // Subtract delta from the skill
-                    if (skill.IsVanilla)
-                    {
-                        Game1.player.experiencePoints[int.Parse(skill.Id)] = baseXP;
-                    }
-                    else if (spaceCoreApi != null)
-                    {
-                        spaceCoreApi.AddExperienceForCustomSkill(Game1.player, skill.Id, -delta);
-                    }
-
-                    // Add to global EXP
+                    // Transfer delta to global pool
                     SaveData.GlobalEXP += delta;
 
-                    // Update snapshot to base value
-                    startOfDayExp[skill.Id] = baseXP;
 
-                    if (Config.DebugMode)
+                    if (skill.IsVanilla)
                     {
-                        Monitor.Log($"[UnifiedEXP] Gained {delta} EXP in skill '{skill.DisplayName}' → transferred to global pool. New total: {SaveData.GlobalEXP}", LogLevel.Debug);
+
+
+                       int expectedLevel = startOfDayLevel.GetValueOrDefault(skill.Id, -1);
+                        //setting level using Game1.player.setSkillLevel, so just manualling setting these levels back to 0
+                        if (expectedLevel >= 0)
+                        {
+                            if (skill.DisplayName.Equals("Farming") && Game1.player.farmingLevel.Get() > expectedLevel)
+                                Game1.player.farmingLevel.Set(expectedLevel);
+                            if (skill.DisplayName.Equals("Fishing") && Game1.player.fishingLevel.Get() > expectedLevel)
+                                Game1.player.fishingLevel.Set(expectedLevel);
+                            if (skill.DisplayName.Equals("Foraging") && Game1.player.foragingLevel.Get() > expectedLevel)
+                                Game1.player.foragingLevel.Set(expectedLevel);
+                            if (skill.DisplayName.Equals("Mining") && Game1.player.miningLevel.Get() > expectedLevel)
+                                Game1.player.miningLevel.Set(expectedLevel);
+                            if (skill.DisplayName.Equals("Combat") && Game1.player.combatLevel.Get() > expectedLevel)
+                                Game1.player.combatLevel.Set(expectedLevel);
+                            if (skill.DisplayName.Equals("Luck") && Game1.player.luckLevel.Get() > expectedLevel)
+                                Game1.player.luckLevel.Set(expectedLevel);
+                        }
+
+                        
+
+
+
+                        if (skill.IsVanilla && int.TryParse(skill.Id, out int skillIndex))
+                        {
+                            Game1.player.experiencePoints[skillIndex] = baseXP;
+
+                            //used to clear end of the night menu screens
+                            for (int i = Game1.player.newLevels.Count - 1; i >= 0; i--)
+                            {
+                                if (Game1.player.newLevels[i].X == skillIndex)
+                                {
+                                    Game1.player.newLevels.RemoveAt(i);
+                                   
+                                }
+                            }
+
+                        }
+                            
+
                     }
+                    else if (!skill.IsVanilla && spaceCoreApi != null)
+                    {
+
+                        spaceCoreApi.AddExperienceForCustomSkill(Game1.player, skill.Id, -delta);
+
+                    }
+
+                    
+                    
+                      
                 }
             }
 
-
-
+            // Apply EXP → Skill Point conversion 
             while (SaveData.GlobalEXP >= EXP_PER_POINT)
             {
                 SaveData.GlobalEXP -= EXP_PER_POINT;
@@ -66,17 +136,41 @@ namespace UnifiedExperienceSystem
             }
         }
 
+
+
+
         public void AllocateSkillPoint(string skillId)
         {
-            if (SaveData.UnspentSkillPoints <= 0) return;
+            if (SaveData.UnspentSkillPoints <= 0)
+                return;
 
             var skill = skillList.Find(s => s.Id == skillId);
             if (skill == null)
                 return;
 
-            AddExperience(Game1.player, skill, EXP_PER_POINT);
+            int oldLevel = GetSkillLevel(Game1.player, skill);
+
+            AddExperience(Game1.player, skill, EXP_PER_POINT); // handles both vanilla + spacecore
+
+            int newLevel = GetSkillLevel(Game1.player, skill);
+
+            // Track level-ups for the nightly level-up menu
+            if (skill.IsVanilla && int.TryParse(skill.Id, out int index))
+            {
+                for (int i = oldLevel + 1; i <= newLevel; i++)
+                {
+                    manuallyAllocatedLevels.Add((index, i));
+                }
+            }
+
+            // Update tracking for EXP and level
             startOfDayExp[skill.Id] = GetExperience(Game1.player, skill);
+            startOfDayLevel[skill.Id] = newLevel;
             SaveData.UnspentSkillPoints--;
         }
+
+
+
+
     }
 }
