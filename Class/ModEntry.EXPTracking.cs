@@ -1,10 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Netcode;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Buildings;
-using System.Collections.Generic;
+
 
 namespace UnifiedExperienceSystem
 {
@@ -59,7 +57,6 @@ namespace UnifiedExperienceSystem
                 int currentXP = GetExperience(Game1.player, skill);
                 int baseXP = startOfDayExp.GetValueOrDefault(skill.Id, -1);
                 int delta = 0;
-
 
                 if (currentXP > baseXP && baseXP !=-1)
                 {

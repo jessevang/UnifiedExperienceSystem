@@ -1,10 +1,8 @@
 ﻿using GenericModConfigMenu;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using System.Collections.Generic;
 
 namespace UnifiedExperienceSystem
 {
@@ -41,8 +39,6 @@ namespace UnifiedExperienceSystem
     public partial class ModEntry : Mod
     {
         private ISpaceCoreApi spaceCoreApi;
-        private int suppressUpdateTicks = 0;
-
         public int EXP_PER_POINT = 100;
         public SaveData SaveData { get; private set; } = new SaveData();
         public ModConfig Config { get; private set; }
