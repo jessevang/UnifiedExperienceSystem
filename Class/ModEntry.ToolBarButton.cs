@@ -98,7 +98,7 @@ namespace UnifiedExperienceSystem
 
 
 
-            //Testing adding exp to see if skill delevels adds 100 exp to all skill
+            //Used for testing for adding exp to see if skill delevel  adds XXXXX exp to all skill
            /*
             if (e.Button == SButton.F10) 
             {

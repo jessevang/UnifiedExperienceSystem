@@ -8,6 +8,17 @@ using System.Collections.Generic;
 
 namespace UnifiedExperienceSystem
 {
+
+    /*
+     * Unified Experience System Mod - Summary
+     * 
+     * 1. Replaces individual skill EXP gain with a shared global experience pool.
+     * 2. Tracks skill EXP and levels (vanilla + SpaceCore) at the start of each day.
+     * 3. Intercepts newly gained EXP during gameplay for vanilla skills, transfers it to the global pool.
+     * 4. Provides a custom UI to allocate EXP points manually to any skill (allocation is permanent).
+     * 5. Suppresses the default level-up screen at the end of the day by detecting level gains and clearing them.(currently only Vanilla is being done as spacecore has no API)
+     */
+
     public class ModConfig
     {
         public KeybindList ToggleMenuKeys { get; set; } = new(
@@ -30,6 +41,7 @@ namespace UnifiedExperienceSystem
     public partial class ModEntry : Mod
     {
         private ISpaceCoreApi spaceCoreApi;
+        private int suppressUpdateTicks = 0;
 
         public int EXP_PER_POINT = 100;
         public SaveData SaveData { get; private set; } = new SaveData();
@@ -212,11 +224,54 @@ namespace UnifiedExperienceSystem
 
         public void AddExperience(Farmer farmer, SkillEntry skill, int amount)
         {
+            int before = GetExperience(farmer, skill);
+
             if (skill.IsVanilla)
+            {
                 farmer.gainExperience(int.Parse(skill.Id), amount);
+
+                int after = GetExperience(farmer, skill);
+                int actualGained = after - before;
+
+                if (actualGained > amount)
+                {
+                    
+                    SetExperience(farmer, skill, before + amount);
+                }
+            }
             else if (spaceCoreApi != null)
+            {
                 spaceCoreApi.AddExperienceForCustomSkill(farmer, skill.Id, amount);
+            }
         }
+
+
+        //Manually sets EXP for Vanilla Skills if adding 100 and 200 was added for some reason.
+        public void SetExperience(Farmer farmer, SkillEntry skill, int amount)
+        {
+            if (skill.IsVanilla)
+            {
+                int skillIndex = int.Parse(skill.Id);
+
+                amount = Math.Max(0, amount);
+
+                if (farmer.experiencePoints.Count > skillIndex)
+                    farmer.experiencePoints[skillIndex] = amount;
+                else
+                {
+
+                    while (farmer.experiencePoints.Count <= skillIndex)
+                        farmer.experiencePoints.Add(0);
+
+                    farmer.experiencePoints[skillIndex] = amount;
+                }
+            }
+
+        }
+
+
+
+
 
 
 

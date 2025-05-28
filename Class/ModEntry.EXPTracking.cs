@@ -54,13 +54,6 @@ namespace UnifiedExperienceSystem
             if (!Context.IsWorldReady || !e.IsMultipleOf((uint)Config.UpdateIntervalTicks))
                 return;
 
-
-            //Added to pause exp checks when user is is selecting what skill to add EXP to, this is to prevent race conditions that sometimes givex 200 exp instead of 100exp.
-            if (Game1.activeClickableMenu is UnifiedExperienceSystem.SkillAllocationMenu)
-                return;
-
-
-
             foreach (var skill in skillList)
             {
                 int currentXP = GetExperience(Game1.player, skill);
@@ -75,7 +68,7 @@ namespace UnifiedExperienceSystem
 
                 if (delta > 0)
                 {
-                    // Transfer delta to global pool
+    
                     SaveData.GlobalEXP += delta;
 
 
@@ -109,7 +102,7 @@ namespace UnifiedExperienceSystem
                         {
                             Game1.player.experiencePoints[skillIndex] = baseXP;
 
-                            //used to clear end of the night menu screens
+                            
                             for (int i = Game1.player.newLevels.Count - 1; i >= 0; i--)
                             {
                                 if (Game1.player.newLevels[i].X == skillIndex)
@@ -160,9 +153,10 @@ namespace UnifiedExperienceSystem
 
             AddExperience(Game1.player, skill, EXP_PER_POINT); // handles both vanilla + spacecore
 
+
             int newLevel = GetSkillLevel(Game1.player, skill);
 
-            // Track level-ups for the nightly level-up menu
+            
             if ((skill.IsVanilla||!skill.IsVanilla) && int.TryParse(skill.Id, out int index))
             {
                 for (int i = oldLevel + 1; i <= newLevel; i++)
@@ -171,10 +165,16 @@ namespace UnifiedExperienceSystem
                 }
             }
 
-            // Update tracking for EXP and level
-            startOfDayExp[skill.Id] = GetExperience(Game1.player, skill);
+           
+            startOfDayExp[skill.Id] += EXP_PER_POINT;
             startOfDayLevel[skill.Id] = newLevel;
             SaveData.UnspentSkillPoints--;
+
+         
+
+
+
+
         }
 
 
