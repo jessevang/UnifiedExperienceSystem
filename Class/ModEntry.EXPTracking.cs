@@ -3,6 +3,7 @@ using Netcode;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Buildings;
 using System.Collections.Generic;
 
 namespace UnifiedExperienceSystem
@@ -52,6 +53,12 @@ namespace UnifiedExperienceSystem
         {
             if (!Context.IsWorldReady || !e.IsMultipleOf((uint)Config.UpdateIntervalTicks))
                 return;
+
+
+            //Added to pause exp checks when user is is selecting what skill to add EXP to, this is to prevent race conditions that sometimes givex 200 exp instead of 100exp.
+            if (Game1.activeClickableMenu is UnifiedExperienceSystem.SkillAllocationMenu)
+                return;
+
 
 
             foreach (var skill in skillList)
