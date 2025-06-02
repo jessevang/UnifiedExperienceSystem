@@ -20,14 +20,23 @@ namespace UnifiedExperienceSystem
     public class ModConfig
     {
         public KeybindList ToggleMenuKeys { get; set; } = new(
-             new Keybind(SButton.F2),
-             new Keybind(SButton.LeftTrigger, SButton.RightTrigger)
-         );
+            new Keybind(SButton.F2),
+            new Keybind(SButton.LeftTrigger, SButton.RightTrigger)
+        );
         public bool ShowSkillPointButton { get; set; } = true;
         public int UpdateIntervalTicks { get; set; } = 6;
         public bool LuckSkillIsEnabled { get; set; } = false;
         public bool DebugMode { get; set; } = false;
+
+        public int MenuWidth { get; set; } = 800;
+        public int MenuHeight { get; set; } = 600;
+        public int MenuPosX { get; set; } = -1; 
+        public int MenuPosY { get; set; } = -1;
+
+
+
     }
+
 
     public class SkillEntry
     {
@@ -46,6 +55,8 @@ namespace UnifiedExperienceSystem
         private Dictionary<string, int> startOfDayLevel = new();
         private List<SkillEntry> skillList = new();
         private readonly HashSet<(int skillIndex, int level)> manuallyAllocatedLevels = new();
+        private bool isAllocatingPoint = false;
+
 
 
 
@@ -61,6 +72,8 @@ namespace UnifiedExperienceSystem
             helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
             helper.Events.Display.RenderedHud += OnRenderedHud;
             helper.Events.Input.ButtonPressed += OnButtonPressed;
+
+
 
 
         }
@@ -163,6 +176,52 @@ namespace UnifiedExperienceSystem
                 getValue: () => Config.DebugMode,
                 setValue: value => Config.DebugMode = value
             );
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Menu Width",
+                tooltip: () => "Width of the skill menu",
+                getValue: () => Config.MenuWidth,
+                setValue: value => Config.MenuWidth = value,
+                min: 400,
+                max: 1600,
+                interval: 1
+            );
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Menu Height",
+                tooltip: () => "Height of the skill menu",
+                getValue: () => Config.MenuHeight,
+                setValue: value => Config.MenuHeight = value,
+                min: 300,
+                max: 1200,
+                interval: 1
+            );
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Menu X Position",
+                tooltip: () => "X offset in pixels from the left of the screen.",
+                getValue: () => Config.MenuPosX,
+                setValue: value => Config.MenuPosX = value,
+                min: -1,
+                max: 3000,
+                interval: 1
+            );
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Menu Y Position",
+                tooltip: () => "Y offset in pixels from the top of the screen.",
+                getValue: () => Config.MenuPosY,
+                setValue: value => Config.MenuPosY = value,
+                min: -1,
+                max: 2000,
+                interval: 1
+            );
+
+
 
         }
 

@@ -127,7 +127,7 @@ namespace UnifiedExperienceSystem
             }
 
             // Apply EXP → Skill Point conversion 
-            while (SaveData.GlobalEXP >= EXP_PER_POINT)
+            while (SaveData.GlobalEXP >= EXP_PER_POINT && isAllocatingPoint)
             {
                 SaveData.GlobalEXP -= EXP_PER_POINT;
                 SaveData.UnspentSkillPoints++;
@@ -142,37 +142,47 @@ namespace UnifiedExperienceSystem
             if (SaveData.UnspentSkillPoints <= 0)
                 return;
 
-            var skill = skillList.Find(s => s.Id == skillId);
-            if (skill == null)
-                return;
+            isAllocatingPoint = true;
 
-            int oldLevel = GetSkillLevel(Game1.player, skill);
-
-            AddExperience(Game1.player, skill, EXP_PER_POINT); // handles both vanilla + spacecore
-
-
-            int newLevel = GetSkillLevel(Game1.player, skill);
-
-            
-            if ((skill.IsVanilla||!skill.IsVanilla) && int.TryParse(skill.Id, out int index))
+            try
             {
-                for (int i = oldLevel + 1; i <= newLevel; i++)
+                var skill = skillList.Find(s => s.Id == skillId);
+                if (skill == null)
+                    return;
+
+                int oldLevel = GetSkillLevel(Game1.player, skill);
+
+                AddExperience(Game1.player, skill, EXP_PER_POINT);
+
+                int newLevel = GetSkillLevel(Game1.player, skill);
+
+                if (skill.IsVanilla && int.TryParse(skill.Id, out int index))
                 {
-                    manuallyAllocatedLevels.Add((index, i));
+                    for (int i = oldLevel + 1; i <= newLevel; i++)
+                    {
+                        manuallyAllocatedLevels.Add((index, i));
+                    }
                 }
+
+
+                foreach (var s in skillList)
+                {
+                    startOfDayExp[s.Id] = GetExperience(Game1.player, s);
+                    startOfDayLevel[s.Id] = GetSkillLevel(Game1.player, s);
+                }
+
+                SaveData.UnspentSkillPoints--;
+
+                if (Config.DebugMode)
+                    Monitor.Log($"Allocated EXP to {skill.DisplayName}. Level {oldLevel} -> {newLevel}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
             }
+            finally
+            {
 
-           
-            startOfDayExp[skill.Id] += EXP_PER_POINT;
-            startOfDayLevel[skill.Id] = newLevel;
-            SaveData.UnspentSkillPoints--;
-
-         
-
-
-
-
+                isAllocatingPoint = false;
+            }
         }
+
 
 
 

@@ -11,7 +11,7 @@ namespace UnifiedExperienceSystem
     {
         const int yOffset = 60;
         const int rowHeight = 60;
-        const int maxVisibleRows = 6;
+        const int maxVisibleRows = 5;
 
         private readonly ModEntry mod;
         private readonly List<SkillEntry> skillList;
@@ -23,7 +23,13 @@ namespace UnifiedExperienceSystem
         private bool isDragging = false;
 
         public SkillAllocationMenu(ModEntry mod)
-            : base(Game1.viewport.Width / 2 - 400, Game1.viewport.Height / 2 - 300, 800, 600, true)
+            : base(
+             mod.Config.MenuPosX >= 0 ? mod.Config.MenuPosX : Game1.viewport.Width / 2 - mod.Config.MenuWidth / 2,
+             mod.Config.MenuPosY >= 0 ? mod.Config.MenuPosY : Game1.viewport.Height / 2 - mod.Config.MenuHeight / 2,
+             mod.Config.MenuWidth,
+             mod.Config.MenuHeight,
+             true
+         )
         {
             this.mod = mod;
             this.skillList = mod.LoadAllSkills();
