@@ -30,8 +30,8 @@ namespace UnifiedExperienceSystem
 
         public int MenuWidth { get; set; } = 800;
         public int MenuHeight { get; set; } = 600;
-        public int MenuPosX { get; set; } = -1; 
-        public int MenuPosY { get; set; } = -1;
+        public int MenuPosX { get; set; } = 100; 
+        public int MenuPosY { get; set; } = 20;
 
 
 
@@ -72,11 +72,21 @@ namespace UnifiedExperienceSystem
             helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
             helper.Events.Display.RenderedHud += OnRenderedHud;
             helper.Events.Input.ButtonPressed += OnButtonPressed;
-
+            helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
 
 
 
         }
+
+
+        private void OnReturnedToTitle(object sender, ReturnedToTitleEventArgs e)
+        {
+            SaveData = new SaveData();
+
+            if (Config.DebugMode)
+                Monitor.Log("[UnifiedXP] Returned to title — SaveData cleared from memory.", LogLevel.Debug);
+        }
+
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
@@ -185,7 +195,7 @@ namespace UnifiedExperienceSystem
                 setValue: value => Config.MenuWidth = value,
                 min: 400,
                 max: 1600,
-                interval: 1
+                interval: 10
             );
 
             gmcm.AddNumberOption(
@@ -196,7 +206,7 @@ namespace UnifiedExperienceSystem
                 setValue: value => Config.MenuHeight = value,
                 min: 300,
                 max: 1200,
-                interval: 1
+                interval: 10
             );
 
             gmcm.AddNumberOption(
@@ -206,8 +216,8 @@ namespace UnifiedExperienceSystem
                 getValue: () => Config.MenuPosX,
                 setValue: value => Config.MenuPosX = value,
                 min: -1,
-                max: 3000,
-                interval: 1
+                max: 1000,
+                interval: 10
             );
 
             gmcm.AddNumberOption(
@@ -217,8 +227,8 @@ namespace UnifiedExperienceSystem
                 getValue: () => Config.MenuPosY,
                 setValue: value => Config.MenuPosY = value,
                 min: -1,
-                max: 2000,
-                interval: 1
+                max: 1000,
+                interval: 10
             );
 
 

@@ -58,24 +58,22 @@ namespace UnifiedExperienceSystem
                 int baseXP = startOfDayExp.GetValueOrDefault(skill.Id, -1);
                 int delta = 0;
 
-                if (currentXP > baseXP && baseXP !=-1)
+                if (currentXP > baseXP && baseXP != -1)
                 {
                     delta = currentXP - baseXP;
                 }
 
-
                 if (delta > 0)
                 {
-    
                     SaveData.GlobalEXP += delta;
 
+                    if (Config.DebugMode)
+                        Monitor.Log($"[EXP Transfer] {skill.DisplayName}: +{delta} EXP => GlobalEXP = {SaveData.GlobalEXP}", LogLevel.Debug);
 
                     if (skill.IsVanilla)
                     {
+                        int expectedLevel = startOfDayLevel.GetValueOrDefault(skill.Id, -1);
 
-
-                       int expectedLevel = startOfDayLevel.GetValueOrDefault(skill.Id, -1);
-                        //setting level using Game1.player.setSkillLevel, so just manualling setting these levels back to 0
                         if (expectedLevel >= 0)
                         {
                             if (skill.DisplayName.Equals("Farming") && Game1.player.farmingLevel.Get() > expectedLevel)
@@ -92,48 +90,42 @@ namespace UnifiedExperienceSystem
                                 Game1.player.luckLevel.Set(expectedLevel);
                         }
 
-                        
-
-
-
                         if ((skill.IsVanilla || !skill.IsVanilla) && int.TryParse(skill.Id, out int skillIndex))
                         {
                             Game1.player.experiencePoints[skillIndex] = baseXP;
 
-                            
                             for (int i = Game1.player.newLevels.Count - 1; i >= 0; i--)
                             {
                                 if (Game1.player.newLevels[i].X == skillIndex)
-                                {
                                     Game1.player.newLevels.RemoveAt(i);
-                                   
-                                }
                             }
 
+                            if (Config.DebugMode)
+                                Monitor.Log($"[EXP Revert] {skill.DisplayName} reset to {baseXP} EXP", LogLevel.Trace);
                         }
-                            
-
                     }
                     else if (!skill.IsVanilla && spaceCoreApi != null)
                     {
-
                         spaceCoreApi.AddExperienceForCustomSkill(Game1.player, skill.Id, -delta);
 
+                        if (Config.DebugMode)
+                            Monitor.Log($"[EXP Revert - Custom] {skill.DisplayName} reduced by {delta} EXP", LogLevel.Trace);
                     }
-
-                    
-                    
-                      
                 }
             }
 
-            
+            int pointsGained = 0;
             while (SaveData.GlobalEXP >= EXP_PER_POINT && !isAllocatingPoint)
             {
                 SaveData.GlobalEXP -= EXP_PER_POINT;
                 SaveData.UnspentSkillPoints++;
+                pointsGained++;
             }
+
+            if (pointsGained > 0 && Config.DebugMode)
+                Monitor.Log($"[Skill Point Conversion] {pointsGained} skill point(s) granted. Remaining GlobalEXP: {SaveData.GlobalEXP}. Total Unspent Points: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
         }
+
 
 
 
