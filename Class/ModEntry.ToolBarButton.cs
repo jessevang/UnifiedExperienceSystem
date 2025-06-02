@@ -9,6 +9,10 @@ namespace UnifiedExperienceSystem
     public partial class ModEntry
     {
         private Rectangle skillButtonBounds;
+        private bool isDraggingButton = false;
+        private Point dragOffset;
+        private Rectangle currentButtonBounds;
+
 
         private void OnRenderedHud(object sender, RenderedHudEventArgs e)
         {

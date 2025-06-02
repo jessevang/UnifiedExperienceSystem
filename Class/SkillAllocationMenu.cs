@@ -9,9 +9,11 @@ namespace UnifiedExperienceSystem
 {
     public class SkillAllocationMenu : IClickableMenu
     {
+
         const int yOffset = 60;
-        const int rowHeight = 60;
-        const int maxVisibleRows = 5;
+        private int rowHeight => mod.Config.SkillMenuRowSpacing;
+        private int maxVisibleRows => mod.Config.SkillMenuVisibleRows;
+
 
         private readonly ModEntry mod;
         private readonly List<SkillEntry> skillList;
@@ -21,6 +23,9 @@ namespace UnifiedExperienceSystem
         private Rectangle scrollThumb;
         private int scrollIndex = 0;
         private bool isDragging = false;
+
+        Texture2D emojiTexture = Game1.content.Load<Texture2D>("LooseSprites/Emojis");
+
 
         public SkillAllocationMenu(ModEntry mod)
             : base(
@@ -83,8 +88,15 @@ namespace UnifiedExperienceSystem
                 int y = yPositionOnScreen + 100 + yOffset + i * rowHeight;
                 SpriteText.drawString(b, $"{skill.DisplayName} (Lv {level}) — XP: {xp}", xPositionOnScreen + 50, y);
 
-                Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - 80, y, 48, 48);
-                b.Draw(Game1.mouseCursors, buttonBounds, new Rectangle(128, 256, 64, 64), Color.White);
+                Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - 120, y, 48, 48);
+                b.Draw(
+                    emojiTexture,
+                    new Rectangle(buttonBounds.X, buttonBounds.Y, buttonBounds.Width, buttonBounds.Height),
+                    new Rectangle(108, 81, 9, 9), 
+                    Color.White
+                );
+
+
             }
 
             IClickableMenu.drawTextureBox(b, Game1.menuTexture, new Rectangle(403, 383, 6, 6), scrollBar.X, scrollBar.Y, scrollBar.Width, scrollBar.Height, Color.White);
@@ -116,7 +128,7 @@ namespace UnifiedExperienceSystem
             {
                 var skill = visibleSkills[i + scrollIndex];
                 int yOffsetPos = yPositionOnScreen + 100 + yOffset + i * rowHeight;
-                Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - 80, yOffsetPos, 48, 48);
+                Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - 120, yOffsetPos, 48, 48);
                 if (buttonBounds.Contains(x, y) && !skill.Id.StartsWith("Test"))
                 {
                     mod.AllocateSkillPoint(skill.Id);

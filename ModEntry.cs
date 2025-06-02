@@ -28,10 +28,13 @@ namespace UnifiedExperienceSystem
         public bool LuckSkillIsEnabled { get; set; } = false;
         public bool DebugMode { get; set; } = false;
 
-        public int MenuWidth { get; set; } = 800;
+        public int MenuWidth { get; set; } = 900;
         public int MenuHeight { get; set; } = 600;
         public int MenuPosX { get; set; } = 100; 
         public int MenuPosY { get; set; } = 20;
+        public int SkillMenuVisibleRows { get; set; } = 6;     
+        public int SkillMenuRowSpacing { get; set; } = 60;      
+
 
 
 
@@ -228,6 +231,28 @@ namespace UnifiedExperienceSystem
                 setValue: value => Config.MenuPosY = value,
                 min: -1,
                 max: 1000,
+                interval: 10
+            );
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Number Of Skills Displayed at a Time",
+                tooltip: () => "How many skill rows are visible before scrolling is needed.",
+                getValue: () => Config.SkillMenuVisibleRows,
+                setValue: value => Config.SkillMenuVisibleRows = value,
+                min: 1,
+                max: 20,
+                interval: 1
+            );
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Space Between Each Row",
+                tooltip: () => "The vertical space between each skill row. Used to help spread out the Add Buttons",
+                getValue: () => Config.SkillMenuRowSpacing,
+                setValue: value => Config.SkillMenuRowSpacing = value,
+                min: 30,
+                max: 240,
                 interval: 10
             );
 
