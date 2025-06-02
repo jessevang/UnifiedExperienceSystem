@@ -63,6 +63,7 @@ namespace UnifiedExperienceSystem
                     delta = currentXP - baseXP;
                 }
 
+
                 if (delta > 0)
                 {
     
@@ -126,8 +127,8 @@ namespace UnifiedExperienceSystem
                 }
             }
 
-            // Apply EXP → Skill Point conversion 
-            while (SaveData.GlobalEXP >= EXP_PER_POINT && isAllocatingPoint)
+            
+            while (SaveData.GlobalEXP >= EXP_PER_POINT && !isAllocatingPoint)
             {
                 SaveData.GlobalEXP -= EXP_PER_POINT;
                 SaveData.UnspentSkillPoints++;
