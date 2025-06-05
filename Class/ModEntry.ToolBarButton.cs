@@ -138,9 +138,10 @@ namespace UnifiedExperienceSystem
             OnReleaseClickButtonPosX = scaledX;
             OnReleaseClickButtonPosY = scaledY;
 
-            bool clicked = (OnMouseClickButtonPosX.HasValue && OnMouseClickButtonPosY.HasValue &&
-                            OnReleaseClickButtonPosX == OnMouseClickButtonPosX &&
-                            OnReleaseClickButtonPosY == OnMouseClickButtonPosY);
+            bool clicked = OnMouseClickButtonPosX.HasValue && OnMouseClickButtonPosY.HasValue &&
+                           Math.Abs(OnReleaseClickButtonPosX.Value - OnMouseClickButtonPosX.Value) <= 20 &&
+                           Math.Abs(OnReleaseClickButtonPosY.Value - OnMouseClickButtonPosY.Value) <= 20;
+
 
             Rectangle skillButtonBounds = GetButtonBoundsForUI(forClick: true);
 
@@ -148,6 +149,7 @@ namespace UnifiedExperienceSystem
             {
                 if (skillButtonBounds.Contains(scaledX, scaledY))
                 {
+                    Helper.Input.Suppress(SButton.MouseLeft);
                     if (Game1.activeClickableMenu is SkillAllocationMenu)
                     {
                         Game1.exitActiveMenu();

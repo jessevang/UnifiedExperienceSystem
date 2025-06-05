@@ -65,6 +65,7 @@ namespace UnifiedExperienceSystem
         public override void draw(SpriteBatch b)
         {
             Game1.drawDialogueBox(xPositionOnScreen, yPositionOnScreen, width, height, false, true);
+
             int titleY = yPositionOnScreen + 40 + yOffset;
             SpriteText.drawString(
                 b,
@@ -78,6 +79,8 @@ namespace UnifiedExperienceSystem
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
 
             int rowStartY = titleY + 100;
+            int buttonSize = Math.Min(rowHeight - 10, 64); 
+
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
                 var skill = visibleSkills[i + scrollIndex];
@@ -87,7 +90,7 @@ namespace UnifiedExperienceSystem
                 int y = rowStartY + i * rowHeight;
                 SpriteText.drawString(b, $"{skill.DisplayName} (Lv {level}) — XP: {xp}", xPositionOnScreen + 50, y);
 
-                Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - 120, y, 48, 48);
+                Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - buttonSize - 50, y, buttonSize, buttonSize);
                 b.Draw(
                     emojiTexture,
                     new Rectangle(buttonBounds.X, buttonBounds.Y, buttonBounds.Width, buttonBounds.Height),
@@ -107,8 +110,13 @@ namespace UnifiedExperienceSystem
             drawMouse(b);
         }
 
+
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
+            var visibleSkills = skillList.FindAll(s => s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled);
+            int maxScroll = visibleSkills.Count - maxVisibleRows;
+            scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
+
             if (upArrow.containsPoint(x, y))
             {
                 scrollIndex = Math.Max(0, scrollIndex - 1);
@@ -116,7 +124,6 @@ namespace UnifiedExperienceSystem
             }
             else if (downArrow.containsPoint(x, y))
             {
-                int maxScroll = skillList.FindAll(s => s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled).Count - maxVisibleRows;
                 scrollIndex = Math.Min(maxScroll, scrollIndex + 1);
                 Game1.playSound("shwip");
             }
@@ -127,16 +134,16 @@ namespace UnifiedExperienceSystem
                 Game1.playSound("bigDeSelect");
             }
 
-            var visibleSkills = skillList.FindAll(s => s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled);
-            int maxScrollIndex = Math.Max(0, visibleSkills.Count - maxVisibleRows);
-            scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScrollIndex);
+            int titleY = yPositionOnScreen + 40 + yOffset;
+            int rowStartY = titleY + 100;
+            int buttonSize = Math.Min(rowHeight - 10, 64);
 
-            int rowStartY = yPositionOnScreen + 120;
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
                 var skill = visibleSkills[i + scrollIndex];
                 int yOffsetPos = rowStartY + i * rowHeight;
-                Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - 120, yOffsetPos, 48, 48);
+                Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - buttonSize - 50, yOffsetPos, buttonSize, buttonSize);
+
                 if (buttonBounds.Contains(x, y) && !skill.Id.StartsWith("Test"))
                 {
                     mod.AllocateSkillPoint(skill.Id);
@@ -146,6 +153,7 @@ namespace UnifiedExperienceSystem
 
             base.receiveLeftClick(x, y, playSound);
         }
+
 
         public override void releaseLeftClick(int x, int y)
         {
