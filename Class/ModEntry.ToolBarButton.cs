@@ -17,12 +17,20 @@ namespace UnifiedExperienceSystem
         private int? OnReleaseClickButtonPosX = null;
         private int? OnReleaseClickButtonPosY = null;
 
+
+        private bool isHoldingButton = false;
+        private float holdTimer = 0f;
+        private const float HoldDelaySeconds = 1.0f;
+
+
         private void OnRenderedHud(object sender, RenderedHudEventArgs e)
         {
             if (!Context.IsWorldReady || !Config.ShowSkillPointButton)
                 return;
 
             Rectangle skillButtonBounds = GetButtonBoundsForUI();
+
+            Color buttonColor = isHoldingButton && holdTimer >= 0.25f ? Color.Green : Color.White;
 
             IClickableMenu.drawTextureBox(
                 b: e.SpriteBatch,
@@ -32,9 +40,10 @@ namespace UnifiedExperienceSystem
                 y: skillButtonBounds.Y,
                 width: skillButtonBounds.Width,
                 height: skillButtonBounds.Height,
-                color: Color.White,
+                color: buttonColor,
                 drawShadow: false
             );
+
 
             string pointText = SaveData.UnspentSkillPoints.ToString();
             Vector2 textSize = Game1.smallFont.MeasureString(pointText);
@@ -108,8 +117,11 @@ namespace UnifiedExperienceSystem
                     OnMouseClickButtonPosX = scaledX;
                     OnMouseClickButtonPosY = scaledY;
                     dragOffset = new Point(scaledX - bounds.X, scaledY - bounds.Y);
+                    isHoldingButton = true;
+                    holdTimer = 0f;
                 }
             }
+
         }
 
         private void OnButtonReleased(object sender, ButtonReleasedEventArgs e)
@@ -134,10 +146,18 @@ namespace UnifiedExperienceSystem
 
             if (clicked)
             {
-                if (skillButtonBounds.Contains(scaledX, scaledY) && Game1.activeClickableMenu == null)
+                if (skillButtonBounds.Contains(scaledX, scaledY))
                 {
-                    Game1.activeClickableMenu = new SkillAllocationMenu(this);
-                    Game1.playSound("bigSelect");
+                    if (Game1.activeClickableMenu is SkillAllocationMenu)
+                    {
+                        Game1.exitActiveMenu();
+                        Game1.playSound("bigDeSelect");
+                    }
+                    else if (Game1.activeClickableMenu == null)
+                    {
+                        Game1.activeClickableMenu = new SkillAllocationMenu(this);
+                        Game1.playSound("bigSelect");
+                    }
                 }
             }
             else
@@ -153,10 +173,15 @@ namespace UnifiedExperienceSystem
                 tempButtonPosY = null;
             }
 
+            isHoldingButton = false;
+            holdTimer = 0f;
             OnMouseClickButtonPosX = null;
             OnMouseClickButtonPosY = null;
             OnReleaseClickButtonPosX = null;
             OnReleaseClickButtonPosY = null;
         }
+
+
+
     }
 }

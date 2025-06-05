@@ -53,7 +53,16 @@ namespace UnifiedExperienceSystem
                 return;
 
             //use to update drawing the button being dragged
-            CheckButtonDragging();
+            if (isHoldingButton)
+            {
+                holdTimer += (float)Game1.currentGameTime.ElapsedGameTime.TotalSeconds;
+
+                if (holdTimer >= HoldDelaySeconds)
+                {
+                    CheckButtonDragging();
+                }
+            }
+
 
 
             if (!e.IsMultipleOf((uint)Config.UpdateIntervalTicks))

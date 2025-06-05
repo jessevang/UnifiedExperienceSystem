@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Menus;
+using System;
 
 namespace UnifiedExperienceSystem
 {
@@ -20,6 +21,10 @@ namespace UnifiedExperienceSystem
 
         private int scrollIndex = 0;
         private Texture2D emojiTexture = Game1.content.Load<Texture2D>("LooseSprites/Emojis");
+
+        private bool isHoldingButton = false;
+        private float holdStartTime = 0f;
+        private bool highlightButton = false;
 
         public SkillAllocationMenu(ModEntry mod)
             : base(
@@ -39,40 +44,40 @@ namespace UnifiedExperienceSystem
                 4f
             );
 
-            int arrowSize = (int)(32 * 1.5f);
-            int arrowX = xPositionOnScreen + width - arrowSize - 48;
-            int arrowYOffset = 75;
+            int arrowSize = 64; // doubled size
+            int centerY = yPositionOnScreen + height / 2;
+            int arrowX = xPositionOnScreen + width + 10;
 
             upArrow = new ClickableTextureComponent(
-                new Rectangle(arrowX, yPositionOnScreen + arrowYOffset + 40, arrowSize, arrowSize),
+                new Rectangle(arrowX, centerY - arrowSize - 8, arrowSize, arrowSize),
                 Game1.mouseCursors,
                 new Rectangle(421, 459, 11, 12),
-                3f
+                4f
             );
             downArrow = new ClickableTextureComponent(
-                new Rectangle(arrowX, upArrow.bounds.Bottom + 8, arrowSize, arrowSize),
+                new Rectangle(arrowX, centerY + 8, arrowSize, arrowSize),
                 Game1.mouseCursors,
                 new Rectangle(421, 472, 11, 12),
-                3f
+                4f
             );
         }
 
         public override void draw(SpriteBatch b)
         {
             Game1.drawDialogueBox(xPositionOnScreen, yPositionOnScreen, width, height, false, true);
-
+            int titleY = yPositionOnScreen + 40 + yOffset;
             SpriteText.drawString(
                 b,
                 $"Available Points: {mod.SaveData.UnspentSkillPoints}",
                 xPositionOnScreen + 50,
-                yPositionOnScreen + 40 + yOffset
+                titleY
             );
 
             var visibleSkills = skillList.FindAll(s => !s.IsVanilla || s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled);
             int maxScroll = Math.Max(0, visibleSkills.Count - maxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
 
-            int rowStartY = downArrow.bounds.Bottom + 20;
+            int rowStartY = titleY + 100;
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
                 var skill = visibleSkills[i + scrollIndex];
@@ -89,6 +94,11 @@ namespace UnifiedExperienceSystem
                     new Rectangle(108, 81, 9, 9),
                     Color.White
                 );
+            }
+
+            if (highlightButton)
+            {
+                b.Draw(Game1.staminaRect, closeButton.bounds, Color.Green * 0.3f);
             }
 
             upArrow.draw(b);
@@ -121,7 +131,7 @@ namespace UnifiedExperienceSystem
             int maxScrollIndex = Math.Max(0, visibleSkills.Count - maxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScrollIndex);
 
-            int rowStartY = downArrow.bounds.Bottom + 20;
+            int rowStartY = yPositionOnScreen + 120;
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
                 var skill = visibleSkills[i + scrollIndex];
@@ -136,6 +146,13 @@ namespace UnifiedExperienceSystem
 
             base.receiveLeftClick(x, y, playSound);
         }
+
+        public override void releaseLeftClick(int x, int y)
+        {
+
+            base.releaseLeftClick(x, y);
+        }
+
 
         public override void receiveScrollWheelAction(int direction)
         {
