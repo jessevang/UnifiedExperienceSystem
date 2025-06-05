@@ -88,8 +88,9 @@ namespace UnifiedExperienceSystem
 
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
-            if (!Context.IsWorldReady || !Config.ShowSkillPointButton)
+            if (!Context.IsWorldReady)
                 return;
+
 
             if (Config.ToggleMenuKeys.JustPressed())
             {
@@ -106,6 +107,10 @@ namespace UnifiedExperienceSystem
                 return;
             }
 
+
+            if (!Config.ShowSkillPointButton)
+                return;
+
             if (e.Button == SButton.MouseLeft)
             {
                 int scaledX = (int)(Game1.getMouseXRaw() / Game1.options.uiScale);
@@ -121,8 +126,8 @@ namespace UnifiedExperienceSystem
                     holdTimer = 0f;
                 }
             }
-
         }
+
 
         private void OnButtonReleased(object sender, ButtonReleasedEventArgs e)
         {
