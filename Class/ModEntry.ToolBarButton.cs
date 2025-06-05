@@ -8,9 +8,14 @@ namespace UnifiedExperienceSystem
 {
     public partial class ModEntry
     {
-        private Rectangle skillButtonBounds;
-        private bool isDraggingButton = false;
-        private Point dragOffset;
+        private Point dragOffset = Point.Zero;
+        private int? tempButtonPosX = null;
+        private int? tempButtonPosY = null;
+
+        private int? OnMouseClickButtonPosX = null;
+        private int? OnMouseClickButtonPosY = null;
+        private int? OnReleaseClickButtonPosX = null;
+        private int? OnReleaseClickButtonPosY = null;
 
         private void OnRenderedHud(object sender, RenderedHudEventArgs e)
         {
@@ -40,22 +45,36 @@ namespace UnifiedExperienceSystem
             e.SpriteBatch.DrawString(Game1.smallFont, pointText, textPos, Color.Black);
         }
 
-        private Rectangle GetButtonBoundsForUI()
+        private Rectangle GetButtonBoundsForUI(bool forClick = false)
         {
             int baseButtonWidth = 64;
             int baseButtonHeight = 64;
-            int baseMargin = 10;
-
             float uiScale = Game1.options.uiScale;
 
             int buttonWidth = (int)(baseButtonWidth * uiScale);
             int buttonHeight = (int)(baseButtonHeight * uiScale);
-            int margin = (int)(baseMargin * uiScale);
 
-            int x = margin;
-            int y = Game1.uiViewport.Height - buttonHeight - margin;
+            int logicalX = (forClick ? Config.ButtonPosX : tempButtonPosX ?? Config.ButtonPosX) ?? 10;
+            int logicalY = (forClick ? Config.ButtonPosY : tempButtonPosY ?? Config.ButtonPosY) ?? -10;
+
+            int x = (int)(logicalX * uiScale);
+            int y = logicalY >= 0
+                ? (int)(logicalY * uiScale)
+                : Game1.uiViewport.Height + (int)(logicalY * uiScale) - buttonHeight;
 
             return new Rectangle(x, y, buttonWidth, buttonHeight);
+        }
+
+        private void CheckButtonDragging()
+        {
+            if (OnMouseClickButtonPosX == null || OnMouseClickButtonPosY == null)
+                return;
+
+            int scaledX = (int)(Game1.getMouseXRaw() / Game1.options.uiScale);
+            int scaledY = (int)(Game1.getMouseYRaw() / Game1.options.uiScale);
+
+            tempButtonPosX = (int)((scaledX - dragOffset.X) / Game1.options.uiScale);
+            tempButtonPosY = (int)((scaledY - dragOffset.Y) / Game1.options.uiScale);
         }
 
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -78,20 +97,67 @@ namespace UnifiedExperienceSystem
                 return;
             }
 
-            if (e.Button != SButton.MouseLeft || Game1.activeClickableMenu != null)
+            if (e.Button == SButton.MouseLeft)
+            {
+                int scaledX = (int)(Game1.getMouseXRaw() / Game1.options.uiScale);
+                int scaledY = (int)(Game1.getMouseYRaw() / Game1.options.uiScale);
+
+                Rectangle bounds = GetButtonBoundsForUI();
+                if (bounds.Contains(scaledX, scaledY))
+                {
+                    OnMouseClickButtonPosX = scaledX;
+                    OnMouseClickButtonPosY = scaledY;
+                    dragOffset = new Point(scaledX - bounds.X, scaledY - bounds.Y);
+                }
+            }
+        }
+
+        private void OnButtonReleased(object sender, ButtonReleasedEventArgs e)
+        {
+            if (!Context.IsWorldReady || !Config.ShowSkillPointButton)
                 return;
 
+            if (e.Button != SButton.MouseLeft)
+                return;
 
-            int scaledMouseX = (int)(Game1.getMouseXRaw() / Game1.options.uiScale);
-            int scaledMouseY = (int)(Game1.getMouseYRaw() / Game1.options.uiScale);
+            int scaledX = (int)(Game1.getMouseXRaw() / Game1.options.uiScale);
+            int scaledY = (int)(Game1.getMouseYRaw() / Game1.options.uiScale);
 
-            Rectangle skillButtonBounds = GetButtonBoundsForUI();
+            OnReleaseClickButtonPosX = scaledX;
+            OnReleaseClickButtonPosY = scaledY;
 
-            if (skillButtonBounds.Contains(scaledMouseX, scaledMouseY))
+            bool clicked = (OnMouseClickButtonPosX.HasValue && OnMouseClickButtonPosY.HasValue &&
+                            OnReleaseClickButtonPosX == OnMouseClickButtonPosX &&
+                            OnReleaseClickButtonPosY == OnMouseClickButtonPosY);
+
+            Rectangle skillButtonBounds = GetButtonBoundsForUI(forClick: true);
+
+            if (clicked)
             {
-                Game1.activeClickableMenu = new SkillAllocationMenu(this);
-                Game1.playSound("bigSelect");
+                if (skillButtonBounds.Contains(scaledX, scaledY) && Game1.activeClickableMenu == null)
+                {
+                    Game1.activeClickableMenu = new SkillAllocationMenu(this);
+                    Game1.playSound("bigSelect");
+                }
             }
+            else
+            {
+                if (tempButtonPosX.HasValue && tempButtonPosY.HasValue)
+                {
+                    Config.ButtonPosX = tempButtonPosX.Value;
+                    Config.ButtonPosY = tempButtonPosY.Value;
+                    Helper.WriteConfig(Config);
+                }
+
+                tempButtonPosX = null;
+                tempButtonPosY = null;
+            }
+
+            // Reset click/drag tracking
+            OnMouseClickButtonPosX = null;
+            OnMouseClickButtonPosY = null;
+            OnReleaseClickButtonPosX = null;
+            OnReleaseClickButtonPosY = null;
         }
     }
 }

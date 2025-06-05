@@ -33,7 +33,11 @@ namespace UnifiedExperienceSystem
         public int MenuPosX { get; set; } = 100; 
         public int MenuPosY { get; set; } = 20;
         public int SkillMenuVisibleRows { get; set; } = 5;     
-        public int SkillMenuRowSpacing { get; set; } = 80;      
+        public int SkillMenuRowSpacing { get; set; } = 80;
+
+
+        public int? ButtonPosX { get; set; } = null;
+        public int? ButtonPosY { get; set; } = null;
 
 
 
@@ -75,11 +79,17 @@ namespace UnifiedExperienceSystem
             helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
             helper.Events.Display.RenderedHud += OnRenderedHud;
             helper.Events.Input.ButtonPressed += OnButtonPressed;
+            helper.Events.Input.ButtonReleased += OnButtonReleased;
+
+
             helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
 
 
 
         }
+
+
+
 
 
         private void OnReturnedToTitle(object sender, ReturnedToTitleEventArgs e)

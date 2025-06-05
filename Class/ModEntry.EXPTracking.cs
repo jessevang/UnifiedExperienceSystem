@@ -49,8 +49,16 @@ namespace UnifiedExperienceSystem
 
         private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
         {
-            if (!Context.IsWorldReady || !e.IsMultipleOf((uint)Config.UpdateIntervalTicks))
+            if (!Context.IsWorldReady)
                 return;
+
+            //use to update drawing the button being dragged
+            CheckButtonDragging();
+
+
+            if (!e.IsMultipleOf((uint)Config.UpdateIntervalTicks))
+                return;
+
 
             foreach (var skill in skillList)
             {
