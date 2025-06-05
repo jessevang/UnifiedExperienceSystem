@@ -4,37 +4,30 @@ using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Menus;
 
-
 namespace UnifiedExperienceSystem
 {
     public class SkillAllocationMenu : IClickableMenu
     {
-
         const int yOffset = 60;
         private int rowHeight => mod.Config.SkillMenuRowSpacing;
         private int maxVisibleRows => mod.Config.SkillMenuVisibleRows;
 
-
         private readonly ModEntry mod;
         private readonly List<SkillEntry> skillList;
         private ClickableTextureComponent closeButton;
+        private ClickableTextureComponent upArrow;
+        private ClickableTextureComponent downArrow;
 
-        private Rectangle scrollBar;
-        private Rectangle scrollThumb;
         private int scrollIndex = 0;
-        private bool isDragging = false;
-
-        Texture2D emojiTexture = Game1.content.Load<Texture2D>("LooseSprites/Emojis");
-
+        private Texture2D emojiTexture = Game1.content.Load<Texture2D>("LooseSprites/Emojis");
 
         public SkillAllocationMenu(ModEntry mod)
             : base(
-             mod.Config.MenuPosX >= 0 ? mod.Config.MenuPosX : Game1.viewport.Width / 2 - mod.Config.MenuWidth / 2,
-             mod.Config.MenuPosY >= 0 ? mod.Config.MenuPosY : Game1.viewport.Height / 2 - mod.Config.MenuHeight / 2,
-             mod.Config.MenuWidth,
-             mod.Config.MenuHeight,
-             true
-         )
+                Game1.uiViewport.Width / 2 - mod.Config.MenuWidth / 2,
+                Game1.uiViewport.Height / 2 - mod.Config.MenuHeight / 2,
+                mod.Config.MenuWidth,
+                mod.Config.MenuHeight,
+                true)
         {
             this.mod = mod;
             this.skillList = mod.LoadAllSkills();
@@ -46,22 +39,22 @@ namespace UnifiedExperienceSystem
                 4f
             );
 
-            scrollBar = new Rectangle(xPositionOnScreen + width - 30, yPositionOnScreen + 100, 20, maxVisibleRows * rowHeight);
-            UpdateScrollThumb();
-        }
+            int arrowSize = (int)(32 * 1.5f);
+            int arrowX = xPositionOnScreen + width - arrowSize - 48;
+            int arrowYOffset = 75;
 
-        private void UpdateScrollThumb()
-        {
-            int totalRows = skillList.FindAll(s => s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled).Count;
-            int scrollAreaHeight = maxVisibleRows * rowHeight;
-            float thumbHeightRatio = (float)maxVisibleRows / totalRows;
-            int thumbHeight = (int)(scrollAreaHeight * thumbHeightRatio);
-            thumbHeight = MathHelper.Clamp(thumbHeight, 20, scrollAreaHeight);
-
-            int maxScroll = totalRows - maxVisibleRows;
-            int y = scrollBar.Y + (maxScroll == 0 ? 0 : scrollIndex * (scrollAreaHeight - thumbHeight) / maxScroll);
-
-            scrollThumb = new Rectangle(scrollBar.X, y, scrollBar.Width, thumbHeight);
+            upArrow = new ClickableTextureComponent(
+                new Rectangle(arrowX, yPositionOnScreen + arrowYOffset + 40, arrowSize, arrowSize),
+                Game1.mouseCursors,
+                new Rectangle(421, 459, 11, 12),
+                3f
+            );
+            downArrow = new ClickableTextureComponent(
+                new Rectangle(arrowX, upArrow.bounds.Bottom + 8, arrowSize, arrowSize),
+                Game1.mouseCursors,
+                new Rectangle(421, 472, 11, 12),
+                3f
+            );
         }
 
         public override void draw(SpriteBatch b)
@@ -75,43 +68,47 @@ namespace UnifiedExperienceSystem
                 yPositionOnScreen + 40 + yOffset
             );
 
-            var visibleSkills = skillList.FindAll(s => s.IsVanilla == false || s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled);
+            var visibleSkills = skillList.FindAll(s => !s.IsVanilla || s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled);
             int maxScroll = Math.Max(0, visibleSkills.Count - maxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
 
+            int rowStartY = downArrow.bounds.Bottom + 20;
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
                 var skill = visibleSkills[i + scrollIndex];
                 int level = mod.GetSkillLevel(Game1.player, skill);
                 int xp = mod.GetExperience(Game1.player, skill);
 
-                int y = yPositionOnScreen + 100 + yOffset + i * rowHeight;
+                int y = rowStartY + i * rowHeight;
                 SpriteText.drawString(b, $"{skill.DisplayName} (Lv {level}) — XP: {xp}", xPositionOnScreen + 50, y);
 
                 Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - 120, y, 48, 48);
                 b.Draw(
                     emojiTexture,
                     new Rectangle(buttonBounds.X, buttonBounds.Y, buttonBounds.Width, buttonBounds.Height),
-                    new Rectangle(108, 81, 9, 9), 
+                    new Rectangle(108, 81, 9, 9),
                     Color.White
                 );
-
-
             }
 
-            IClickableMenu.drawTextureBox(b, Game1.menuTexture, new Rectangle(403, 383, 6, 6), scrollBar.X, scrollBar.Y, scrollBar.Width, scrollBar.Height, Color.White);
-            b.Draw(Game1.mouseCursors, scrollThumb, new Rectangle(435, 463, 6, 10), Color.White);
-
+            upArrow.draw(b);
+            downArrow.draw(b);
             closeButton.draw(b);
             drawMouse(b);
         }
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            if (scrollThumb.Contains(x, y))
+            if (upArrow.containsPoint(x, y))
             {
-                isDragging = true;
-                Game1.playSound("shiny4");
+                scrollIndex = Math.Max(0, scrollIndex - 1);
+                Game1.playSound("shwip");
+            }
+            else if (downArrow.containsPoint(x, y))
+            {
+                int maxScroll = skillList.FindAll(s => s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled).Count - maxVisibleRows;
+                scrollIndex = Math.Min(maxScroll, scrollIndex + 1);
+                Game1.playSound("shwip");
             }
 
             if (closeButton.containsPoint(x, y))
@@ -121,13 +118,14 @@ namespace UnifiedExperienceSystem
             }
 
             var visibleSkills = skillList.FindAll(s => s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled);
-            int maxScroll = Math.Max(0, visibleSkills.Count - maxVisibleRows);
-            scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
+            int maxScrollIndex = Math.Max(0, visibleSkills.Count - maxVisibleRows);
+            scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScrollIndex);
 
+            int rowStartY = downArrow.bounds.Bottom + 20;
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
                 var skill = visibleSkills[i + scrollIndex];
-                int yOffsetPos = yPositionOnScreen + 100 + yOffset + i * rowHeight;
+                int yOffsetPos = rowStartY + i * rowHeight;
                 Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - 120, yOffsetPos, 48, 48);
                 if (buttonBounds.Contains(x, y) && !skill.Id.StartsWith("Test"))
                 {
@@ -145,39 +143,13 @@ namespace UnifiedExperienceSystem
             if (direction < 0 && scrollIndex < maxScroll)
             {
                 scrollIndex++;
-                UpdateScrollThumb();
                 Game1.playSound("shiny4");
             }
             else if (direction > 0 && scrollIndex > 0)
             {
                 scrollIndex--;
-                UpdateScrollThumb();
                 Game1.playSound("shiny4");
             }
-        }
-
-        public override void releaseLeftClick(int x, int y)
-        {
-            isDragging = false;
-            base.releaseLeftClick(x, y);
-        }
-
-        public override void leftClickHeld(int x, int y)
-        {
-            if (isDragging)
-            {
-                int scrollAreaHeight = maxVisibleRows * rowHeight;
-                int totalRows = skillList.FindAll(s => s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled).Count;
-                int maxScroll = totalRows - maxVisibleRows;
-                int thumbHeight = scrollThumb.Height;
-                int relativeY = MathHelper.Clamp(y - scrollBar.Y - thumbHeight / 2, 0, scrollAreaHeight - thumbHeight);
-
-                scrollIndex = (int)((float)relativeY / (scrollAreaHeight - thumbHeight) * maxScroll);
-                scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
-                UpdateScrollThumb();
-            }
-
-            base.leftClickHeld(x, y);
         }
     }
 }

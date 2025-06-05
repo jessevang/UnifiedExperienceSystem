@@ -28,10 +28,8 @@ namespace UnifiedExperienceSystem
         public bool LuckSkillIsEnabled { get; set; } = false;
         public bool DebugMode { get; set; } = false;
 
-        public int MenuWidth { get; set; } = 1200;
+        public int MenuWidth { get; set; } = 800;
         public int MenuHeight { get; set; } = 700;
-        public int MenuPosX { get; set; } = 100; 
-        public int MenuPosY { get; set; } = 20;
         public int SkillMenuVisibleRows { get; set; } = 5;     
         public int SkillMenuRowSpacing { get; set; } = 80;
 
@@ -222,27 +220,8 @@ namespace UnifiedExperienceSystem
                 interval: 10
             );
 
-            gmcm.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Menu X Position",
-                tooltip: () => "X offset in pixels from the left of the screen.",
-                getValue: () => Config.MenuPosX,
-                setValue: value => Config.MenuPosX = value,
-                min: -1,
-                max: 1000,
-                interval: 10
-            );
 
-            gmcm.AddNumberOption(
-                mod: ModManifest,
-                name: () => "Menu Y Position",
-                tooltip: () => "Y offset in pixels from the top of the screen.",
-                getValue: () => Config.MenuPosY,
-                setValue: value => Config.MenuPosY = value,
-                min: -1,
-                max: 1000,
-                interval: 10
-            );
+
 
             gmcm.AddNumberOption(
                 mod: ModManifest,
@@ -368,11 +347,6 @@ namespace UnifiedExperienceSystem
             }
 
         }
-
-
-
-
-
 
 
         public int GetSkillLevel(Farmer farmer, SkillEntry skill)

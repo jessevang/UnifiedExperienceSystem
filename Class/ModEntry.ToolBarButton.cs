@@ -153,7 +153,6 @@ namespace UnifiedExperienceSystem
                 tempButtonPosY = null;
             }
 
-            // Reset click/drag tracking
             OnMouseClickButtonPosX = null;
             OnMouseClickButtonPosY = null;
             OnReleaseClickButtonPosX = null;
