@@ -56,11 +56,12 @@ namespace UnifiedExperienceSystem
         public int EXP_PER_POINT = 100;
         public SaveData SaveData { get; private set; } = new SaveData();
         public ModConfig Config { get; private set; }
-        public Dictionary<string, int> startOfDayExp = new();
-        private Dictionary<string, int> startOfDayLevel = new();
+        public Dictionary<string, int> startOfDayExp { get; private set; } = new();
+        public Dictionary<string, int> startOfDayLevel { get; private set; } = new();
         private List<SkillEntry> skillList = new();
         private readonly HashSet<(int skillIndex, int level)> manuallyAllocatedLevels = new();
         private bool isAllocatingPoint = false;
+        private UnifiedExperienceAPI apiInstance;
 
 
 
@@ -79,14 +80,19 @@ namespace UnifiedExperienceSystem
             helper.Events.Input.ButtonPressed += OnButtonPressed;
             helper.Events.Input.ButtonReleased += OnButtonReleased;
 
-
             helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
+
+
 
 
 
         }
 
-
+        //added for API Support
+        public override object GetApi()
+        {
+            return apiInstance ??= new UnifiedExperienceAPI(this);
+        }
 
 
 

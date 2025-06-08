@@ -17,4 +17,11 @@
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.3.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+
 </Project>
