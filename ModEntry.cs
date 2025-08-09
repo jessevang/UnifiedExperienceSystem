@@ -37,6 +37,7 @@ namespace UnifiedExperienceSystem
         public int? ButtonPosX { get; set; } = null;
         public int? ButtonPosY { get; set; } = null;
 
+        public int PointsAllocatedPerClick = 1;
 
 
 
@@ -184,11 +185,24 @@ namespace UnifiedExperienceSystem
                 getValue: () => Config.UpdateIntervalTicks,
                 setValue: value => Config.UpdateIntervalTicks = value,
                 min: 1,
-                max: 60,
+                max: 60000,
                 interval: 1
             );
 
-            gmcm.AddBoolOption(
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => "Points Allocated Per Click",
+                tooltip: () => "Number of skill points allocated per Click",
+                getValue: () => Config.PointsAllocatedPerClick,
+                setValue: value => Config.PointsAllocatedPerClick = value,
+                min: 1,
+                max: 100,
+                interval: 1
+            );
+
+                  
+
+        gmcm.AddBoolOption(
                 mod: ModManifest,
                 name: () => "Enable Luck Skill",
                 tooltip: () => "Include the Luck skill in the skill menu and EXP tracking",
@@ -326,6 +340,7 @@ namespace UnifiedExperienceSystem
             }
             else if (spaceCoreApi != null)
             {
+
                 spaceCoreApi.AddExperienceForCustomSkill(farmer, skill.Id, amount);
             }
         }

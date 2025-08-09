@@ -154,6 +154,13 @@ namespace UnifiedExperienceSystem
 
             isAllocatingPoint = true;
 
+            //Added Logic to configure how many points of XP should be used and allocated
+            int pointsThatCanBeAllocated = SaveData.UnspentSkillPoints - Config.PointsAllocatedPerClick >= 0 ? Config.PointsAllocatedPerClick : SaveData.UnspentSkillPoints;
+            int ModifiedXPToAdd = EXP_PER_POINT * pointsThatCanBeAllocated;
+      
+
+
+
             try
             {
                 var skill = skillList.Find(s => s.Id == skillId);
@@ -162,7 +169,7 @@ namespace UnifiedExperienceSystem
 
                 int oldLevel = GetSkillLevel(Game1.player, skill);
 
-                AddExperience(Game1.player, skill, EXP_PER_POINT);
+                AddExperience(Game1.player, skill, ModifiedXPToAdd);
 
                 int newLevel = GetSkillLevel(Game1.player, skill);
 
@@ -181,7 +188,9 @@ namespace UnifiedExperienceSystem
                     startOfDayLevel[s.Id] = GetSkillLevel(Game1.player, s);
                 }
 
-                SaveData.UnspentSkillPoints--;
+
+                //Updated Logic for Skill Point to subtract not 1, but the actual amount based on configured allocated amount
+                SaveData.UnspentSkillPoints -= pointsThatCanBeAllocated;
 
                 if (Config.DebugMode)
                     Monitor.Log($"Allocated EXP to {skill.DisplayName}. Level {oldLevel} -> {newLevel}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
