@@ -1,0 +1,33 @@
+{
+  "config.toggleMenuHotkeys.name": "Scorciatoie per alternare il menu",
+  "config.toggleMenuHotkeys.tooltip": "Tasti che aprono il menu «Esperienza Unificata».",
+
+  "config.showSkillPointButton.name": "Mostra pulsante punti abilità",
+  "config.showSkillPointButton.tooltip": "Se visualizzare il pulsante delle abilità sulla barra strumenti dell'HUD.",
+
+  "config.updateIntervalTicks.name": "Intervallo controllo EXP",
+  "config.updateIntervalTicks.tooltip": "Numero di tick di gioco tra i controlli dell'esperienza (60 tick = 1 secondo).\nPredefinito: 6 tick = 0,1 secondi.",
+
+  "config.pointsAllocatedPerClick.name": "Punti assegnati per clic",
+  "config.pointsAllocatedPerClick.tooltip": "Numero di punti abilità assegnati per ogni clic.",
+
+  "config.luckSkillIsEnabled.name": "Abilita abilità «Fortuna»",
+  "config.luckSkillIsEnabled.tooltip": "Includi l'abilità «Fortuna» nel menu delle abilità e nel tracciamento dell'EXP.",
+
+  "config.debugMode.name": "Abilita log di debug",
+  "config.debugMode.tooltip": "Abilita la registrazione dettagliata delle modifiche all'EXP, dell'assegnazione dei punti e del tracciamento delle abilità.",
+
+  "config.menuWidth.name": "Larghezza del menu",
+  "config.menuWidth.tooltip": "Larghezza del menu delle abilità.",
+
+  "config.menuHeight.name": "Altezza del menu",
+  "config.menuHeight.tooltip": "Altezza del menu delle abilità.",
+
+  "config.skillMenuVisibleRows.name": "Numero di abilità visualizzate alla volta",
+  "config.skillMenuVisibleRows.tooltip": "Numero di righe di abilità visibili prima che serva scorrere.",
+
+  "config.skillMenuRowSpacing.name": "Spazio tra le righe",
+  "config.skillMenuRowSpacing.tooltip": "Spazio verticale tra ogni riga di abilità; usato per distanziare i pulsanti «Aggiungi».",
+
+  "ui.availablePoints": "Punti disponibili"
+}

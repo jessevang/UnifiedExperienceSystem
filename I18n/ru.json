@@ -1,0 +1,33 @@
+﻿{
+  "config.toggleMenuHotkeys.name": "Горячие клавиши переключения меню",
+  "config.toggleMenuHotkeys.tooltip": "Клавиши, открывающие меню «Unified Experience».",
+
+  "config.showSkillPointButton.name": "Показывать кнопку очков навыков",
+  "config.showSkillPointButton.tooltip": "Отображать кнопку навыков на панели инструментов HUD.",
+
+  "config.updateIntervalTicks.name": "Интервал проверки опыта",
+  "config.updateIntervalTicks.tooltip": "Количество игровых тиков между проверками опыта (60 тиков = 1 секунда).\nПо умолчанию: 6 тиков = 0,1 секунды.",
+
+  "config.pointsAllocatedPerClick.name": "Очков за одно нажатие",
+  "config.pointsAllocatedPerClick.tooltip": "Количество очков навыков, распределяемых за одно нажатие.",
+
+  "config.luckSkillIsEnabled.name": "Включить навык «Удача»",
+  "config.luckSkillIsEnabled.tooltip": "Включить навык «Удача» в меню навыков и отслеживание опыта.",
+
+  "config.debugMode.name": "Включить журнал отладки",
+  "config.debugMode.tooltip": "Включает подробное журналирование изменений опыта, распределения очков и отслеживания навыков.",
+
+  "config.menuWidth.name": "Ширина меню",
+  "config.menuWidth.tooltip": "Ширина меню навыков.",
+
+  "config.menuHeight.name": "Высота меню",
+  "config.menuHeight.tooltip": "Высота меню навыков.",
+
+  "config.skillMenuVisibleRows.name": "Количество навыков на экране",
+  "config.skillMenuVisibleRows.tooltip": "Сколько строк навыков видно до необходимости прокрутки.",
+
+  "config.skillMenuRowSpacing.name": "Интервал между строками",
+  "config.skillMenuRowSpacing.tooltip": "Вертикальный интервал между строками навыков; помогает разнести кнопки «Добавить».",
+
+  "ui.availablePoints": "Доступные очки"
+}

@@ -1,0 +1,33 @@
+﻿{
+  "config.toggleMenuHotkeys.name": "Menüváltás gyorsbillentyűi",
+  "config.toggleMenuHotkeys.tooltip": "A „Unified Experience” menü megnyitására szolgáló billentyűk.",
+
+  "config.showSkillPointButton.name": "Képességpont gomb megjelenítése",
+  "config.showSkillPointButton.tooltip": "Megjelenjen-e a képességpont gomb a HUD eszköztáron.",
+
+  "config.updateIntervalTicks.name": "EXP-ellenőrzés időköze",
+  "config.updateIntervalTicks.tooltip": "A tapasztalat-ellenőrzések közötti játék-tickek száma (60 tick = 1 másodperc).\nAlapértelmezett: 6 tick = 0,1 másodperc.",
+
+  "config.pointsAllocatedPerClick.name": "Kattintásonként kiosztott pontok",
+  "config.pointsAllocatedPerClick.tooltip": "A kattintásonként kiosztott képességpontok száma.",
+
+  "config.luckSkillIsEnabled.name": "„Szerencse” képesség engedélyezése",
+  "config.luckSkillIsEnabled.tooltip": "A Szerencse képesség bevonása a képességmenübe és az EXP-követésbe.",
+
+  "config.debugMode.name": "Hibakeresési naplózás engedélyezése",
+  "config.debugMode.tooltip": "Részletes naplózás engedélyezése a képesség EXP-változásairól, a pontkiosztásról és a képességkövetésről.",
+
+  "config.menuWidth.name": "Menü szélessége",
+  "config.menuWidth.tooltip": "A képességmenü szélessége.",
+
+  "config.menuHeight.name": "Menü magassága",
+  "config.menuHeight.tooltip": "A képességmenü magassága.",
+
+  "config.skillMenuVisibleRows.name": "Egyszerre megjelenített képességek száma",
+  "config.skillMenuVisibleRows.tooltip": "Hány képességsor látható, mielőtt görgetni kellene.",
+
+  "config.skillMenuRowSpacing.name": "Sorok közötti távolság",
+  "config.skillMenuRowSpacing.tooltip": "Az egyes képességsorok közötti függőleges távolság. A „Hozzáadás” gombok elhelyezéséhez használatos.",
+
+  "ui.availablePoints": "Elérhető pontok"
+}

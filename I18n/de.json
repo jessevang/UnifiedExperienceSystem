@@ -1,0 +1,33 @@
+{
+  "config.toggleMenuHotkeys.name": "Menü-Umschalt-Tastenkürzel",
+  "config.toggleMenuHotkeys.tooltip": "Tasten, die das Unified-Experience-Menü öffnen.",
+
+  "config.showSkillPointButton.name": "Schaltfläche für Fertigkeitspunkte anzeigen",
+  "config.showSkillPointButton.tooltip": "Ob die Schaltfläche für Fertigkeitspunkte in der HUD-Toolbar angezeigt wird.",
+
+  "config.updateIntervalTicks.name": "EP-Prüfintervall",
+  "config.updateIntervalTicks.tooltip": "Anzahl der Spiel-Ticks zwischen Erfahrungsprüfungen (60 Ticks = 1 Sekunde).\nStandard ist 6 Ticks = 0,1 Sekunden.",
+
+  "config.pointsAllocatedPerClick.name": "Pro Klick zugewiesene Punkte",
+  "config.pointsAllocatedPerClick.tooltip": "Anzahl der pro Klick zugewiesenen Fertigkeitspunkte.",
+
+  "config.luckSkillIsEnabled.name": "Glück-Fertigkeit aktivieren",
+  "config.luckSkillIsEnabled.tooltip": "Die Glück-Fertigkeit im Fertigkeitenmenü und bei der EP-Verfolgung berücksichtigen.",
+
+  "config.debugMode.name": "Debug-Protokollierung aktivieren",
+  "config.debugMode.tooltip": "Aktiviert detaillierte Protokolle zu EP-Änderungen, Punktzuweisungen und Fertigkeitsverfolgung.",
+
+  "config.menuWidth.name": "Menübreite",
+  "config.menuWidth.tooltip": "Breite des Fertigkeitenmenüs.",
+
+  "config.menuHeight.name": "Menühöhe",
+  "config.menuHeight.tooltip": "Höhe des Fertigkeitenmenüs.",
+
+  "config.skillMenuVisibleRows.name": "Gleichzeitig angezeigte Fertigkeiten",
+  "config.skillMenuVisibleRows.tooltip": "Wie viele Fertigkeitszeilen sichtbar sind, bevor gescrollt werden muss.",
+
+  "config.skillMenuRowSpacing.name": "Abstand zwischen den Zeilen",
+  "config.skillMenuRowSpacing.tooltip": "Vertikaler Abstand zwischen den Fertigkeitszeilen; hilft, die Hinzufügen-Schaltflächen zu verteilen.",
+
+  "ui.availablePoints": "Verfügbare Punkte"
+}

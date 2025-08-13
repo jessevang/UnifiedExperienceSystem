@@ -1,0 +1,33 @@
+﻿{
+  "config.toggleMenuHotkeys.name": "Menü değiştirme kısayolları",
+  "config.toggleMenuHotkeys.tooltip": "Birleşik Deneyim menüsünü açan tuşlar.",
+
+  "config.showSkillPointButton.name": "Yetenek puanı düğmesini göster",
+  "config.showSkillPointButton.tooltip": "HUD araç çubuğunda yetenek düğmesinin gösterilip gösterilmeyeceği.",
+
+  "config.updateIntervalTicks.name": "EXP kontrol aralığı",
+  "config.updateIntervalTicks.tooltip": "Deneyim kontrolleri arasındaki oyun tick sayısı (60 tick = 1 saniye).\nVarsayılan 6 tick = 0,1 saniye.",
+
+  "config.pointsAllocatedPerClick.name": "Tıklama başına ayrılan puan",
+  "config.pointsAllocatedPerClick.tooltip": "Her tıklamada verilen yetenek puanı sayısı.",
+
+  "config.luckSkillIsEnabled.name": "Şans yeteneğini etkinleştir",
+  "config.luckSkillIsEnabled.tooltip": "Şans yeteneğini yetenek menüsüne ve EXP takibine dahil et.",
+
+  "config.debugMode.name": "Hata ayıklama günlüğünü etkinleştir",
+  "config.debugMode.tooltip": "Yetenek EXP değişimleri, puan dağıtımı ve yetenek takibi için ayrıntılı günlüklemeyi etkinleştirir.",
+
+  "config.menuWidth.name": "Menü genişliği",
+  "config.menuWidth.tooltip": "Yetenek menüsünün genişliği.",
+
+  "config.menuHeight.name": "Menü yüksekliği",
+  "config.menuHeight.tooltip": "Yetenek menüsünün yüksekliği.",
+
+  "config.skillMenuVisibleRows.name": "Bir defada gösterilen yetenek sayısı",
+  "config.skillMenuVisibleRows.tooltip": "Kaydırma gerekmeye başlamadan önce görünür olan yetenek satırı sayısı.",
+
+  "config.skillMenuRowSpacing.name": "Satırlar arası boşluk",
+  "config.skillMenuRowSpacing.tooltip": "Her yetenek satırı arasındaki dikey boşluk; Ekle düğmelerini yaymak için kullanılır.",
+
+  "ui.availablePoints": "Kullanılabilir puanlar"
+}

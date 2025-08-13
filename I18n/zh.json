@@ -1,0 +1,33 @@
+﻿{
+  "config.toggleMenuHotkeys.name": "切换菜单快捷键",
+  "config.toggleMenuHotkeys.tooltip": "用于打开“统一经验”菜单的按键。",
+
+  "config.showSkillPointButton.name": "显示技能点按钮",
+  "config.showSkillPointButton.tooltip": "是否在 HUD 工具栏上显示技能点按钮。",
+
+  "config.updateIntervalTicks.name": "经验检查间隔",
+  "config.updateIntervalTicks.tooltip": "两次经验检查之间的游戏刻数（60 刻 = 1 秒）。\n默认值为 6 刻 = 0.1 秒。",
+
+  "config.pointsAllocatedPerClick.name": "每次点击分配点数",
+  "config.pointsAllocatedPerClick.tooltip": "每次点击分配的技能点数量。",
+
+  "config.luckSkillIsEnabled.name": "启用“幸运”技能",
+  "config.luckSkillIsEnabled.tooltip": "在技能菜单和经验跟踪中包含“幸运”技能。",
+
+  "config.debugMode.name": "启用调试日志",
+  "config.debugMode.tooltip": "启用关于技能经验变化、点数分配与技能跟踪的详细日志。",
+
+  "config.menuWidth.name": "菜单宽度",
+  "config.menuWidth.tooltip": "技能菜单的宽度。",
+
+  "config.menuHeight.name": "菜单高度",
+  "config.menuHeight.tooltip": "技能菜单的高度。",
+
+  "config.skillMenuVisibleRows.name": "一次显示的技能数量",
+  "config.skillMenuVisibleRows.tooltip": "需要滚动之前可见的技能行数。",
+
+  "config.skillMenuRowSpacing.name": "行间距",
+  "config.skillMenuRowSpacing.tooltip": "每行之间的垂直间距；用于给“添加”按钮留出空间。",
+
+  "ui.availablePoints": "可用点数"
+}

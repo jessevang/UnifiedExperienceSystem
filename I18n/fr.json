@@ -1,0 +1,33 @@
+{
+  "config.toggleMenuHotkeys.name": "Raccourcis de bascule du menu",
+  "config.toggleMenuHotkeys.tooltip": "Touches qui ouvrent le menu d’« Expérience unifiée ».",
+
+  "config.showSkillPointButton.name": "Afficher le bouton des points de compétence",
+  "config.showSkillPointButton.tooltip": "Afficher le bouton de compétence sur la barre d’outils du HUD.",
+
+  "config.updateIntervalTicks.name": "Intervalle de vérification de l’EXP",
+  "config.updateIntervalTicks.tooltip": "Nombre de tics de jeu entre deux vérifications d’expérience (60 tics = 1 seconde).\nPar défaut : 6 tics = 0,1 seconde.",
+
+  "config.pointsAllocatedPerClick.name": "Points attribués par clic",
+  "config.pointsAllocatedPerClick.tooltip": "Nombre de points de compétence attribués par clic.",
+
+  "config.luckSkillIsEnabled.name": "Activer la compétence « Chance »",
+  "config.luckSkillIsEnabled.tooltip": "Inclure la compétence Chance dans le menu des compétences et le suivi de l’EXP.",
+
+  "config.debugMode.name": "Activer les journaux de débogage",
+  "config.debugMode.tooltip": "Active une journalisation détaillée des changements d’EXP, de l’attribution des points et du suivi des compétences.",
+
+  "config.menuWidth.name": "Largeur du menu",
+  "config.menuWidth.tooltip": "Largeur du menu des compétences.",
+
+  "config.menuHeight.name": "Hauteur du menu",
+  "config.menuHeight.tooltip": "Hauteur du menu des compétences.",
+
+  "config.skillMenuVisibleRows.name": "Nombre de compétences affichées à la fois",
+  "config.skillMenuVisibleRows.tooltip": "Nombre de lignes de compétences visibles avant qu’un défilement ne soit nécessaire.",
+
+  "config.skillMenuRowSpacing.name": "Espacement entre les lignes",
+  "config.skillMenuRowSpacing.tooltip": "Espace vertical entre chaque ligne de compétences. Utilisé pour espacer les boutons « Ajouter ».",
+
+  "ui.availablePoints": "Points disponibles"
+}

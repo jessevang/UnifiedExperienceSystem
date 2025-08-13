@@ -1,0 +1,33 @@
+﻿{
+  "config.toggleMenuHotkeys.name": "メニュー切り替えホットキー",
+  "config.toggleMenuHotkeys.tooltip": "統合エクスペリエンスメニューを開くキー。",
+
+  "config.showSkillPointButton.name": "スキルポイントボタンを表示",
+  "config.showSkillPointButton.tooltip": "HUDツールバーにスキルポイントボタンを表示するかどうか。",
+
+  "config.updateIntervalTicks.name": "経験値チェック間隔",
+  "config.updateIntervalTicks.tooltip": "経験値チェックの間隔（ゲームのティック数）（60ティック = 1秒）。\nデフォルトは6ティック = 0.1秒。",
+
+  "config.pointsAllocatedPerClick.name": "クリックごとのポイント割り当て",
+  "config.pointsAllocatedPerClick.tooltip": "1回のクリックで割り当てられるスキルポイント数。",
+
+  "config.luckSkillIsEnabled.name": "「運」スキルを有効化",
+  "config.luckSkillIsEnabled.tooltip": "スキルメニューと経験値トラッキングに「運」スキルを含める。",
+
+  "config.debugMode.name": "デバッグログを有効化",
+  "config.debugMode.tooltip": "スキル経験値の変化、ポイント割り当て、スキルトラッキングの詳細ログを有効にします。",
+
+  "config.menuWidth.name": "メニュー幅",
+  "config.menuWidth.tooltip": "スキルメニューの幅。",
+
+  "config.menuHeight.name": "メニュー高さ",
+  "config.menuHeight.tooltip": "スキルメニューの高さ。",
+
+  "config.skillMenuVisibleRows.name": "一度に表示するスキル数",
+  "config.skillMenuVisibleRows.tooltip": "スクロールが必要になる前に表示されるスキル行数。",
+
+  "config.skillMenuRowSpacing.name": "行間隔",
+  "config.skillMenuRowSpacing.tooltip": "各スキル行の垂直間隔。「追加」ボタンを広げるために使用します。",
+
+  "ui.availablePoints": "利用可能ポイント"
+}

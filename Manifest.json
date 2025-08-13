@@ -1,7 +1,7 @@
 {
   "Name": "UnifiedExperienceSystem",
   "Author": "Darkmushu1",
-  "Version": "1.0.8",
+  "Version": "1.0.9",
   "Description": "Unifies all experiences gained, and allows you to manually allocate to the experience to each skills",
   "UniqueID": "Darkmushu.UnifiedExperienceSystem",
   "EntryDll": "UnifiedExperienceSystem.dll",

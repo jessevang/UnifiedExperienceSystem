@@ -1,0 +1,34 @@
+{
+  "config.toggleMenuHotkeys.name": "Toggle Menu Hotkeys",
+  "config.toggleMenuHotkeys.tooltip": "Keys that open the Unified Experience menu.",
+
+  "config.showSkillPointButton.name": "Show Skill Point Button",
+  "config.showSkillPointButton.tooltip": "Whether to display the skill button on the HUD toolbar.",
+
+  "config.updateIntervalTicks.name": "EXP Interval Check",
+  "config.updateIntervalTicks.tooltip": "Number of game ticks between experience checks (60 ticks = 1 second).\nDefault is 6 ticks = 0.1 seconds.",
+
+  "config.pointsAllocatedPerClick.name": "Points Allocated Per Click",
+  "config.pointsAllocatedPerClick.tooltip": "Number of skill points allocated per click.",
+
+  "config.luckSkillIsEnabled.name": "Enable Luck Skill",
+  "config.luckSkillIsEnabled.tooltip": "Include the Luck skill in the skill menu and EXP tracking.",
+
+  "config.debugMode.name": "Enable Debug Logging",
+  "config.debugMode.tooltip": "Enables detailed logging for skill EXP changes, point allocation, and skill tracking.",
+
+  "config.menuWidth.name": "Menu Width",
+  "config.menuWidth.tooltip": "Width of the skill menu.",
+
+  "config.menuHeight.name": "Menu Height",
+  "config.menuHeight.tooltip": "Height of the skill menu.",
+
+  "config.skillMenuVisibleRows.name": "Number Of Skills Displayed at a Time",
+  "config.skillMenuVisibleRows.tooltip": "How many skill rows are visible before scrolling is needed.",
+
+  "config.skillMenuRowSpacing.name": "Space Between Each Row",
+  "config.skillMenuRowSpacing.tooltip": "The vertical space between each skill row. Used to help spread out the Add Buttons.",
+
+
+  "ui.availablePoints": "Available Points"
+}

@@ -1,0 +1,33 @@
+﻿{
+  "config.toggleMenuHotkeys.name": "메뉴 전환 단축키",
+  "config.toggleMenuHotkeys.tooltip": "통합 경험 메뉴를 여는 키입니다.",
+
+  "config.showSkillPointButton.name": "스킬 포인트 버튼 표시",
+  "config.showSkillPointButton.tooltip": "HUD 도구 모음에 스킬 버튼을 표시할지 여부입니다.",
+
+  "config.updateIntervalTicks.name": "경험치 확인 간격",
+  "config.updateIntervalTicks.tooltip": "경험치 확인 사이의 게임 틱 수(60틱 = 1초).\n기본값은 6틱 = 0.1초입니다.",
+
+  "config.pointsAllocatedPerClick.name": "클릭당 배분 포인트",
+  "config.pointsAllocatedPerClick.tooltip": "클릭 한 번에 배분되는 스킬 포인트 수입니다.",
+
+  "config.luckSkillIsEnabled.name": "행운 스킬 활성화",
+  "config.luckSkillIsEnabled.tooltip": "스킬 메뉴와 경험치 추적에 행운 스킬을 포함합니다.",
+
+  "config.debugMode.name": "디버그 로그 활성화",
+  "config.debugMode.tooltip": "스킬 경험치 변화, 포인트 배분, 스킬 추적에 대한 상세 로그를 활성화합니다.",
+
+  "config.menuWidth.name": "메뉴 너비",
+  "config.menuWidth.tooltip": "스킬 메뉴의 너비입니다.",
+
+  "config.menuHeight.name": "메뉴 높이",
+  "config.menuHeight.tooltip": "스킬 메뉴의 높이입니다.",
+
+  "config.skillMenuVisibleRows.name": "한 번에 표시할 스킬 수",
+  "config.skillMenuVisibleRows.tooltip": "스크롤하기 전까지 표시되는 스킬 행의 수입니다.",
+
+  "config.skillMenuRowSpacing.name": "행 간격",
+  "config.skillMenuRowSpacing.tooltip": "각 스킬 행 사이의 세로 간격입니다. 추가 버튼을 배치하는 데 사용됩니다.",
+
+  "ui.availablePoints": "사용 가능한 포인트"
+}

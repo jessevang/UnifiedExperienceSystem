@@ -66,10 +66,11 @@ namespace UnifiedExperienceSystem
         {
             Game1.drawDialogueBox(xPositionOnScreen, yPositionOnScreen, width, height, false, true);
 
+
             int titleY = yPositionOnScreen + 40 + yOffset;
             SpriteText.drawString(
                 b,
-                $"Available Points: {mod.SaveData.UnspentSkillPoints}",
+                $"{mod.Helper.Translation.Get("ui.availablePoints")}: {mod.SaveData.UnspentSkillPoints}",
                 xPositionOnScreen + 50,
                 titleY
             );

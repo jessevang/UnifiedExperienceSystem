@@ -1,0 +1,33 @@
+{
+  "config.toggleMenuHotkeys.name": "Atalhos para alternar o menu",
+  "config.toggleMenuHotkeys.tooltip": "Teclas que abrem o menu de Experiência Unificada.",
+
+  "config.showSkillPointButton.name": "Mostrar botão de pontos de habilidade",
+  "config.showSkillPointButton.tooltip": "Exibir o botão de habilidades na barra de ferramentas do HUD.",
+
+  "config.updateIntervalTicks.name": "Intervalo de verificação de EXP",
+  "config.updateIntervalTicks.tooltip": "Número de ticks do jogo entre verificações de experiência (60 ticks = 1 segundo).\nO padrão é 6 ticks = 0,1 segundo.",
+
+  "config.pointsAllocatedPerClick.name": "Pontos atribuídos por clique",
+  "config.pointsAllocatedPerClick.tooltip": "Número de pontos de habilidade atribuídos por clique.",
+
+  "config.luckSkillIsEnabled.name": "Ativar habilidade Sorte",
+  "config.luckSkillIsEnabled.tooltip": "Incluir a habilidade Sorte no menu de habilidades e no rastreamento de EXP.",
+
+  "config.debugMode.name": "Ativar registro de depuração",
+  "config.debugMode.tooltip": "Ativa logs detalhados sobre mudanças de EXP, atribuição de pontos e rastreamento de habilidades.",
+
+  "config.menuWidth.name": "Largura do menu",
+  "config.menuWidth.tooltip": "Largura do menu de habilidades.",
+
+  "config.menuHeight.name": "Altura do menu",
+  "config.menuHeight.tooltip": "Altura do menu de habilidades.",
+
+  "config.skillMenuVisibleRows.name": "Número de habilidades exibidas por vez",
+  "config.skillMenuVisibleRows.tooltip": "Quantas linhas de habilidades ficam visíveis antes de ser necessário rolar.",
+
+  "config.skillMenuRowSpacing.name": "Espaço entre linhas",
+  "config.skillMenuRowSpacing.tooltip": "Espaçamento vertical entre cada linha de habilidades. Usado para espaçar os botões \"Adicionar\".",
+
+  "ui.availablePoints": "Pontos disponíveis"
+}

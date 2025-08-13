@@ -128,6 +128,19 @@ namespace UnifiedExperienceSystem
 
         private string GetVanillaSkillName(int index)
         {
+            // 0=Farming, 1=Fishing, 2=Foraging, 3=Mining, 4=Combat, 5=Luck
+            try
+            {
+                var name = Farmer.getSkillDisplayNameFromIndex(index);
+                if (!string.IsNullOrWhiteSpace(name))
+                    return name;
+            }
+            catch
+            {
+
+            }
+
+            // Fallbacks
             return index switch
             {
                 0 => "Farming",
@@ -162,107 +175,92 @@ namespace UnifiedExperienceSystem
                 save: () => Helper.WriteConfig(Config)
             );
 
+            ITranslationHelper T = Helper.Translation;
+
             gmcm.AddKeybindList(
-                mod: ModManifest,
-                name: () => "Toggle Menu Hotkeys",
-                tooltip: () => "Keys that open the Unified Experience menu",
-                getValue: () => Config.ToggleMenuKeys,
-                setValue: value => Config.ToggleMenuKeys = value
-            );
+               mod: ModManifest,
+               name: () => T.Get("config.toggleMenuHotkeys.name"),
+               tooltip: () => T.Get("config.toggleMenuHotkeys.tooltip"),
+               getValue: () => Config.ToggleMenuKeys,
+               setValue: value => Config.ToggleMenuKeys = value
+           );
 
             gmcm.AddBoolOption(
                 mod: ModManifest,
-                name: () => "Show Skill Point Button",
-                tooltip: () => "Whether to display the skill button on the HUD toolbar.",
+                name: () => T.Get("config.showSkillPointButton.name"),
+                tooltip: () => T.Get("config.showSkillPointButton.tooltip"),
                 getValue: () => Config.ShowSkillPointButton,
                 setValue: value => Config.ShowSkillPointButton = value
             );
 
             gmcm.AddNumberOption(
                 mod: ModManifest,
-                name: () => "EXP Interval Check",
-                tooltip: () => "Number of game ticks between experience checks (60 ticks = 1 second).\nDefault is 6 ticks = 0.1 seconds.",
+                name: () => T.Get("config.updateIntervalTicks.name"),
+                tooltip: () => T.Get("config.updateIntervalTicks.tooltip"),
                 getValue: () => Config.UpdateIntervalTicks,
                 setValue: value => Config.UpdateIntervalTicks = value,
-                min: 1,
-                max: 60000,
-                interval: 1
+                min: 1, max: 60000, interval: 1
             );
 
             gmcm.AddNumberOption(
                 mod: ModManifest,
-                name: () => "Points Allocated Per Click",
-                tooltip: () => "Number of skill points allocated per Click",
+                name: () => T.Get("config.pointsAllocatedPerClick.name"),
+                tooltip: () => T.Get("config.pointsAllocatedPerClick.tooltip"),
                 getValue: () => Config.PointsAllocatedPerClick,
                 setValue: value => Config.PointsAllocatedPerClick = value,
-                min: 1,
-                max: 100,
-                interval: 1
+                min: 1, max: 100, interval: 1
             );
 
-                  
-
-        gmcm.AddBoolOption(
+            gmcm.AddBoolOption(
                 mod: ModManifest,
-                name: () => "Enable Luck Skill",
-                tooltip: () => "Include the Luck skill in the skill menu and EXP tracking",
+                name: () => T.Get("config.luckSkillIsEnabled.name"),
+                tooltip: () => T.Get("config.luckSkillIsEnabled.tooltip"),
                 getValue: () => Config.LuckSkillIsEnabled,
                 setValue: value => Config.LuckSkillIsEnabled = value
             );
-            
+
             gmcm.AddBoolOption(
                 mod: ModManifest,
-                name: () => "Enable Debug Logging",
-                tooltip: () => "Enables detailed logging for skill EXP changes, point allocation, and skill tracking.",
+                name: () => T.Get("config.debugMode.name"),
+                tooltip: () => T.Get("config.debugMode.tooltip"),
                 getValue: () => Config.DebugMode,
                 setValue: value => Config.DebugMode = value
             );
 
             gmcm.AddNumberOption(
                 mod: ModManifest,
-                name: () => "Menu Width",
-                tooltip: () => "Width of the skill menu",
+                name: () => T.Get("config.menuWidth.name"),
+                tooltip: () => T.Get("config.menuWidth.tooltip"),
                 getValue: () => Config.MenuWidth,
                 setValue: value => Config.MenuWidth = value,
-                min: 400,
-                max: 1600,
-                interval: 10
+                min: 400, max: 1600, interval: 10
             );
 
             gmcm.AddNumberOption(
                 mod: ModManifest,
-                name: () => "Menu Height",
-                tooltip: () => "Height of the skill menu",
+                name: () => T.Get("config.menuHeight.name"),
+                tooltip: () => T.Get("config.menuHeight.tooltip"),
                 getValue: () => Config.MenuHeight,
                 setValue: value => Config.MenuHeight = value,
-                min: 300,
-                max: 1200,
-                interval: 10
+                min: 300, max: 1200, interval: 10
             );
-
-
-
 
             gmcm.AddNumberOption(
                 mod: ModManifest,
-                name: () => "Number Of Skills Displayed at a Time",
-                tooltip: () => "How many skill rows are visible before scrolling is needed.",
+                name: () => T.Get("config.skillMenuVisibleRows.name"),
+                tooltip: () => T.Get("config.skillMenuVisibleRows.tooltip"),
                 getValue: () => Config.SkillMenuVisibleRows,
                 setValue: value => Config.SkillMenuVisibleRows = value,
-                min: 1,
-                max: 20,
-                interval: 1
+                min: 1, max: 20, interval: 1
             );
 
             gmcm.AddNumberOption(
                 mod: ModManifest,
-                name: () => "Space Between Each Row",
-                tooltip: () => "The vertical space between each skill row. Used to help spread out the Add Buttons",
+                name: () => T.Get("config.skillMenuRowSpacing.name"),
+                tooltip: () => T.Get("config.skillMenuRowSpacing.tooltip"),
                 getValue: () => Config.SkillMenuRowSpacing,
                 setValue: value => Config.SkillMenuRowSpacing = value,
-                min: 30,
-                max: 240,
-                interval: 10
+                min: 30, max: 240, interval: 10
             );
 
 
