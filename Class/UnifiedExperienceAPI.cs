@@ -74,11 +74,12 @@ namespace UnifiedExperienceSystem
         //  - Compute level/progress from persisted totals
         // =========================================================
 
-        // Runtime-only registry for THIS session (idempotent upsert)
-        // Runtime-only registry for THIS session (idempotent upsert)
         private readonly Dictionary<(string modId, string abilityId), AbilityDef> _abilities
             = new(new ModAbilityKeyComparer());
 
+
+        public IEnumerable<(string modId, string abilityId, string displayName, string Description, int maxLevel)> ListRegisteredAbilities()
+    => _abilities.Values.Select(a => (a.ModId, a.AbilityId, a.DisplayName, a.Description, a.MaxLevel));
 
         // Minimal internal model (no extra file needed)
         private sealed class AbilityDef

@@ -116,5 +116,7 @@ namespace UnifiedExperienceSystem
         // (Optional write hooks; expose if you want partners to drive progression directly)
         // bool SpendPointsOnAbility(string modUniqueId, string abilityId, int points);
         // void GrantAbilityExp(string modUniqueId, string abilityId, int exp);
+
+        IEnumerable<(string modId, string abilityId, string displayName, string Description, int maxLevel)> ListRegisteredAbilities();
     }
 }

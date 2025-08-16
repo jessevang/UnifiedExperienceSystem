@@ -30,5 +30,6 @@
   "config.skillMenuRowSpacing.tooltip": "The vertical space between each skill row. Used to help spread out the Add Buttons.",
 
 
-  "ui.availablePoints": "Available Points"
+  "ui.availablePoints": "Available Points",
+
 }
