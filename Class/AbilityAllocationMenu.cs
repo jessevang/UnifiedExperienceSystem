@@ -269,28 +269,71 @@ namespace UnifiedExperienceSystem
 
        
                     SpriteText.drawString(b, text, xPositionOnScreen + 70, y);
+
+
+
+                    // layout
+                    int barHeight = 50;
+                    int desiredBarWidth = 300;
+                    int maxBarWidth = 300;
+                    int rightEdgeOffset = 50;
+                    int gapFromButton = 8;
+
+                    // vertical tweak (pixels). try -6, -8, etc.
+                    int barOffsetY = -15;
+
+                    // transparency knobs
+                    float barAlpha = 0.5f;
+                    float bgAlpha = 0.2f;
+                    float borderAlpha = 0.4f;
+
+
+                    int plusBtnSize = Math.Min(RowHeight - 10, 48);
+                    Rectangle plusBtn = new Rectangle(
+                        xPositionOnScreen + width - plusBtnSize - rightEdgeOffset,
+                        y - 6,
+                        plusBtnSize,
+                        plusBtnSize
+                    );
+
+                    // compute right-aligned bar rect
+                    int barRight = plusBtn.Left - gapFromButton;
+                    int leftTextX = xPositionOnScreen + 70;
+                    int maxSpace = Math.Max(0, barRight - leftTextX);
+                    int barWidth = Math.Min(Math.Max(desiredBarWidth, 0), Math.Min(maxBarWidth, maxSpace));
+                    if (barWidth < 60) barWidth = Math.Min(60, maxSpace);
+
+                    // center in row, then nudge by barOffsetY
+                    int barY = y + (RowHeight - barHeight) / 2 + barOffsetY;
                     
+                    // keep it inside the row (optional clamp)
+                    barY = Math.Max(y, Math.Min(barY, y + RowHeight - barHeight));
 
+                    var barRect = new Rectangle(barRight - barWidth, barY, barWidth, barHeight);
 
-                    // progress bar rect
-                    int barWidth = Math.Max(160, Math.Min(width - 260, 300));
-                    var barRect = new Rectangle(xPositionOnScreen + 70, y + 34, barWidth, 10);
+                    // background (translucent so text under it still shows)
+                    b.Draw(Game1.staminaRect, barRect, Color.Black * bgAlpha);
 
-                    // background
-                    b.Draw(Game1.staminaRect, barRect, Color.Black * 0.35f);
-
-                    // fill
-                    if (!row.AtMax && row.XpLevelTotal > 0)
+                    // fill (50% transparent)
+                    if (row.AtMax)
+                    {
+                        b.Draw(Game1.staminaRect, barRect, Color.Gold * barAlpha);
+                    }
+                    else if (row.XpLevelTotal > 0)
                     {
                         int fill = (int)(barRect.Width * (row.XpInto / (float)row.XpLevelTotal));
                         if (fill > 0)
-                            b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, fill, barRect.Height), Color.Lime);
+                            b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, fill, barRect.Height), Color.Lime * barAlpha);
                     }
-                    else if (row.AtMax)
-                    {
-                        // full bar when at max
-                        b.Draw(Game1.staminaRect, barRect, Color.Gold * 0.85f);
-                    }
+
+                    // subtle 1px border (also translucent)
+                    Color bc = Color.Black * borderAlpha;
+                    b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, barRect.Width, 1), bc);
+                    b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y + barRect.Height - 1, barRect.Width, 1), bc);
+                    b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, 1, barRect.Height), bc);
+                    b.Draw(Game1.staminaRect, new Rectangle(barRect.Right - 1, barRect.Y, 1, barRect.Height), bc);
+
+
 
 
                     // draw [+] button
