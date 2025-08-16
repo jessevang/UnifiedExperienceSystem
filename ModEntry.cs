@@ -33,7 +33,7 @@ namespace UnifiedExperienceSystem
         public bool LuckSkillIsEnabled { get; set; } = false;
         public bool DebugMode { get; set; } = false;
 
-        public int MenuWidth { get; set; } = 800;
+        public int MenuWidth { get; set; } = 1100;
         public int MenuHeight { get; set; } = 700;
         public int SkillMenuVisibleRows { get; set; } = 5;     
         public int SkillMenuRowSpacing { get; set; } = 80;

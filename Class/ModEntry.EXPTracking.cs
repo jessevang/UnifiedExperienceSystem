@@ -203,7 +203,7 @@ namespace UnifiedExperienceSystem
         }
 
 
-
+        /*
         public void AllocateAbilityPoints(string modGuid, string abilityId)
         {
             if (SaveData.UnspentSkillPoints <= 0)
@@ -256,6 +256,8 @@ namespace UnifiedExperienceSystem
                 isAllocatingPoint = false;
             }
         }
+
+        */
 
 
 

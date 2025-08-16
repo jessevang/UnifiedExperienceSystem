@@ -7,6 +7,7 @@
 
 ## Developer API Guide
 This mod provides a public API to access and register your mod's ability and obtain information around ability and skills.
+Once Registered this mod appears in Ability Level List and can start gaining experience and level up.
 
 Step 1: Add the API Interface
 
@@ -102,6 +103,6 @@ Step 3: Add This Mod as a Dependencies in your Manifesto
 Step 4: Use Case for this API
 Once you've accessed the API, you can:
 
-    Set XP for Skills or XP for Abilities
-    View Ability Levels to perform certain actions
+    Set XP for Skills or Abilities
+    Get Ability Levels to perform certain actions in Mod
        

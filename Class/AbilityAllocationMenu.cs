@@ -65,9 +65,15 @@ namespace UnifiedExperienceSystem
             public string AbilityId;
             public string AbilityName;
             public string Description;
-            public int maxLevel;
+            public int MaxLevel;
             public int Level;
             public long TotalExp;
+            public bool AtMax;
+            public int XpInto;
+            public int XpNeeded;
+            public int XpLevelTotal;
+
+
             public Rectangle? ButtonBounds;
         }
 
@@ -249,7 +255,12 @@ namespace UnifiedExperienceSystem
                 }
                 else
                 {
-                    string text = $"{row.AbilityName}(Lv{row.Level}) XP: {row.TotalExp}";
+
+                    var name = row.AbilityName ?? "";
+                    var shortName = name.Length > 10 ? (name.Substring(0, 10)+ "..") : name;
+                    string text = row.AtMax ? $"{shortName} (Lv{row.Level}/{row.MaxLevel}) XP:{row.TotalExp}"
+                    : $"{shortName} (Lv{row.Level}/{row.MaxLevel}) XP: {row.TotalExp} ({row.XpNeeded} to next)";
+
 
 
                     var textRect = new Rectangle(xPositionOnScreen + 70, y, width - 200, RowHeight);
@@ -257,6 +268,29 @@ namespace UnifiedExperienceSystem
 
        
                     SpriteText.drawString(b, text, xPositionOnScreen + 70, y);
+                    
+
+
+                    // progress bar rect
+                    int barWidth = Math.Max(160, Math.Min(width - 260, 300));
+                    var barRect = new Rectangle(xPositionOnScreen + 70, y + 34, barWidth, 10);
+
+                    // background
+                    b.Draw(Game1.staminaRect, barRect, Color.Black * 0.35f);
+
+                    // fill
+                    if (!row.AtMax && row.XpLevelTotal > 0)
+                    {
+                        int fill = (int)(barRect.Width * (row.XpInto / (float)row.XpLevelTotal));
+                        if (fill > 0)
+                            b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, fill, barRect.Height), Color.Lime);
+                    }
+                    else if (row.AtMax)
+                    {
+                        // full bar when at max
+                        b.Draw(Game1.staminaRect, barRect, Color.Gold * 0.85f);
+                    }
+
 
                     // draw [+] button
                     Rectangle btn = new Rectangle(xPositionOnScreen + width - buttonSize - 50, y - 6, buttonSize, buttonSize);
@@ -264,7 +298,6 @@ namespace UnifiedExperienceSystem
                     row.ButtonBounds = btn;
 
 
-                    _hoverRegions.Add((btn, BuildPlusTooltip(row)));
                 }
 
             }
@@ -284,7 +317,7 @@ namespace UnifiedExperienceSystem
                 $"Mod: {row.ModId}\n" +
                 $"Ability Name: {row.AbilityName}\n" +
                 $"Level: {row.Level}\n" +
-                $"MaxLevel: {row.maxLevel}\n" +
+                $"MaxLevel: {row.MaxLevel}\n" +
                 $"Total XP: {row.TotalExp}\n" +
                 $"Discription: {desc}",
                 Game1.smallFont,
@@ -324,6 +357,7 @@ namespace UnifiedExperienceSystem
             int maxScroll = Math.Max(0, rows.Count - MaxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
 
+            // --- navigation buttons ---
             if (upArrow.containsPoint(x, y))
             {
                 scrollIndex = Math.Max(0, scrollIndex - 1);
@@ -343,7 +377,7 @@ namespace UnifiedExperienceSystem
                 return;
             }
 
-
+            // --- ability + buttons ---
             int titleY = yPositionOnScreen + 40 + yOffset;
             int rowStartY = titleY + 100;
             int buttonSize = Math.Min(RowHeight - 10, 48);
@@ -351,20 +385,40 @@ namespace UnifiedExperienceSystem
             for (int i = 0; i < MaxVisibleRows && i + scrollIndex < rows.Count; i++)
             {
                 var row = rows[i + scrollIndex];
-                if (row.IsHeader) continue;
+                if (row.IsHeader)
+                    continue;
 
-                Rectangle btn = new Rectangle(xPositionOnScreen + width - buttonSize - 50, rowStartY + i * RowHeight - 6, buttonSize, buttonSize);
+                Rectangle btn = new Rectangle(
+                    xPositionOnScreen + width - buttonSize - 50,
+                    rowStartY + i * RowHeight - 6,
+                    buttonSize,
+                    buttonSize
+                );
+
                 if (btn.Contains(x, y))
                 {
-                    Game1.playSound("coin");
-                    log.Log($"[AbilityMenu] Clicked + on {row.ModId}/{row.AbilityId}", LogLevel.Debug);
+                    if (mod.SaveData.UnspentSkillPoints > 0)
+                    {
+                        // spend & allocate
+                        mod.AllocateAbilityPoints(row.ModId, row.AbilityId);
+                        Game1.playSound("coin");
+                        log.Log($"[AbilityMenu] Allocated point to {row.ModId}/{row.AbilityId}. Remaining points: {mod.SaveData.UnspentSkillPoints}", LogLevel.Debug);
 
+                        // refresh menu data so XP/level updates immediately
+                        RefreshData();
+                    }
+                    else
+                    {
+                        Game1.playSound("cancel");
+                        log.Log("[AbilityMenu] No unspent points available.", LogLevel.Trace);
+                    }
                     return;
                 }
             }
 
             base.receiveLeftClick(x, y, playSound);
         }
+
 
         public override void receiveScrollWheelAction(int direction)
         {
@@ -384,7 +438,7 @@ namespace UnifiedExperienceSystem
         }
 
 
-         
+
         private List<Row> BuildRowsForDraw()
         {
             var rows = new List<Row>(64);
@@ -398,6 +452,18 @@ namespace UnifiedExperienceSystem
 
                 foreach (var a in g.Abilities)
                 {
+                    bool atMax = uesApi?.IsAbilityAtMax(a.ModId, a.AbilityId) ?? false;
+                    int into = 0, needed = 0, total = 0;
+
+                    if (!atMax && uesApi != null)
+                    {
+   
+                        var (xpInto, xpNeeded, _) = uesApi.GetAbilityProgress(a.ModId, a.AbilityId);
+                        into = Math.Max(0, xpInto);
+                        needed = Math.Max(0, xpNeeded);
+                        total = into + needed;
+                    }
+
                     rows.Add(new Row
                     {
                         IsHeader = false,
@@ -406,11 +472,19 @@ namespace UnifiedExperienceSystem
                         AbilityName = a.AbilityName,
                         Description = a.Description,
                         Level = a.Level,
-                        TotalExp = a.TotalExp
+                        TotalExp = a.TotalExp,
+                        MaxLevel = a.MaxLevel,
+
+         
+                        AtMax = atMax,
+                        XpInto = into,
+                        XpNeeded = needed,
+                        XpLevelTotal = total
                     });
                 }
             }
             return rows;
         }
+
     }
 }
