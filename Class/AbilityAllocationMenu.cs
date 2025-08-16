@@ -12,7 +12,7 @@ namespace UnifiedExperienceSystem
     {
         private readonly ModEntry mod;
         private readonly IMonitor log;
-
+        private string? expandedRowKey;
 
         private IUnifiedExperienceAPI? uesApi;
 
@@ -241,6 +241,9 @@ namespace UnifiedExperienceSystem
             int maxScroll = Math.Max(0, rows.Count - MaxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
 
+
+            string? expandedTooltipToDraw = null;
+
             int rowStartY = titleY + 100;
             int buttonSize = Math.Min(RowHeight - 10, 48);
 
@@ -284,10 +287,15 @@ namespace UnifiedExperienceSystem
 
 
                     var textRect = new Rectangle(xPositionOnScreen + 70, y, width - 200, RowHeight);
-                    _hoverRegions.Add((textRect, BuildAbilityTooltip(row)));
 
        
                     SpriteText.drawString(b, text, xPositionOnScreen + 70, y);
+                    string key = $"{row.ModId}/{row.AbilityId}";
+                    if (expandedRowKey == key)
+                    {
+                        expandedTooltipToDraw = BuildAbilityTooltip(row); // defer drawing
+                    }
+
 
                     //Only draw bar if not at Max level.
                     if (showPlus)
@@ -378,9 +386,10 @@ namespace UnifiedExperienceSystem
             upArrow.draw(b);
             downArrow.draw(b);
             closeButton.draw(b);
+            if (!string.IsNullOrEmpty(expandedTooltipToDraw))
+                IClickableMenu.drawHoverText(b, expandedTooltipToDraw, Game1.smallFont);
             drawMouse(b);
-            if (!string.IsNullOrEmpty(_hoverText))
-                IClickableMenu.drawHoverText(b, _hoverText, Game1.smallFont);
+
         }
 
         private string BuildAbilityTooltip(Row row)
@@ -412,23 +421,18 @@ namespace UnifiedExperienceSystem
 
         public override void performHoverAction(int x, int y)
         {
-            _hoverText = null;
-            foreach (var (bounds, tip) in _hoverRegions)
-            {
-                if (bounds.Contains(x, y))
-                {
-                    _hoverText = tip;
-                    break;
-                }
-            }
+            _hoverText = null; 
             base.performHoverAction(x, y);
         }
+
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
             var rows = BuildRowsForDraw();
             int maxScroll = Math.Max(0, rows.Count - MaxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
+
+
 
             // --- navigation buttons ---
             if (upArrow.containsPoint(x, y))
@@ -450,7 +454,7 @@ namespace UnifiedExperienceSystem
                 return;
             }
 
-            // --- ability + buttons ---
+            // --- rows (click-to-toggle context help, then [+] button) ---
             int titleY = yPositionOnScreen + 40 + yOffset;
             int rowStartY = titleY + 100;
             int buttonSize = Math.Min(RowHeight - 10, 48);
@@ -461,17 +465,29 @@ namespace UnifiedExperienceSystem
                 if (row.IsHeader)
                     continue;
 
+                int rowY = rowStartY + i * RowHeight;
+
+                // 1) click on row text toggles context help
+                var textRect = new Rectangle(xPositionOnScreen + 70, rowY, width - 200, RowHeight);
+                if (textRect.Contains(x, y))
+                {
+                    string key = $"{row.ModId}/{row.AbilityId}";
+                    expandedRowKey = (expandedRowKey == key) ? null : key; // toggle
+                    Game1.playSound("smallSelect");
+                    return;
+                }
+
+                // 2) [+] button (only when not at max, preserves your behavior)
                 bool showPlus = !row.AtMax;
-                if (!showPlus) continue;
+                if (!showPlus)
+                    continue;
 
                 Rectangle btn = new Rectangle(
                     xPositionOnScreen + width - buttonSize - 50,
-                    rowStartY + i * RowHeight - 6,
+                    rowY - 6,
                     buttonSize,
                     buttonSize
                 );
-
-
 
                 if (btn.Contains(x, y))
                 {
@@ -494,8 +510,17 @@ namespace UnifiedExperienceSystem
                 }
             }
 
+
+            if (expandedRowKey != null)
+            {
+                expandedRowKey = null;
+                Game1.playSound("smallSelect");
+                return;
+            }
+
             base.receiveLeftClick(x, y, playSound);
         }
+
 
 
         public override void receiveScrollWheelAction(int direction)
