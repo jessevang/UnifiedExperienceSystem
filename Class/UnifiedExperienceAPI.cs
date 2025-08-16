@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static UnifiedExperienceSystem.ModEntry;
 
 namespace UnifiedExperienceSystem
 {
@@ -269,6 +270,52 @@ namespace UnifiedExperienceSystem
             return atMax;
         }
 
+        public int GetAbilityRemainingXpToCap(string modId, string abilityId)
+        {
+            if (!_abilities.TryGetValue((modId, abilityId), out var def)) return int.MaxValue;
+            long exp = GetTotalExpPersisted(modId, abilityId);
+            var (level, into, nextCost, atMax) = ComputeProgress(def, exp);
+            if (atMax) return 0;
+
+            long remain = Math.Max(0, nextCost - into);
+            for (int L = level + 2; L <= def.MaxLevel; L++)
+                remain += CostForLevel(def, L);
+
+            return remain > int.MaxValue ? int.MaxValue : (int)remain;
+        }
+
+
+
+        private static int CostForLevel(AbilityDef def, int level)
+        {
+            if (level <= 0) level = 1;
+
+            switch (def.CurveKind) 
+            {
+                case "linear":
+
+                    return Math.Max(1, def.LinearXpPerLevel);
+
+                case "step":
+   
+                    return Math.Max(0, def.StepBase + def.StepPerLevel * (level - 1));
+
+                case "table":
+                    {
+                        var arr = def.TableLevels ?? Array.Empty<int>();
+                        if (arr.Length == 0) return 1; 
+                        int idx = level - 1;
+                        if (idx < 0) idx = 0;
+                        if (idx >= arr.Length) idx = arr.Length - 1;
+                        return Math.Max(1, arr[idx]);
+                    }
+
+                default:
+                    return 1;
+            }
+        }
+
+
         // ---------------------------------------------------------
         // Helpers: read persisted EXP and compute curve progress
         // ---------------------------------------------------------
@@ -379,6 +426,8 @@ namespace UnifiedExperienceSystem
                 }
             }
         }
+
+
     }
 
 }

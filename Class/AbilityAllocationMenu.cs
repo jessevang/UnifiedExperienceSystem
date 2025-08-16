@@ -259,6 +259,18 @@ namespace UnifiedExperienceSystem
                     var name = row.AbilityName ?? "";
                     var shortName = name.Length > 15 ? (name.Substring(0, 15)+ "..") : name;
 
+                    if (shortName.Length < 15)
+                    {
+                        var spacesToAdd = 15 - shortName.Length;
+
+                        for (int j = 0; j < spacesToAdd; j++)
+                        {
+                            shortName += " ";
+                        }
+                    }
+                    
+
+
                     string text = "";
 
                     //Handles Row text
@@ -266,7 +278,7 @@ namespace UnifiedExperienceSystem
 
 
                     text = row.AtMax ? $"{shortName} (Level: {row.Level})"
-                    : $"{shortName} (Level: {row.Level})      {row.XpNeeded}";
+                    : $"{shortName} (Level: {row.Level})    {row.XpNeeded}";
   
 
 

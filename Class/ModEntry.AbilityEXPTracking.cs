@@ -18,7 +18,7 @@ namespace UnifiedExperienceSystem
             public int MaxLevel { get; set; }
         }
 
-        // called when player spends points or mods add XP
+
         public void AllocateAbilityPoints(string modGuid, string abilityId, int expToAdd = -1)
         {
             if (SaveData.UnspentSkillPoints <= 0 && expToAdd <= 0)
@@ -26,49 +26,66 @@ namespace UnifiedExperienceSystem
 
             SaveData.Abilities ??= new List<AbilitySaveData>();
 
-            var entry = SaveData.Abilities
-                .FirstOrDefault(a => a.ModGuid == modGuid && a.AbilityId == abilityId);
+            var entry = SaveData.Abilities.FirstOrDefault(a =>
+                string.Equals(a.ModGuid, modGuid, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(a.AbilityId, abilityId, StringComparison.OrdinalIgnoreCase));
 
             if (entry == null)
             {
-                entry = new AbilitySaveData
-                {
-                    ModGuid = modGuid,
-                    AbilityId = abilityId,
-                    TotalExpSpent = 0
-                };
+                entry = new AbilitySaveData { ModGuid = modGuid, AbilityId = abilityId, TotalExpSpent = 0 };
                 SaveData.Abilities.Add(entry);
             }
 
-            // spend points if none supplied
-            if (expToAdd <= 0)
+            long current = Math.Max(0, (long)entry.TotalExpSpent);
+
+            // ---------- How much XP is left before hard cap? ----------
+
+            int remainXpToCap = uesApi?.GetAbilityRemainingXpToCap(modGuid, abilityId) ?? int.MaxValue;
+            if (remainXpToCap <= 0)
             {
-                int pointsToUse = Math.Min(Config.PointsAllocatedPerClick, SaveData.UnspentSkillPoints);
-                expToAdd = EXP_PER_POINT * pointsToUse;
-                SaveData.UnspentSkillPoints -= pointsToUse;
+                if (Config.DebugMode)
+                    Monitor.Log($"[Abilities] {modGuid}/{abilityId} already at cap; ignoring spend.", LogLevel.Trace);
+                return;
             }
 
-            // --- MAX CAP LOGIC BASED ON CURVE ---
-            int maxExp = GetMaxExpForAbility(modGuid, abilityId);
-            int newExp = (int)(entry.TotalExpSpent + expToAdd);
-
-            if (newExp > maxExp)
+            // ---------- Direct XP grant path ----------
+            if (expToAdd > 0)
             {
-                expToAdd = (int)(maxExp - entry.TotalExpSpent); // only add up to cap
-                int refund = (newExp - maxExp) / EXP_PER_POINT;
-                SaveData.UnspentSkillPoints += refund; // refund excess
+                long applied = Math.Min(remainXpToCap, (long)expToAdd);
+                entry.TotalExpSpent = checked((int)(current + applied));
+
+                if (Config.DebugMode)
+                    Monitor.Log($"[Abilities] +{applied} XP (external) → {entry.TotalExpSpent}/{GetMaxExpForAbility(modGuid, abilityId)} for {modGuid}/{abilityId}", LogLevel.Debug);
+                return;
             }
 
-            entry.TotalExpSpent += expToAdd;
+            // ---------- Point-based spend path (player click) ----------
+            int canSpend = Math.Min(Config.PointsAllocatedPerClick, SaveData.UnspentSkillPoints);
+            if (canSpend <= 0)
+                return;
+
+            int pointsNeededToCap = (EXP_PER_POINT > 0)
+                ? (int)Math.Ceiling(remainXpToCap / (double)EXP_PER_POINT)
+                : canSpend;
+
+            int pointsToApply = Math.Min(canSpend, pointsNeededToCap);
+
+            long requestedXp = (long)pointsToApply * EXP_PER_POINT;
+            long appliedXp = Math.Min(remainXpToCap, requestedXp);
+
+            entry.TotalExpSpent = checked((int)(current + appliedXp));
+            SaveData.UnspentSkillPoints -= pointsToApply;
 
             if (Config.DebugMode)
-                Monitor.Log(
-                    $"[Abilities] Added {expToAdd} XP → {modGuid}/{abilityId}. " +
-                    $"Total = {entry.TotalExpSpent}/{maxExp}. " +
-                    $"Points left = {SaveData.UnspentSkillPoints}",
-                    LogLevel.Debug
-                );
+                Monitor.Log($"[Abilities] +{appliedXp} XP using {pointsToApply} pts → total {entry.TotalExpSpent}/{GetMaxExpForAbility(modGuid, abilityId)}", LogLevel.Debug);
         }
+
+
+
+
+
+
+
 
         private int GetMaxExpForAbility(string modId, string abilityId)
         {
@@ -105,5 +122,11 @@ namespace UnifiedExperienceSystem
             return totalXp;
         }
 
+
+
+
+
     }
+
+
 }

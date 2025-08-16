@@ -74,8 +74,9 @@ namespace UnifiedExperienceSystem
         private bool isAllocatingPoint = false;
         private UnifiedExperienceAPI apiInstance;
 
-        private readonly Dictionary<(string modGuid, string abilityId), long> _totalExpByAbility = new();  
-
+        private readonly Dictionary<(string modGuid, string abilityId), long> _totalExpByAbility = new();
+        
+        private IUnifiedExperienceAPI uesApi;  //API
 
 
         public override void Entry(IModHelper helper)
@@ -95,7 +96,7 @@ namespace UnifiedExperienceSystem
             HookAbilityToolbarEvents(helper);
 
 
-
+            
 
 
         }
@@ -122,7 +123,7 @@ namespace UnifiedExperienceSystem
             RegisterGMCM();
             RegisterSpaceCore();
 
-
+            uesApi = Helper.ModRegistry.GetApi<IUnifiedExperienceAPI>("Darkmushu.UnifiedExperienceSystem");
         }
 
         private void RegisterSpaceCore()
