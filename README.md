@@ -6,7 +6,7 @@
 3. Launch the game using 'StardewModdingAPI.exe'
 
 ## Developer API Guide
-This mod provides a public API to access and modify player experience, levels, points, & more.
+This mod provides a public API to access and register your mod's ability and obtain information around ability and skills.
 
 Step 1: Add the API Interface
 
@@ -14,41 +14,75 @@ Step 1: Add the API Interface
     Copy the IUnifiedExperienceAPI.cs file from this repository into your IUnifiedExperienceAPI.cs
 
 
-Step 2: Register the API
-To register API add something like the follow below in your gameLaunched, SaveLoaded, or DayStarted event. Example of a gameLaunched event below
+Step 2: Register the API with your Abilities
+To register API to gameLaunched
 ```csharp
-public override void Entry(IModHelper helper)
+public class ModEntry : Mod
 {
-    helper.Events.GameLoop.GameLaunched += OnGameLaunched;
-}
+    private UnifiedExperienceSystem.IUnifiedExperienceAPI? uesApi;  
 
-private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
-{
-
-    //registers API
-    var api = Helper.ModRegistry.GetApi<IUnifiedExperienceAPI>("UnifiedExperienceSystem");
-    if (api != null)
+    public override void Entry(IModHelper helper)
     {
-        Monitor.Log("Unified Experience API found!", LogLevel.Debug);
-        //Add Logic, example of some calls:
-            // --- Start-of-Day Data ---
-        int combatXP = api.GetStartOfDayExp("Combat");
-        api.SetStartOfDayLevel("Mining", 4);
+        helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+    }
 
-        var allExp = api.GetAllStartOfDayExp();
-        var allLevels = api.GetAllStartOfDayLevel();
+    private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+    {
+        RegisterUES();
+    }
 
-        // --- Global EXP System ---
-        int currentGlobalExp = api.GetGlobalEXP();
-        int points = api.GetUnspentSkillPoints();
+    private void RegisterUES()
+    {
+        //Registers Mod,
+        uesApi = Helper.ModRegistry.GetApi<UnifiedExperienceSystem.IUnifiedExperienceAPI>("Darkmushu.UnifiedExperienceSystem");
 
-        api.SetGlobalEXP(currentGlobalExp + 500);
-        api.SetUnspentSkillPoints(50);
+        if (uesApi == null)
+        {
+            return;
+        }
 
-        // List all tracked skill names
-        foreach (var skill in api.GetAllSkillNames())
-            Monitor.Log($"Tracking skill: {skill}", LogLevel.Debug);
+        // Linear curve — XP is fixed per level, need 1k to reach level 1, if level was set to 10, then need 10k xp to reach level 10.
+        uesApi.RegisterAbility(
+            modUniqueId: this.ModManifest.UniqueID,
+            abilityId: "FlyingWeaponMountIgnoresCollision",
+            displayName: "Flying Weapon Mount Flys Over Everything",
+            description: "Unlocks ability fly anywhere.",
+            curveKind: "linear",
+            curveData: new Dictionary<string, object>
+            {
+        { "xpPerLevel", 1000 }
+            },
+            maxLevel: 1
+        );
 
+        //Step Curve - base 200xp, next level is 400+200, next one is 600+200... at level 10 it's 400+(10-1)*200 = 2200, total experience need to reach 10 is 13k xp
+        uesApi.RegisterAbility(
+            modUniqueId: this.ModManifest.UniqueID,
+            abilityId: "FlyingWeaponMountSpeed",
+            displayName: "Flying Weapon Mount Speed",
+            description: "Increase weapon mount Speed by .25 per Level.",
+            curveKind: "step",
+            curveData: new Dictionary<string, object>
+            {
+                { "base", 400 },
+                { "step", 200 }
+            },
+            maxLevel: 10
+        );
+
+        //Table Curve - Level 1 needs 100 XP, level 2 needs 200xp, level 3 need 300 xp, level 10 needs 1500xp, total xp to reach level 10 is 7300XP.
+        uesApi.RegisterAbility(
+            modUniqueId: this.ModManifest.UniqueID,
+            abilityId: "FlyingWeaponMountStaminaDrain",
+            displayName: "Reduce Stamina Drain",
+            description: "Increase weapon mount Speed by .25 per Level",
+            curveKind: "table",
+            curveData: new Dictionary<string, object>
+            {
+                { "levels", new int[] { 100, 200, 300, 500, 600, 800, 1000, 1100, 1200, 1500 } }
+            },
+            maxLevel: 10
+        );
     }
 
 }
@@ -60,7 +94,7 @@ Step 3: Add This Mod as a Dependencies in your Manifesto
     {
     "UniqueID": "UnifiedExperienceSystem",
     "IsRequired": false
-     "MinimumVersion": "1.0.7"
+     "MinimumVersion": "1.1.0"
     }
 ]
 ```
@@ -68,12 +102,6 @@ Step 3: Add This Mod as a Dependencies in your Manifesto
 Step 4: Use Case for this API
 Once you've accessed the API, you can:
 
-    Get the start of the day Skill's EXP at the start of the day.
-    Get the start of the day level for a skill.
-    Change the start of the day XP or level.
-    View or replace the full list of recorded skills and values.
-    Adjust start-of-day XP/level if your mod modifies these values to be lower or set back to 0 exp, becaues my global experience only adds skill exp that exceeds start of the day exp.
-    Spend or grant global EXP or skill points as quest/event rewards
-    Adjust level values when syncing with other mods that change player stats
-    Let player reset skills experience by removing all experience then adding points to allow user to reuse all skill points.
+    Set XP for Skills or XP for Abilities
+    View Ability Levels to perform certain actions
        

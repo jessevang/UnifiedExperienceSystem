@@ -23,6 +23,11 @@ namespace UnifiedExperienceSystem
             new Keybind(SButton.F2),
             new Keybind(SButton.LeftTrigger, SButton.RightTrigger)
         );
+
+        public KeybindList ToggleAbilityMenuKeys { get; set; } = new(
+            new Keybind(SButton.F3),
+            new Keybind(SButton.LeftThumbstickLeft, SButton.RightTrigger)
+        );
         public bool ShowSkillPointButton { get; set; } = true;
         public int UpdateIntervalTicks { get; set; } = 6;
         public bool LuckSkillIsEnabled { get; set; } = false;
@@ -38,6 +43,11 @@ namespace UnifiedExperienceSystem
         public int? ButtonPosY { get; set; } = null;
 
         public int PointsAllocatedPerClick = 1;
+
+
+        public bool ShowAbilityButton { get; set; } = true;
+        public int? AbilityButtonPosX { get; set; } = 10;
+        public int? AbilityButtonPosY { get; set; } = -10;
 
 
 
@@ -82,6 +92,7 @@ namespace UnifiedExperienceSystem
             helper.Events.Input.ButtonReleased += OnButtonReleased;
 
             helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
+            HookAbilityToolbarEvents(helper);
 
 
 
