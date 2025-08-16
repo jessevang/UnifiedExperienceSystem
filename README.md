@@ -45,9 +45,6 @@ private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         api.SetGlobalEXP(currentGlobalExp + 500);
         api.SetUnspentSkillPoints(50);
 
-        // Change EXP-per-point ratio (e.g., make leveling harder)
-        api.SetEXPPerPoint(200);
-
         // List all tracked skill names
         foreach (var skill in api.GetAllSkillNames())
             Monitor.Log($"Tracking skill: {skill}", LogLevel.Debug);

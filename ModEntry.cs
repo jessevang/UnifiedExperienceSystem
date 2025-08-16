@@ -54,7 +54,7 @@ namespace UnifiedExperienceSystem
     public partial class ModEntry : Mod
     {
         private ISpaceCoreApi spaceCoreApi;
-        public int EXP_PER_POINT = 100;
+        public const int EXP_PER_POINT = 100;
         public SaveData SaveData { get; private set; } = new SaveData();
         public ModConfig Config { get; private set; }
         public Dictionary<string, int> startOfDayExp { get; private set; } = new();
@@ -64,7 +64,7 @@ namespace UnifiedExperienceSystem
         private bool isAllocatingPoint = false;
         private UnifiedExperienceAPI apiInstance;
 
-
+        private readonly Dictionary<(string modGuid, string abilityId), long> _totalExpByAbility = new();  
 
 
 
@@ -152,10 +152,14 @@ namespace UnifiedExperienceSystem
                 _ => "Unknown"
             };
         }
-
+        
         private void LoadSaveData()
         {
             SaveData = Helper.Data.ReadSaveData<SaveData>("PlayerExpData") ?? new SaveData();
+
+            // ensure not null for old saves
+            if (SaveData.Abilities == null)
+                SaveData.Abilities = new List<AbilitySaveData>();
         }
 
         private void SaveToFile()
