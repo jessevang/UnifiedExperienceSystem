@@ -257,11 +257,12 @@ namespace UnifiedExperienceSystem
                 {
 
                     var name = row.AbilityName ?? "";
-                    var shortName = name.Length > 10 ? (name.Substring(0, 10)+ "..") : name;
+                    var shortName = name.Length > 15 ? (name.Substring(0, 15)+ "..") : name;
+                    
                     string text = row.AtMax ? $"{shortName} (Lv{row.Level}/{row.MaxLevel}) XP:{row.TotalExp}"
-                    : $"{shortName} (Lv{row.Level}/{row.MaxLevel}) XP: {row.TotalExp} ({row.XpNeeded} to next)";
-
-
+                    : $"{shortName} (Lv{row.Level}/{row.MaxLevel})       {row.XpNeeded}";
+                    
+                    //string text = $"{shortName} (Lv{row.Level}/{row.MaxLevel}) XP:{row.TotalExp}";
 
                     var textRect = new Rectangle(xPositionOnScreen + 70, y, width - 200, RowHeight);
                     _hoverRegions.Add((textRect, BuildAbilityTooltip(row)));

@@ -254,8 +254,9 @@ namespace UnifiedExperienceSystem
             if (!_abilities.TryGetValue(key, out var def)) return (0, 0, 1);
 
             long exp = GetTotalExpPersisted(modUniqueId, abilityId);
-            var (_, into, needed, _) = ComputeProgress(def, exp);
-            return (into, needed, def.MaxLevel);
+            var (_, into, nextLevelCost, atMax) = ComputeProgress(def, exp);
+            int neededRemaining = atMax ? 0 : Math.Max(0, nextLevelCost - into);
+            return (into, neededRemaining, def.MaxLevel);
         }
 
         public bool IsAbilityAtMax(string modUniqueId, string abilityId)
