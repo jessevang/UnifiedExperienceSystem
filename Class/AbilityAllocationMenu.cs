@@ -121,11 +121,25 @@ namespace UnifiedExperienceSystem
         }
 
 
-        private void RefreshData()
+        private void RefreshData(bool preserveScroll = false)
         {
+            int oldScroll = scrollIndex;
+
             groups = BuildAbilityListingForUi();
-            scrollIndex = 0;
+
+            if (preserveScroll)
+            {
+                // clamp to the new max (in case row count changed)
+                var rows = BuildRowsForDraw();
+                int maxScroll = Math.Max(0, rows.Count - MaxVisibleRows);
+                scrollIndex = MathHelper.Clamp(oldScroll, 0, maxScroll);
+            }
+            else
+            {
+                scrollIndex = 0;
+            }
         }
+
 
         private List<AbilityGroupVM> BuildAbilityListingForUi()
         {
@@ -499,7 +513,7 @@ namespace UnifiedExperienceSystem
                         log.Log($"[AbilityMenu] Allocated point to {row.ModId}/{row.AbilityId}. Remaining points: {mod.SaveData.UnspentSkillPoints}", LogLevel.Debug);
 
                         // refresh menu data so XP/level updates immediately
-                        RefreshData();
+                        RefreshData(preserveScroll: true);
                     }
                     else
                     {
