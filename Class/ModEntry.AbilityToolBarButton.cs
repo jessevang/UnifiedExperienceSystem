@@ -8,7 +8,7 @@ namespace UnifiedExperienceSystem
 {
     public partial class ModEntry
     {
-        // --- Ability toolbar button state (keep names consistent!) ---
+
         private Point abilityDragOffset = Point.Zero;
         private int? abilityTempButtonPosX = null;
         private int? abilityTempButtonPosY = null;
@@ -22,13 +22,15 @@ namespace UnifiedExperienceSystem
         private float abilityHoldTimer = 0f;
         private const float AbilityHoldDelaySeconds = 1.0f;
 
-        // Call this once in Entry(...)
+
         private void HookAbilityToolbarEvents(IModHelper helper)
         {
             helper.Events.Display.RenderedHud += AbilityOnRenderedHud;
             helper.Events.Input.ButtonPressed += AbilityOnButtonPressed;
+            
             helper.Events.Input.ButtonReleased += AbilityOnButtonReleased;
             helper.Events.GameLoop.UpdateTicked += AbilityOnUpdateTicked;
+ 
         }
 
         private void AbilityOnUpdateTicked(object? sender, UpdateTickedEventArgs e)
@@ -65,13 +67,13 @@ namespace UnifiedExperienceSystem
                 drawShadow: false
             );
 
-            string pointText = SaveData.UnspentSkillPoints.ToString();
+            string pointText = "A";//SaveData.UnspentSkillPoints.ToString();
             Vector2 textSize = Game1.smallFont.MeasureString(pointText);
             Vector2 textPos = new(
                 bounds.Center.X - textSize.X / 2,
                 bounds.Center.Y - textSize.Y / 2
             );
-            e.SpriteBatch.DrawString(Game1.smallFont, pointText, textPos, Color.Black);
+            e.SpriteBatch.DrawString(Game1.smallFont, pointText, textPos, Color.Red);
         }
 
         private Rectangle AbilityGetButtonBoundsForUI(bool forClick = false)
@@ -83,8 +85,7 @@ namespace UnifiedExperienceSystem
             int buttonWidth = (int)(baseButtonWidth * uiScale);
             int buttonHeight = (int)(baseButtonHeight * uiScale);
 
-            // NOTE: reusing your existing Config.ButtonPosX/Y and temp vars.
-            // If you want separate ability button position, add Config.AbilityButtonPosX/Y and swap here.
+
             int logicalX = (forClick ? Config.AbilityButtonPosX : abilityTempButtonPosX ?? Config.AbilityButtonPosX) ?? 10;
             int logicalY = (forClick ? Config.AbilityButtonPosY : abilityTempButtonPosY ?? Config.AbilityButtonPosY) ?? -10;
 
@@ -113,8 +114,7 @@ namespace UnifiedExperienceSystem
             if (!Context.IsWorldReady)
                 return;
 
-            // OPTIONAL: toggle menu hotkey reuse (adjust to your ability UI later)
-            if (Config.ToggleMenuKeys.JustPressed())
+            if (Config.ToggleAbilityMenuKeys.JustPressed())
             {
                 if (Game1.activeClickableMenu is AbilityAllocationMenu)
                 {
@@ -180,16 +180,16 @@ namespace UnifiedExperienceSystem
                 }
                 else if (Game1.activeClickableMenu == null)
                 {
-                    Game1.activeClickableMenu = new AbilityAllocationMenu(this); // placeholder
+                    Game1.activeClickableMenu = new AbilityAllocationMenu(this); 
                     Game1.playSound("bigSelect");
                 }
             }
             else
             {
-                // drop → persist new position
+
                 if (abilityTempButtonPosX.HasValue && abilityTempButtonPosY.HasValue)
                 {
-                    Config.AbilityButtonPosX = abilityTempButtonPosX.Value; // swap to Config.AbilityButtonPosX if you split later
+                    Config.AbilityButtonPosX = abilityTempButtonPosX.Value; 
                     Config.AbilityButtonPosY = abilityTempButtonPosY.Value;
                     Helper.WriteConfig(Config);
                 }
@@ -198,7 +198,7 @@ namespace UnifiedExperienceSystem
                 abilityTempButtonPosY = null;
             }
 
-            // reset state
+
             abilityIsHolding = false;
             abilityHoldTimer = 0f;
             abilityOnMouseDownX = null;

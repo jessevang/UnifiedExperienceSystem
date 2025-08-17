@@ -16,7 +16,7 @@ Step 1: Add the API Interface
 
 
 Step 2: Register the API with your Abilities
-To register API to gameLaunched
+To register API see method for gameLaunched, To see API call to get your ability level see OnButtonPress Method.
 ```csharp
 public class ModEntry : Mod
 {
@@ -24,7 +24,28 @@ public class ModEntry : Mod
 
     public override void Entry(IModHelper helper)
     {
+        helper.Events.Input.ButtonPressed += OnButtonPressed;
         helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+    }
+
+    private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+    {
+            if (!Context.IsWorldReady)
+                return;
+            if (Config.WeaponFlyModeOnOffToggleHotkey.JustPressed())
+            {
+                int Abilitylevel = uesApi.GetAbilityLevel(this.ModManifest.UniqueID, "FlyingWeaponMountIgnoresCollision");
+
+                if (Abilitylevel ==0)
+                    return
+
+                if (Abilitylevel >0)
+                {
+                    //Do Action 
+                }
+
+                
+            }
     }
 
     private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
@@ -103,6 +124,6 @@ Step 3: Add This Mod as a Dependencies in your Manifesto
 Step 4: Use Case for this API
 Once you've accessed the API, you can:
 
-    Set XP for Skills or Abilities
-    Get Ability Levels to perform certain actions in Mod
+    Set XP for Skills or Abilities for your mod or other's mod that are registered
+    Get Ability Levels to perform what your mod offers.
        

@@ -45,13 +45,13 @@ namespace UnifiedExperienceSystem
             );
 
 
-            string pointText = SaveData.UnspentSkillPoints.ToString();
+            string pointText = "S";// SaveData.UnspentSkillPoints.ToString();
             Vector2 textSize = Game1.smallFont.MeasureString(pointText);
             Vector2 textPos = new Vector2(
                 skillButtonBounds.Center.X - textSize.X / 2,
                 skillButtonBounds.Center.Y - textSize.Y / 2
             );
-            e.SpriteBatch.DrawString(Game1.smallFont, pointText, textPos, Color.Black);
+            e.SpriteBatch.DrawString(Game1.smallFont, pointText, textPos, Color.Blue);
         }
 
         private Rectangle GetButtonBoundsForUI(bool forClick = false)

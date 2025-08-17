@@ -154,7 +154,7 @@ namespace UnifiedExperienceSystem
 
             isAllocatingPoint = true;
 
-            //Added Logic to configure how many points of XP should be used and allocated
+            //Added Logic to configure number of points of XP should be used and allocated
             int pointsThatCanBeAllocated = SaveData.UnspentSkillPoints - Config.PointsAllocatedPerClick >= 0 ? Config.PointsAllocatedPerClick : SaveData.UnspentSkillPoints;
             int ModifiedXPToAdd = EXP_PER_POINT * pointsThatCanBeAllocated;
       
@@ -189,7 +189,7 @@ namespace UnifiedExperienceSystem
                 }
 
 
-                //Updated Logic for Skill Point to subtract not 1, but the actual amount based on configured allocated amount
+
                 SaveData.UnspentSkillPoints -= pointsThatCanBeAllocated;
 
                 if (Config.DebugMode)
@@ -202,62 +202,6 @@ namespace UnifiedExperienceSystem
             }
         }
 
-
-        /*
-        public void AllocateAbilityPoints(string modGuid, string abilityId)
-        {
-            if (SaveData.UnspentSkillPoints <= 0)
-                return;
-
-            isAllocatingPoint = true;
-
-            // how many points to spend this click
-            int pointsThatCanBeAllocated =
-                SaveData.UnspentSkillPoints - Config.PointsAllocatedPerClick >= 0
-                ? Config.PointsAllocatedPerClick
-                : SaveData.UnspentSkillPoints;
-
-            int expToAdd = EXP_PER_POINT * pointsThatCanBeAllocated;
-
-            try
-            {
-                // find or create the ability entry in SaveData (persisted at save time only)
-                if (SaveData.Abilities == null)
-                    SaveData.Abilities = new List<AbilitySaveData>();
-
-                var entry = SaveData.Abilities
-                    .FirstOrDefault(a => a.ModGuid == modGuid && a.AbilityId == abilityId);
-
-                if (entry == null)
-                {
-                    entry = new AbilitySaveData
-                    {
-                        ModGuid = modGuid,
-                        AbilityId = abilityId,
-                        TotalExpSpent = 0
-                    };
-                    SaveData.Abilities.Add(entry);
-                }
-
-                // add EXP in memory (commits only when SaveToFile() runs)
-                checked
-                {
-                    entry.TotalExpSpent = Math.Max(0, entry.TotalExpSpent + expToAdd);
-                }
-
-                // subtract spent points in memory (also only persists on save)
-                SaveData.UnspentSkillPoints -= pointsThatCanBeAllocated;
-
-                if (Config.DebugMode)
-                    Monitor.Log($"Allocated {expToAdd} EXP to ability {modGuid}/{abilityId}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
-            }
-            finally
-            {
-                isAllocatingPoint = false;
-            }
-        }
-
-        */
 
 
 

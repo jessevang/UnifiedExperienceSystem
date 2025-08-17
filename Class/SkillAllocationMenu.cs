@@ -75,6 +75,7 @@ namespace UnifiedExperienceSystem
                 titleY
             );
 
+
             var visibleSkills = skillList.FindAll(s => !s.IsVanilla || s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled);
             int maxScroll = Math.Max(0, visibleSkills.Count - maxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);

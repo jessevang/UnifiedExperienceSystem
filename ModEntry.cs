@@ -39,15 +39,15 @@ namespace UnifiedExperienceSystem
         public int SkillMenuRowSpacing { get; set; } = 80;
 
 
-        public int? ButtonPosX { get; set; } = null;
-        public int? ButtonPosY { get; set; } = null;
+        public int? ButtonPosX { get; set; } = 700;
+        public int? ButtonPosY { get; set; } = 432;
 
         public int PointsAllocatedPerClick = 1;
 
 
         public bool ShowAbilityButton { get; set; } = true;
-        public int? AbilityButtonPosX { get; set; } = 10;
-        public int? AbilityButtonPosY { get; set; } = -10;
+        public int? AbilityButtonPosX { get; set; } = 500;
+        public int? AbilityButtonPosY { get; set; } = 432;
 
 
 
