@@ -1,33 +1,39 @@
 ﻿{
-  "config.toggleMenuHotkeys.name": "Menü değiştirme kısayolları",
-  "config.toggleMenuHotkeys.tooltip": "Birleşik Deneyim menüsünü açan tuşlar.",
+  "config.toggleMenuHotkeysSkill.name": "Beceri Menüsü",
+  "config.toggleMenuHotkeysSkill.tooltip": "Beceri menüsünü aç",
 
-  "config.showSkillPointButton.name": "Yetenek puanı düğmesini göster",
-  "config.showSkillPointButton.tooltip": "HUD araç çubuğunda yetenek düğmesinin gösterilip gösterilmeyeceği.",
+  "config.toggleMenuHotkeysAbility.name": "Yetenek Menüsü",
+  "config.toggleMenuHotkeysAbility.tooltip": "Yetenek menüsünü aç",
+
+  "config.showSkillPointButton.name": "Özel beceri puanı düğmesini göster",
+  "config.showSkillPointButton.tooltip": "Özel HUD'da beceri düğmesinin gösterilip gösterilmeyeceği.",
+
+  "config.showAbilityPointButton.name": "Özel yetenek puanı düğmesini göster",
+  "config.showAbilityPointButton.tooltip": "Özel HUD'da yetenek düğmesinin gösterilip gösterilmeyeceği.",
 
   "config.updateIntervalTicks.name": "EXP kontrol aralığı",
-  "config.updateIntervalTicks.tooltip": "Deneyim kontrolleri arasındaki oyun tick sayısı (60 tick = 1 saniye).\nVarsayılan 6 tick = 0,1 saniye.",
+  "config.updateIntervalTicks.tooltip": "Deneyim kontrolleri arasındaki oyun tik sayısı (60 tik = 1 saniye).\nVarsayılan: 6 tik = 0.1 saniye.",
 
-  "config.pointsAllocatedPerClick.name": "Tıklama başına ayrılan puan",
-  "config.pointsAllocatedPerClick.tooltip": "Her tıklamada verilen yetenek puanı sayısı.",
+  "config.pointsAllocatedPerClick.name": "Tıklama başına verilen puan",
+  "config.pointsAllocatedPerClick.tooltip": "Her tıklamada verilen beceri puanı sayısı.",
 
-  "config.luckSkillIsEnabled.name": "Şans yeteneğini etkinleştir",
-  "config.luckSkillIsEnabled.tooltip": "Şans yeteneğini yetenek menüsüne ve EXP takibine dahil et.",
+  "config.luckSkillIsEnabled.name": "Şans becerisini etkinleştir",
+  "config.luckSkillIsEnabled.tooltip": "Şans becerisini beceri menüsüne ve EXP takibine dahil eder.",
 
   "config.debugMode.name": "Hata ayıklama günlüğünü etkinleştir",
-  "config.debugMode.tooltip": "Yetenek EXP değişimleri, puan dağıtımı ve yetenek takibi için ayrıntılı günlüklemeyi etkinleştirir.",
+  "config.debugMode.tooltip": "Beceri EXP değişiklikleri, puan dağıtımı ve beceri takibi için ayrıntılı günlükleri etkinleştirir.",
 
   "config.menuWidth.name": "Menü genişliği",
-  "config.menuWidth.tooltip": "Yetenek menüsünün genişliği.",
+  "config.menuWidth.tooltip": "Beceri menüsünün genişliği.",
 
   "config.menuHeight.name": "Menü yüksekliği",
-  "config.menuHeight.tooltip": "Yetenek menüsünün yüksekliği.",
+  "config.menuHeight.tooltip": "Beceri menüsünün yüksekliği.",
 
-  "config.skillMenuVisibleRows.name": "Bir defada gösterilen yetenek sayısı",
-  "config.skillMenuVisibleRows.tooltip": "Kaydırma gerekmeye başlamadan önce görünür olan yetenek satırı sayısı.",
+  "config.skillMenuVisibleRows.name": "Aynı anda görüntülenen beceri sayısı",
+  "config.skillMenuVisibleRows.tooltip": "Kaydırma gerekmeden önce görünür olan beceri satırı sayısı.",
 
   "config.skillMenuRowSpacing.name": "Satırlar arası boşluk",
-  "config.skillMenuRowSpacing.tooltip": "Her yetenek satırı arasındaki dikey boşluk; Ekle düğmelerini yaymak için kullanılır.",
+  "config.skillMenuRowSpacing.tooltip": "Her beceri satırı arasındaki dikey boşluk. Ekle düğmelerini yaymak için kullanılır.",
 
   "ui.availablePoints": "Kullanılabilir puanlar"
 }

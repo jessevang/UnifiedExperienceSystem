@@ -1,33 +1,39 @@
 {
-  "config.toggleMenuHotkeys.name": "Atajos para alternar el menú",
-  "config.toggleMenuHotkeys.tooltip": "Teclas que abren el menú de Experiencia Unificada.",
+  "config.toggleMenuHotkeysSkill.name": "MenÃº de Habilidades",
+  "config.toggleMenuHotkeysSkill.tooltip": "Abrir el menÃº de habilidades",
 
-  "config.showSkillPointButton.name": "Mostrar botón de puntos de habilidad",
-  "config.showSkillPointButton.tooltip": "Si se muestra el botón de habilidades en la barra de herramientas del HUD.",
+  "config.toggleMenuHotkeysAbility.name": "MenÃº de Aptitudes",
+  "config.toggleMenuHotkeysAbility.tooltip": "Abrir el menÃº de aptitudes",
 
-  "config.updateIntervalTicks.name": "Intervalo de comprobación de EXP",
-  "config.updateIntervalTicks.tooltip": "Número de tics de juego entre comprobaciones de experiencia (60 tics = 1 segundo).\nEl valor predeterminado es 6 tics = 0.1 segundos.",
+  "config.showSkillPointButton.name": "Mostrar botÃ³n de puntos de habilidad personalizado",
+  "config.showSkillPointButton.tooltip": "Si se muestra el botÃ³n de habilidad en el HUD personalizado.",
+
+  "config.showAbilityPointButton.name": "Mostrar botÃ³n de puntos de aptitud personalizado",
+  "config.showAbilityPointButton.tooltip": "Si se muestra el botÃ³n de aptitud en el HUD personalizado.",
+
+  "config.updateIntervalTicks.name": "Intervalo de comprobaciÃ³n de EXP",
+  "config.updateIntervalTicks.tooltip": "NÃºmero de ticks del juego entre comprobaciones de experiencia (60 ticks = 1 segundo).\nEl valor predeterminado es 6 ticks = 0.1 segundos.",
 
   "config.pointsAllocatedPerClick.name": "Puntos asignados por clic",
-  "config.pointsAllocatedPerClick.tooltip": "Número de puntos de habilidad asignados por cada clic.",
+  "config.pointsAllocatedPerClick.tooltip": "Cantidad de puntos de habilidad asignados por clic.",
 
-  "config.luckSkillIsEnabled.name": "Habilitar habilidad de Suerte",
-  "config.luckSkillIsEnabled.tooltip": "Incluye la habilidad de Suerte en el menú de habilidades y en el seguimiento de EXP.",
+  "config.luckSkillIsEnabled.name": "Habilitar la habilidad Suerte",
+  "config.luckSkillIsEnabled.tooltip": "Incluye la habilidad Suerte en el menÃº de habilidades y el seguimiento de EXP.",
 
-  "config.debugMode.name": "Habilitar registro de depuración",
-  "config.debugMode.tooltip": "Activa un registro detallado de cambios de EXP, asignación de puntos y seguimiento de habilidades.",
+  "config.debugMode.name": "Habilitar registro de depuraciÃ³n",
+  "config.debugMode.tooltip": "Activa el registro detallado de cambios de EXP, asignaciÃ³n de puntos y seguimiento de habilidades.",
 
-  "config.menuWidth.name": "Ancho del menú",
-  "config.menuWidth.tooltip": "Ancho del menú de habilidades.",
+  "config.menuWidth.name": "Ancho del menÃº",
+  "config.menuWidth.tooltip": "Ancho del menÃº de habilidades.",
 
-  "config.menuHeight.name": "Altura del menú",
-  "config.menuHeight.tooltip": "Altura del menú de habilidades.",
+  "config.menuHeight.name": "Altura del menÃº",
+  "config.menuHeight.tooltip": "Altura del menÃº de habilidades.",
 
-  "config.skillMenuVisibleRows.name": "Habilidades mostradas a la vez",
-  "config.skillMenuVisibleRows.tooltip": "Cantidad de filas de habilidades visibles antes de necesitar desplazarse.",
+  "config.skillMenuVisibleRows.name": "NÃºmero de habilidades mostradas a la vez",
+  "config.skillMenuVisibleRows.tooltip": "CuÃ¡ntas filas de habilidades son visibles antes de necesitar desplazamiento.",
 
-  "config.skillMenuRowSpacing.name": "Espacio entre filas",
-  "config.skillMenuRowSpacing.tooltip": "Espacio vertical entre cada fila de habilidades. Sirve para separar mejor los botones de \"Añadir\".",
+  "config.skillMenuRowSpacing.name": "Espacio entre cada fila",
+  "config.skillMenuRowSpacing.tooltip": "El espacio vertical entre cada fila de habilidades. Se usa para separar los botones Agregar.",
 
   "ui.availablePoints": "Puntos disponibles"
 }

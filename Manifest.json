@@ -15,7 +15,15 @@
     {
       "UniqueID": "spacechase0.SpaceCore",
       "IsRequired": false
+    },
+
+    {
+      "UniqueID": "furyx639.ToolbarIcons",
+      "IsRequired": false,
+      "MinimumVersion": "3.2.0"
     }
+
+
   ]
 }
 

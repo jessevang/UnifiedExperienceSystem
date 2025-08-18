@@ -1,8 +1,11 @@
 ﻿using GenericModConfigMenu;
+using LeFauxMods.Common.Integrations.IconicFramework;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+
 
 namespace UnifiedExperienceSystem
 {
@@ -25,10 +28,11 @@ namespace UnifiedExperienceSystem
         );
 
         public KeybindList ToggleAbilityMenuKeys { get; set; } = new(
-            new Keybind(SButton.F3),
-            new Keybind(SButton.LeftThumbstickLeft, SButton.RightTrigger)
+            new Keybind(SButton.F3)
         );
-        public bool ShowSkillPointButton { get; set; } = true;
+
+        public bool ShowSkillPointButton { get; set; } = false;
+
         public int UpdateIntervalTicks { get; set; } = 6;
         public bool LuckSkillIsEnabled { get; set; } = false;
         public bool DebugMode { get; set; } = false;
@@ -45,7 +49,7 @@ namespace UnifiedExperienceSystem
         public int PointsAllocatedPerClick = 1;
 
 
-        public bool ShowAbilityButton { get; set; } = true;
+        public bool ShowAbilityButton { get; set; } = false;
         public int? AbilityButtonPosX { get; set; } = 500;
         public int? AbilityButtonPosY { get; set; } = 432;
 
@@ -75,7 +79,7 @@ namespace UnifiedExperienceSystem
         private UnifiedExperienceAPI apiInstance;
 
         private readonly Dictionary<(string modGuid, string abilityId), long> _totalExpByAbility = new();
-        
+
         private IUnifiedExperienceAPI uesApi;  //API
 
 
@@ -96,7 +100,7 @@ namespace UnifiedExperienceSystem
             HookAbilityToolbarEvents(helper);
 
 
-            
+
 
 
         }
@@ -122,7 +126,7 @@ namespace UnifiedExperienceSystem
         {
             RegisterGMCM();
             RegisterSpaceCore();
-
+            RegisterIconicFramework();
             uesApi = Helper.ModRegistry.GetApi<IUnifiedExperienceAPI>("Darkmushu.UnifiedExperienceSystem");
         }
 
@@ -136,6 +140,40 @@ namespace UnifiedExperienceSystem
                     ? "SpaceCore API loaded successfully."
                     : "Failed to load SpaceCore API.", LogLevel.Debug);
             }
+        }
+
+        private void RegisterIconicFramework()
+        {
+            var iconicFramework = Helper.ModRegistry.GetApi<IIconicFrameworkApi>("furyx639.ToolbarIcons");
+            if (iconicFramework is null)
+            {
+                Monitor.Log("Iconic Framework not found, skipping toolbar icon registration.", LogLevel.Info);
+                return;
+            }
+
+            ITranslationHelper I18n = Helper.Translation;
+
+            iconicFramework.AddToolbarIcon(
+                id: $"{ModManifest.UniqueID}.Skills",
+                texturePath: "LooseSprites/Cursors",          
+                sourceRect: new Rectangle(391, 360, 11, 12), 
+                getTitle: () => I18n.Get("config.toggleMenuHotkeysSkill.name"),
+                getDescription: () => I18n.Get("config.toggleMenuHotkeysSkill.tooltip"),
+                onClick: () => Game1.activeClickableMenu = new SkillAllocationMenu(this)
+            );
+
+
+            iconicFramework.AddToolbarIcon(
+                id: $"{ModManifest.UniqueID}.Abilities",
+                texturePath: "LooseSprites/Cursors",          
+                sourceRect: new Rectangle(0, 410, 16, 16), 
+                getTitle: () => I18n.Get("config.toggleMenuHotkeysAbility.name"),
+                getDescription: () => I18n.Get("config.toggleMenuHotkeysAbility.tooltip"),
+                onClick: () => Game1.activeClickableMenu = new AbilityAllocationMenu(this)
+            );
+
+ 
+
         }
 
         private string GetVanillaSkillName(int index)
@@ -195,12 +233,22 @@ namespace UnifiedExperienceSystem
 
             gmcm.AddKeybindList(
                mod: ModManifest,
-               name: () => T.Get("config.toggleMenuHotkeys.name"),
-               tooltip: () => T.Get("config.toggleMenuHotkeys.tooltip"),
+               name: () => T.Get("config.toggleMenuHotkeysSkill.name"),
+               tooltip: () => T.Get("config.toggleMenuHotkeysSkill.tooltip"),
                getValue: () => Config.ToggleMenuKeys,
                setValue: value => Config.ToggleMenuKeys = value
            );
 
+            gmcm.AddKeybindList(
+               mod: ModManifest,
+               name: () => T.Get("config.toggleMenuHotkeysAbility.name"),
+               tooltip: () => T.Get("config.toggleMenuHotkeysAbility.tooltip"),
+               getValue: () => Config.ToggleAbilityMenuKeys,
+               setValue: value => Config.ToggleAbilityMenuKeys = value
+            );
+
+
+            
             gmcm.AddBoolOption(
                 mod: ModManifest,
                 name: () => T.Get("config.showSkillPointButton.name"),
@@ -208,6 +256,16 @@ namespace UnifiedExperienceSystem
                 getValue: () => Config.ShowSkillPointButton,
                 setValue: value => Config.ShowSkillPointButton = value
             );
+
+            gmcm.AddBoolOption(
+                mod: ModManifest,
+                name: () => T.Get("config.showAbilityPointButton.name"),
+                tooltip: () => T.Get("config.showAbilityPointButton.tooltip"),
+                getValue: () => Config.ShowAbilityButton,
+                setValue: value => Config.ShowAbilityButton = value
+            );
+
+
 
             gmcm.AddNumberOption(
                 mod: ModManifest,

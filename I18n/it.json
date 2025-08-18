@@ -1,33 +1,39 @@
 {
-  "config.toggleMenuHotkeys.name": "Scorciatoie per alternare il menu",
-  "config.toggleMenuHotkeys.tooltip": "Tasti che aprono il menu ´Esperienza Unificataª.",
+  "config.toggleMenuHotkeysSkill.name": "Menu Abilit√†",
+  "config.toggleMenuHotkeysSkill.tooltip": "Apri il menu Abilit√†",
 
-  "config.showSkillPointButton.name": "Mostra pulsante punti abilit‡",
-  "config.showSkillPointButton.tooltip": "Se visualizzare il pulsante delle abilit‡ sulla barra strumenti dell'HUD.",
+  "config.toggleMenuHotkeysAbility.name": "Menu Talenti",
+  "config.toggleMenuHotkeysAbility.tooltip": "Apri il menu Talenti",
+
+  "config.showSkillPointButton.name": "Mostra pulsante punti abilit√† personalizzato",
+  "config.showSkillPointButton.tooltip": "Se visualizzare il pulsante abilit√† nell'HUD personalizzato.",
+
+  "config.showAbilityPointButton.name": "Mostra pulsante punti talento personalizzato",
+  "config.showAbilityPointButton.tooltip": "Se visualizzare il pulsante Talento nell'HUD personalizzato.",
 
   "config.updateIntervalTicks.name": "Intervallo controllo EXP",
-  "config.updateIntervalTicks.tooltip": "Numero di tick di gioco tra i controlli dell'esperienza (60 tick = 1 secondo).\nPredefinito: 6 tick = 0,1 secondi.",
+  "config.updateIntervalTicks.tooltip": "Numero di tick di gioco tra i controlli dell'esperienza (60 tick = 1 secondo).\nPredefinito: 6 tick = 0.1 secondi.",
 
   "config.pointsAllocatedPerClick.name": "Punti assegnati per clic",
-  "config.pointsAllocatedPerClick.tooltip": "Numero di punti abilit‡ assegnati per ogni clic.",
+  "config.pointsAllocatedPerClick.tooltip": "Numero di punti abilit√† assegnati per clic.",
 
-  "config.luckSkillIsEnabled.name": "Abilita abilit‡ ´Fortunaª",
-  "config.luckSkillIsEnabled.tooltip": "Includi l'abilit‡ ´Fortunaª nel menu delle abilit‡ e nel tracciamento dell'EXP.",
+  "config.luckSkillIsEnabled.name": "Abilita abilit√† Fortuna",
+  "config.luckSkillIsEnabled.tooltip": "Includi l'abilit√† Fortuna nel menu Abilit√† e nel tracciamento EXP.",
 
   "config.debugMode.name": "Abilita log di debug",
-  "config.debugMode.tooltip": "Abilita la registrazione dettagliata delle modifiche all'EXP, dell'assegnazione dei punti e del tracciamento delle abilit‡.",
+  "config.debugMode.tooltip": "Abilita registri dettagliati per variazioni EXP, assegnazione punti e tracciamento abilit√†.",
 
-  "config.menuWidth.name": "Larghezza del menu",
-  "config.menuWidth.tooltip": "Larghezza del menu delle abilit‡.",
+  "config.menuWidth.name": "Larghezza menu",
+  "config.menuWidth.tooltip": "Larghezza del menu Abilit√†.",
 
-  "config.menuHeight.name": "Altezza del menu",
-  "config.menuHeight.tooltip": "Altezza del menu delle abilit‡.",
+  "config.menuHeight.name": "Altezza menu",
+  "config.menuHeight.tooltip": "Altezza del menu Abilit√†.",
 
-  "config.skillMenuVisibleRows.name": "Numero di abilit‡ visualizzate alla volta",
-  "config.skillMenuVisibleRows.tooltip": "Numero di righe di abilit‡ visibili prima che serva scorrere.",
+  "config.skillMenuVisibleRows.name": "Numero di abilit√† mostrate alla volta",
+  "config.skillMenuVisibleRows.tooltip": "Quante righe di abilit√† sono visibili prima di dover scorrere.",
 
-  "config.skillMenuRowSpacing.name": "Spazio tra le righe",
-  "config.skillMenuRowSpacing.tooltip": "Spazio verticale tra ogni riga di abilit‡; usato per distanziare i pulsanti ´Aggiungiª.",
+  "config.skillMenuRowSpacing.name": "Spazio tra ogni riga",
+  "config.skillMenuRowSpacing.tooltip": "Spazio verticale tra le righe di abilit√†. Usato per distanziare i pulsanti Aggiungi.",
 
   "ui.availablePoints": "Punti disponibili"
 }

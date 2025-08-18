@@ -1,9 +1,15 @@
 {
-  "config.toggleMenuHotkeys.name": "Toggle Menu Hotkeys",
-  "config.toggleMenuHotkeys.tooltip": "Keys that open the Unified Experience menu.",
+  "config.toggleMenuHotkeysSkill.name": "Skill Menu",
+  "config.toggleMenuHotkeysSkill.tooltip": "Open Skill Menu",
 
-  "config.showSkillPointButton.name": "Show Skill Point Button",
-  "config.showSkillPointButton.tooltip": "Whether to display the skill button on the HUD toolbar.",
+  "config.toggleMenuHotkeysAbility.name": "Ability Menu",
+  "config.toggleMenuHotkeysAbility.tooltip": "Open Ability Menu",
+
+  "config.showSkillPointButton.name": "Show Custom Skill Point Button",
+  "config.showSkillPointButton.tooltip": "Whether to display the skill button on custom HUD.",
+
+  "config.showAbilityPointButton.name": "Show CustomAbility Point Button",
+  "config.showAbilityPointButton.tooltip": "Whether to display the Ability button on custom HUD.",
 
   "config.updateIntervalTicks.name": "EXP Interval Check",
   "config.updateIntervalTicks.tooltip": "Number of game ticks between experience checks (60 ticks = 1 second).\nDefault is 6 ticks = 0.1 seconds.",
@@ -30,6 +36,7 @@
   "config.skillMenuRowSpacing.tooltip": "The vertical space between each skill row. Used to help spread out the Add Buttons.",
 
 
-  "ui.availablePoints": "Available Points",
+  "ui.availablePoints": "Available Points"
+
 
 }

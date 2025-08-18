@@ -6,11 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="assets\**" />
-    <EmbeddedResource Remove="assets\**" />
-    <None Remove="assets\**" />
-  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.3.3" />
