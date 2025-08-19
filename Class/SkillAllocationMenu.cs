@@ -76,7 +76,7 @@ namespace UnifiedExperienceSystem
             );
 
 
-            var visibleSkills = skillList.FindAll(s => !s.IsVanilla || s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled);
+            var visibleSkills = skillList;
             int maxScroll = Math.Max(0, visibleSkills.Count - maxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
 
@@ -115,7 +115,7 @@ namespace UnifiedExperienceSystem
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            var visibleSkills = skillList.FindAll(s => s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled);
+            var visibleSkills = skillList;
             int maxScroll = visibleSkills.Count - maxVisibleRows;
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
 
@@ -166,7 +166,7 @@ namespace UnifiedExperienceSystem
 
         public override void receiveScrollWheelAction(int direction)
         {
-            int maxScroll = skillList.FindAll(s => s.DisplayName != "Luck" || mod.Config.LuckSkillIsEnabled).Count - maxVisibleRows;
+            int maxScroll = skillList.Count;
             if (direction < 0 && scrollIndex < maxScroll)
             {
                 scrollIndex++;

@@ -155,32 +155,38 @@ namespace UnifiedExperienceSystem
 
             iconicFramework.AddToolbarIcon(
                 id: $"{ModManifest.UniqueID}.Skills",
-                texturePath: "LooseSprites/Cursors",          
-                sourceRect: new Rectangle(391, 360, 11, 12), 
+                texturePath: "LooseSprites/Cursors",
+                sourceRect: new Rectangle(391, 360, 11, 12),
                 getTitle: () => I18n.Get("config.toggleMenuHotkeysSkill.name"),
                 getDescription: () => I18n.Get("config.toggleMenuHotkeysSkill.tooltip"),
                 onClick: () => Game1.activeClickableMenu = new SkillAllocationMenu(this)
             );
 
-
             iconicFramework.AddToolbarIcon(
                 id: $"{ModManifest.UniqueID}.Abilities",
-                texturePath: "LooseSprites/Cursors",          
-                sourceRect: new Rectangle(0, 410, 16, 16), 
+                texturePath: "LooseSprites/Cursors",
+                sourceRect: new Rectangle(0, 410, 16, 16),
                 getTitle: () => I18n.Get("config.toggleMenuHotkeysAbility.name"),
                 getDescription: () => I18n.Get("config.toggleMenuHotkeysAbility.tooltip"),
                 onClick: () => Game1.activeClickableMenu = new AbilityAllocationMenu(this)
             );
 
- 
+
+
 
         }
 
         private string GetVanillaSkillName(int index)
         {
+
+
             // 0=Farming, 1=Fishing, 2=Foraging, 3=Mining, 4=Combat, 5=Luck
             try
             {
+                if (index == 5)
+                {
+                    return "Unknown";
+                }
                 var name = Farmer.getSkillDisplayNameFromIndex(index);
                 if (!string.IsNullOrWhiteSpace(name))
                     return name;
@@ -198,7 +204,7 @@ namespace UnifiedExperienceSystem
                 2 => "Foraging",
                 3 => "Mining",
                 4 => "Combat",
-                5 => "Luck",
+                //5 => "Luck",
                 _ => "Unknown"
             };
         }
@@ -285,13 +291,7 @@ namespace UnifiedExperienceSystem
                 min: 1, max: 100, interval: 1
             );
 
-            gmcm.AddBoolOption(
-                mod: ModManifest,
-                name: () => T.Get("config.luckSkillIsEnabled.name"),
-                tooltip: () => T.Get("config.luckSkillIsEnabled.tooltip"),
-                getValue: () => Config.LuckSkillIsEnabled,
-                setValue: value => Config.LuckSkillIsEnabled = value
-            );
+
 
             gmcm.AddBoolOption(
                 mod: ModManifest,
@@ -346,7 +346,7 @@ namespace UnifiedExperienceSystem
             var result = new List<SkillEntry>();
 
             // 1. Vanilla skills
-            for (int i = 0; i <= 5; i++)
+            for (int i = 0; i <= 4; i++)
             {
                 result.Add(new SkillEntry
                 {
@@ -371,6 +371,8 @@ namespace UnifiedExperienceSystem
                         DisplayName = friendlyName,
                         IsVanilla = false
                     });
+                    Monitor.Log($" Spacecore skillID:{skillId} DisplayName={friendlyName}", LogLevel.Info);
+
                 }
             }
 
@@ -382,6 +384,8 @@ namespace UnifiedExperienceSystem
             return result;
         }
 
+
+     
 
         public int GetExperience(Farmer farmer, SkillEntry skill)
         {
