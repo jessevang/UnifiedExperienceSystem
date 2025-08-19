@@ -353,10 +353,9 @@ namespace UnifiedExperienceSystem
 
                         var barRect = new Rectangle(barRight - barWidth, barY, barWidth, barHeight);
 
-                        // background (translucent so text under it still shows)
                         b.Draw(Game1.staminaRect, barRect, Color.Black * bgAlpha);
 
-                        // fill (50% transparent)
+                 
                         if (row.AtMax)
                         {
                             b.Draw(Game1.staminaRect, barRect, Color.Gold * barAlpha);
@@ -368,7 +367,7 @@ namespace UnifiedExperienceSystem
                                 b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, fill, barRect.Height), Color.Lime * barAlpha);
                         }
 
-                        // subtle 1px border (also translucent)
+                        
                         Color bc = Color.Black * borderAlpha;
                         b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, barRect.Width, 1), bc);
                         b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y + barRect.Height - 1, barRect.Width, 1), bc);

@@ -55,6 +55,12 @@ namespace UnifiedExperienceSystem
         public int? AbilityButtonPosY { get; set; } = 432;
 
 
+        public int EnergyBarX { get; set; } = 48;   
+        public int EnergyBarY { get; set; } = 540; 
+        public int EnergyBarWidth { get; set; } = 300;
+        public int EnergyBarHeight { get; set; } = 48;
+        public bool EnergyBarShowNumeric { get; set; } = true;
+
 
     }
 
@@ -100,7 +106,14 @@ namespace UnifiedExperienceSystem
             helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
             HookAbilityToolbarEvents(helper);
 
-
+            Helper.ConsoleCommands.Add("ues_energy_set", "Set energy value 0..100 (e.g. ues_energy_set 55)", (n, a) =>
+            {
+                if (a.Length > 0 && float.TryParse(a[0], out float v))
+                {
+                    _energy.Set(v);
+                    Monitor.Log($"Energy => {_energy.Current}", LogLevel.Info);
+                }
+            });
 
 
 
@@ -219,6 +232,10 @@ namespace UnifiedExperienceSystem
             // ensure not null for old saves
             if (SaveData.Abilities == null)
                 SaveData.Abilities = new List<AbilitySaveData>();
+
+            //initialize Energy after a save game is loaded
+            InitEnergyMinimal();
+
         }
 
         private void SaveToFile()
