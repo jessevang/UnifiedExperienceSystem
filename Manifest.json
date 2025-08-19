@@ -1,8 +1,8 @@
 {
   "Name": "UnifiedExperienceSystem",
   "Author": "Darkmushu1",
-  "Version": "1.1.1",
-  "Description": "Unifies all experiences gained, and allows you to manually allocate to the experience to each skills",
+  "Version": "1.1.2",
+  "Description": "Unifies all experiences gained, and allows you to allocate to a skill or ability. Allows other mods to add abilities.",
   "UniqueID": "Darkmushu.UnifiedExperienceSystem",
   "EntryDll": "UnifiedExperienceSystem.dll",
   "MinimumApiVersion": "4.0.0",
@@ -15,6 +15,7 @@
     {
       "UniqueID": "spacechase0.SpaceCore",
       "IsRequired": false
+
     },
 
     {

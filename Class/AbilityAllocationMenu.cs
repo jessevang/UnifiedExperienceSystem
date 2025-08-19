@@ -509,11 +509,14 @@ namespace UnifiedExperienceSystem
                     {
                         // spend & allocate
                         mod.AllocateAbilityPoints(row.ModId, row.AbilityId);
+
                         Game1.playSound("coin");
-                        log.Log($"[AbilityMenu] Allocated point to {row.ModId}/{row.AbilityId}. Remaining points: {mod.SaveData.UnspentSkillPoints}", LogLevel.Debug);
+                        if (mod.Config.DebugMode)
+                            log.Log($"[AbilityMenu] Allocated point to {row.ModId}/{row.AbilityId}. Remaining points: {mod.SaveData.UnspentSkillPoints}", LogLevel.Debug);
 
                         // refresh menu data so XP/level updates immediately
                         RefreshData(preserveScroll: true);
+                        
                     }
                     else
                     {

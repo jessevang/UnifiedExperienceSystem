@@ -18,6 +18,7 @@ namespace UnifiedExperienceSystem
      * 3. Intercepts newly gained EXP during gameplay for vanilla skills, transfers it to the global pool.
      * 4. Provides a custom UI to allocate EXP points manually to any skill (allocation is permanent).
      * 5. Suppresses the default level-up screen at the end of the day by detecting level gains and clearing them.(currently only Vanilla is being done as spacecore has no API)
+     * 6. Adds API to add new abilities with new Menu. Each ability has their own XP tracked
      */
 
     public class ModConfig
@@ -80,7 +81,7 @@ namespace UnifiedExperienceSystem
 
         private readonly Dictionary<(string modGuid, string abilityId), long> _totalExpByAbility = new();
 
-        private IUnifiedExperienceAPI uesApi;  //API
+        private IUnifiedExperienceAPI uesApi;  
 
 
         public override void Entry(IModHelper helper)
@@ -136,9 +137,11 @@ namespace UnifiedExperienceSystem
             if (Helper.ModRegistry.IsLoaded("spacechase0.SpaceCore"))
             {
                 spaceCoreApi = Helper.ModRegistry.GetApi<ISpaceCoreApi>("spacechase0.SpaceCore");
-                Monitor.Log(spaceCoreApi != null
-                    ? "SpaceCore API loaded successfully."
-                    : "Failed to load SpaceCore API.", LogLevel.Debug);
+                
+                if (Config.DebugMode)
+                    Monitor.Log(spaceCoreApi != null
+                        ? "SpaceCore API loaded successfully."
+                        : "Failed to load SpaceCore API.", LogLevel.Debug);
             }
         }
 
@@ -371,7 +374,9 @@ namespace UnifiedExperienceSystem
                         DisplayName = friendlyName,
                         IsVanilla = false
                     });
-                    Monitor.Log($" Spacecore skillID:{skillId} DisplayName={friendlyName}", LogLevel.Info);
+                    
+                    if(Config.DebugMode)
+                        Monitor.Log($" Spacecore skillID:{skillId} DisplayName={friendlyName}", LogLevel.Info);
 
                 }
             }

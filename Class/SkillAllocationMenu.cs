@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
+using StardewValley.Characters;
 using StardewValley.Menus;
 using System;
 
@@ -148,8 +150,17 @@ namespace UnifiedExperienceSystem
 
                 if (buttonBounds.Contains(x, y) && !skill.Id.StartsWith("Test"))
                 {
-                    mod.AllocateSkillPoint(skill.Id);
-                    Game1.playSound("coin");
+                    if (mod.SaveData.UnspentSkillPoints > 0)
+                    {
+                        mod.AllocateSkillPoint(skill.Id);
+                        Game1.playSound("coin");
+                    }
+                    else
+                    {
+                        Game1.playSound("cancel");
+                            
+                    }
+
                 }
             }
 
