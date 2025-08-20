@@ -106,6 +106,8 @@ namespace UnifiedExperienceSystem
             public string[]? Tags;
         }
 
+
+
         public void RegisterAbility(
             string modUniqueId,
             string abilityId,
@@ -434,7 +436,7 @@ namespace UnifiedExperienceSystem
         // Energy
         // ---------------------------------------------------------
         public bool TryToUseAbility(float energyCost) => mod.TryToUseAbility(energyCost);
-
+        public float GetCurrentEnergy() => mod.GetCurrentEnergyInternal();
 
 
 

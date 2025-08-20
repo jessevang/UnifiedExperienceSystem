@@ -1,4 +1,24 @@
 {
+  "nav.menuSettings.name": "Menu Settings",
+  "nav.menuSettings.tooltip": "Configure skill and ability menu sizes and layout.",
+  "nav.energySettings.name": "Energy Settings",
+  "nav.energySettings.tooltip": "Configure the Energy bar position and size.",
+
+  "page.menuSettings.title": "Menu Settings",
+  "page.energySettings.title": "Energy Settings",
+
+  "section.energyBarPosition.title": "Energy Bar Position",
+
+  "config.energyBarRelX.name": "Relative X Position",
+  "config.energyBarRelX.tooltip": "Move the Energy bar horizontally. 0 = left edge, 1 = right edge.",
+  "config.energyBarRelY.name": "Relative Y Position",
+  "config.energyBarRelY.tooltip": "Move the Energy bar vertically. 0 = top edge, 1 = bottom edge.",
+
+  "config.energyBarWidth.name": "Energy Bar Width (px)",
+  "config.energyBarWidth.tooltip": "Sets how thick the Energy bar is (in pixels).",
+  "config.energyBarHeight.name": "Energy Bar Height (px)",
+  "config.energyBarHeight.tooltip": "Sets how tall the Energy bar is (in pixels).",
+
   "config.toggleMenuHotkeysSkill.name": "Skill Menu",
   "config.toggleMenuHotkeysSkill.tooltip": "Open Skill Menu",
 

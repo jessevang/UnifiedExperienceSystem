@@ -19,6 +19,7 @@ namespace UnifiedExperienceSystem
         private const string EmptySfx = "cancel";
         private int CanRegenerateEnergyCounter { get; set; } = 0;
         private bool CanRegenerateEnergy = true;
+        internal float GetCurrentEnergyInternal() => _energy.Current;
 
         internal bool TryToUseAbility(float energyCost)
         {
@@ -137,7 +138,7 @@ namespace UnifiedExperienceSystem
                 drawShadow: false
             );
 
-            // 2) inner area (below bevels), tuned for vertical bars
+            // 2) inner area (below bevels)
             // Use the thickness (width) so border scales sensibly; clamp to keep inner positive.
             int thickness = rect.Width;
             int border = (int)Math.Round(thickness * 0.22f);

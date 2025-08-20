@@ -1,4 +1,20 @@
 ﻿{
+  "nav.menuSettings.name": "Menü beállításai",
+  "nav.menuSettings.tooltip": "A készség- és képességmenük méretének és elrendezésének beállítása.",
+  "nav.energySettings.name": "Energia beállításai",
+  "nav.energySettings.tooltip": "Az energiasáv pozíciójának és méretének beállítása.",
+  "page.menuSettings.title": "Menü beállításai",
+  "page.energySettings.title": "Energia beállításai",
+  "section.energyBarPosition.title": "Energiasáv pozíciója",
+  "config.energyBarRelX.name": "Relatív X pozíció",
+  "config.energyBarRelX.tooltip": "Az energiasáv vízszintes mozgatása. 0 = bal szél, 1 = jobb szél.",
+  "config.energyBarRelY.name": "Relatív Y pozíció",
+  "config.energyBarRelY.tooltip": "Az energiasáv függőleges mozgatása. 0 = felső szél, 1 = alsó szél.",
+  "config.energyBarWidth.name": "Energiasáv szélessége (px)",
+  "config.energyBarWidth.tooltip": "Beállítja az energiasáv vastagságát (képpontban).",
+  "config.energyBarHeight.name": "Energiasáv magassága (px)",
+  "config.energyBarHeight.tooltip": "Beállítja az energiasáv magasságát (képpontban).",
+
   "config.toggleMenuHotkeys.name": "Menüváltás gyorsbillentyűi",
   "config.toggleMenuHotkeys.tooltip": "A „Unified Experience” menü megnyitására szolgáló billentyűk.",
 

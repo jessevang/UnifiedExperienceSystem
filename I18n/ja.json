@@ -1,4 +1,20 @@
 ﻿{
+  "nav.menuSettings.name": "メニュー設定",
+  "nav.menuSettings.tooltip": "スキル／アビリティメニューのサイズとレイアウトを設定します。",
+  "nav.energySettings.name": "エネルギー設定",
+  "nav.energySettings.tooltip": "エネルギーバーの位置とサイズを設定します。",
+  "page.menuSettings.title": "メニュー設定",
+  "page.energySettings.title": "エネルギー設定",
+  "section.energyBarPosition.title": "エネルギーバーの位置",
+  "config.energyBarRelX.name": "相対X位置",
+  "config.energyBarRelX.tooltip": "エネルギーバーを水平方向に移動します。0 = 左端、1 = 右端。",
+  "config.energyBarRelY.name": "相対Y位置",
+  "config.energyBarRelY.tooltip": "エネルギーバーを垂直方向に移動します。0 = 上端、1 = 下端。",
+  "config.energyBarWidth.name": "エネルギーバーの幅 (px)",
+  "config.energyBarWidth.tooltip": "エネルギーバーの太さ（ピクセル）を設定します。",
+  "config.energyBarHeight.name": "エネルギーバーの高さ (px)",
+  "config.energyBarHeight.tooltip": "エネルギーバーの高さ（ピクセル）を設定します.",
+
   "config.toggleMenuHotkeysSkill.name": "スキルメニュー",
   "config.toggleMenuHotkeysSkill.tooltip": "スキルメニューを開く",
 

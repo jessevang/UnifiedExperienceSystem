@@ -1,4 +1,20 @@
 ﻿{
+  "nav.menuSettings.name": "Menü ayarları",
+  "nav.menuSettings.tooltip": "Yetenek ve kabiliyet menülerinin boyutunu ve düzenini yapılandırın.",
+  "nav.energySettings.name": "Enerji ayarları",
+  "nav.energySettings.tooltip": "Enerji çubuğunun konumunu ve boyutunu yapılandırın.",
+  "page.menuSettings.title": "Menü ayarları",
+  "page.energySettings.title": "Enerji ayarları",
+  "section.energyBarPosition.title": "Enerji çubuğu konumu",
+  "config.energyBarRelX.name": "Bağıl X konumu",
+  "config.energyBarRelX.tooltip": "Enerji çubuğunu yatay olarak taşır. 0 = sol kenar, 1 = sağ kenar.",
+  "config.energyBarRelY.name": "Bağıl Y konumu",
+  "config.energyBarRelY.tooltip": "Enerji çubuğunu dikey olarak taşır. 0 = üst kenar, 1 = alt kenar.",
+  "config.energyBarWidth.name": "Enerji çubuğu genişliği (px)",
+  "config.energyBarWidth.tooltip": "Enerji çubuğunun kalınlığını (piksel) ayarlar.",
+  "config.energyBarHeight.name": "Enerji çubuğu yüksekliği (px)",
+  "config.energyBarHeight.tooltip": "Enerji çubuğunun yüksekliğini (piksel) ayarlar.",
+
   "config.toggleMenuHotkeysSkill.name": "Beceri Menüsü",
   "config.toggleMenuHotkeysSkill.tooltip": "Beceri menüsünü aç",
 

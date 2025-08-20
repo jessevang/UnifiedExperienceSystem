@@ -1,4 +1,20 @@
 ﻿{
+  "nav.menuSettings.name": "메뉴 설정",
+  "nav.menuSettings.tooltip": "스킬/어빌리티 메뉴의 크기와 레이아웃을 설정합니다.",
+  "nav.energySettings.name": "에너지 설정",
+  "nav.energySettings.tooltip": "에너지 바의 위치와 크기를 설정합니다.",
+  "page.menuSettings.title": "메뉴 설정",
+  "page.energySettings.title": "에너지 설정",
+  "section.energyBarPosition.title": "에너지 바 위치",
+  "config.energyBarRelX.name": "상대 X 위치",
+  "config.energyBarRelX.tooltip": "에너지 바를 가로로 이동합니다. 0 = 왼쪽 가장자리, 1 = 오른쪽 가장자리.",
+  "config.energyBarRelY.name": "상대 Y 위치",
+  "config.energyBarRelY.tooltip": "에너지 바를 세로로 이동합니다. 0 = 위쪽 가장자리, 1 = 아래쪽 가장자리.",
+  "config.energyBarWidth.name": "에너지 바 너비 (px)",
+  "config.energyBarWidth.tooltip": "에너지 바의 두께(픽셀)를 설정합니다.",
+  "config.energyBarHeight.name": "에너지 바 높이 (px)",
+  "config.energyBarHeight.tooltip": "에너지 바의 높이(픽셀)를 설정합니다.",
+
   "config.toggleMenuHotkeysSkill.name": "스킬 메뉴",
   "config.toggleMenuHotkeysSkill.tooltip": "스킬 메뉴 열기",
 

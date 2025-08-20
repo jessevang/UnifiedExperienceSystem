@@ -1,4 +1,20 @@
 ﻿{
+  "nav.menuSettings.name": "菜单设置",
+  "nav.menuSettings.tooltip": "设置技能与能力菜单的大小和布局。",
+  "nav.energySettings.name": "能量设置",
+  "nav.energySettings.tooltip": "配置能量条的位置和大小。",
+  "page.menuSettings.title": "菜单设置",
+  "page.energySettings.title": "能量设置",
+  "section.energyBarPosition.title": "能量条位置",
+  "config.energyBarRelX.name": "相对 X 位置",
+  "config.energyBarRelX.tooltip": "水平移动能量条。0 = 左边缘，1 = 右边缘。",
+  "config.energyBarRelY.name": "相对 Y 位置",
+  "config.energyBarRelY.tooltip": "垂直移动能量条。0 = 上边缘，1 = 下边缘。",
+  "config.energyBarWidth.name": "能量条宽度（px）",
+  "config.energyBarWidth.tooltip": "设置能量条的粗细（像素）。",
+  "config.energyBarHeight.name": "能量条高度（px）",
+  "config.energyBarHeight.tooltip": "设置能量条的高度（像素）。",
+
   "config.toggleMenuHotkeysSkill.name": "技能菜单",
   "config.toggleMenuHotkeysSkill.tooltip": "打开技能菜单",
 

@@ -1,4 +1,20 @@
 {
+  "nav.menuSettings.name": "Menüeinstellungen",
+  "nav.menuSettings.tooltip": "Größe und Layout der Fertigkeiten- und Fähigkeitenmenüs konfigurieren.",
+  "nav.energySettings.name": "Energie-Einstellungen",
+  "nav.energySettings.tooltip": "Position und Größe der Energieleiste konfigurieren.",
+  "page.menuSettings.title": "Menüeinstellungen",
+  "page.energySettings.title": "Energie-Einstellungen",
+  "section.energyBarPosition.title": "Position der Energieleiste",
+  "config.energyBarRelX.name": "Relative X-Position",
+  "config.energyBarRelX.tooltip": "Verschiebt die Energieleiste horizontal. 0 = linker Rand, 1 = rechter Rand.",
+  "config.energyBarRelY.name": "Relative Y-Position",
+  "config.energyBarRelY.tooltip": "Verschiebt die Energieleiste vertikal. 0 = oberer Rand, 1 = unterer Rand.",
+  "config.energyBarWidth.name": "Breite der Energieleiste (px)",
+  "config.energyBarWidth.tooltip": "Legt die Dicke der Energieleiste fest (in Pixeln).",
+  "config.energyBarHeight.name": "Höhe der Energieleiste (px)",
+  "config.energyBarHeight.tooltip": "Legt die Höhe der Energieleiste fest (in Pixeln).",
+
   "config.toggleMenuHotkeysSkill.name": "Fertigkeitsmenü",
   "config.toggleMenuHotkeysSkill.tooltip": "Fertigkeitsmenü öffnen",
 

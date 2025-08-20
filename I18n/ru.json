@@ -1,4 +1,20 @@
 ﻿{
+  "nav.menuSettings.name": "Настройки меню",
+  "nav.menuSettings.tooltip": "Настройте размер и расположение меню навыков и умений.",
+  "nav.energySettings.name": "Настройки энергии",
+  "nav.energySettings.tooltip": "Настройте положение и размер полосы энергии.",
+  "page.menuSettings.title": "Настройки меню",
+  "page.energySettings.title": "Настройки энергии",
+  "section.energyBarPosition.title": "Положение полосы энергии",
+  "config.energyBarRelX.name": "Относительная позиция по X",
+  "config.energyBarRelX.tooltip": "Перемещает полосу энергии по горизонтали. 0 = левый край, 1 = правый край.",
+  "config.energyBarRelY.name": "Относительная позиция по Y",
+  "config.energyBarRelY.tooltip": "Перемещает полосу энергии по вертикали. 0 = верхний край, 1 = нижний край.",
+  "config.energyBarWidth.name": "Ширина полосы энергии (пикс.)",
+  "config.energyBarWidth.tooltip": "Задаёт толщину полосы энергии (в пикселях).",
+  "config.energyBarHeight.name": "Высота полосы энергии (пикс.)",
+  "config.energyBarHeight.tooltip": "Задаёт высоту полосы энергии (в пикселях).",
+
   "config.toggleMenuHotkeysSkill.name": "Меню навыков",
   "config.toggleMenuHotkeysSkill.tooltip": "Открыть меню навыков",
 

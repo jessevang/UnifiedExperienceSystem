@@ -65,7 +65,6 @@ namespace UnifiedExperienceSystem
         public bool EnergyBarUseRelativePos { get; set; } = true;
         public float EnergyBarRelX { get; set; } = 0.93f; 
         public float EnergyBarRelY { get; set; } = 0.97f;
-        public bool EnergyBarVertical { get; set; } = true;
         public float EnergyRegenPerSecond { get; set; } = 0.5f;
         public bool RegenOnlyOutdoors { get; set; } = false;
 
@@ -196,11 +195,11 @@ namespace UnifiedExperienceSystem
                 getDescription: () => I18n.Get("config.toggleMenuHotkeysAbility.tooltip"),
                 onClick: () => Game1.activeClickableMenu = new AbilityAllocationMenu(this)
             );
-
-
-
+  
 
         }
+       
+
 
         private string GetVanillaSkillName(int index)
         {
@@ -302,7 +301,6 @@ namespace UnifiedExperienceSystem
             );
 
 
-
             gmcm.AddNumberOption(
                 mod: ModManifest,
                 name: () => T.Get("config.updateIntervalTicks.name"),
@@ -331,14 +329,41 @@ namespace UnifiedExperienceSystem
                 setValue: value => Config.DebugMode = value
             );
 
-            gmcm.AddNumberOption(
+
+
+            gmcm.AddPageLink(
                 mod: ModManifest,
-                name: () => T.Get("config.menuWidth.name"),
-                tooltip: () => T.Get("config.menuWidth.tooltip"),
-                getValue: () => Config.MenuWidth,
-                setValue: value => Config.MenuWidth = value,
-                min: 400, max: 1600, interval: 10
+                pageId: "Menu Settings",
+                text: () => T.Get("nav.menuSettings.name"),
+                tooltip: () => T.Get("nav.menuSettings.tooltip")
             );
+            gmcm.AddPageLink(
+                mod: ModManifest,
+                pageId: "Energy Settings",
+                text: () => T.Get("nav.energySettings.name"),
+                tooltip: () => T.Get("nav.energySettings.tooltip")
+            );
+
+
+            gmcmSkillAndAbilityMenuSettings(gmcm);
+            gmcmEnergyPage(gmcm);
+
+        }
+
+
+        private void gmcmSkillAndAbilityMenuSettings(IGenericModConfigMenuApi gmcm)
+        {
+            ITranslationHelper T = Helper.Translation;
+            gmcm.AddPage(mod: ModManifest, pageId: "Menu Settings", pageTitle: () => T.Get("page.menuSettings.title"));
+
+            gmcm.AddNumberOption(
+                 mod: ModManifest,
+                 name: () => T.Get("config.menuWidth.name"),
+                 tooltip: () => T.Get("config.menuWidth.tooltip"),
+                 getValue: () => Config.MenuWidth,
+                 setValue: value => Config.MenuWidth = value,
+                 min: 400, max: 1600, interval: 10
+             );
 
             gmcm.AddNumberOption(
                 mod: ModManifest,
@@ -368,25 +393,19 @@ namespace UnifiedExperienceSystem
             );
 
 
-            gmcm.AddSectionTitle(ModManifest, () => "Energy Bar Position");
-            /*
-            // Positioning mode
-            gmcm.AddBoolOption(
-                ModManifest,
-                getValue: () => Config.EnergyBarUseRelativePos,
-                setValue: v => { Config.EnergyBarUseRelativePos = v; Helper.WriteConfig(Config); },
-                name: () => "Use Relative Position",
-                tooltip: () => "ON: store X/Y as 0..1 ratios so the bar stays in place when window/UI scale changes.\nOFF: use absolute pixel coordinates."
-            );
-            */
+        }
+        private void gmcmEnergyPage(IGenericModConfigMenuApi gmcm)
+        {
+            ITranslationHelper i18n = Helper.Translation;
+            gmcm.AddPage(mod: ModManifest, pageId: "Energy Settings", pageTitle: () => i18n.Get("page.energySettings.title"));
+            gmcm.AddSectionTitle(ModManifest, () => i18n.Get("section.energyBarPosition.title"));
 
-            // Relative coords (0..1)
             gmcm.AddNumberOption(
                 ModManifest,
                 getValue: () => Config.EnergyBarRelX,
                 setValue: v => { Config.EnergyBarRelX = Math.Clamp(v, 0f, 1f); Helper.WriteConfig(Config); },
-                name: () => "Relative X (0..1)",
-                tooltip: () => "0 = left edge, 1 = right edge (bar stays fully on-screen).",
+                name: () => i18n.Get("config.energyBarRelX.name"),
+                tooltip: () => i18n.Get("config.energyBarRelX.tooltip"),
                 min: 0f, max: 1f, interval: 0.01f
             );
 
@@ -394,61 +413,33 @@ namespace UnifiedExperienceSystem
                 ModManifest,
                 getValue: () => Config.EnergyBarRelY,
                 setValue: v => { Config.EnergyBarRelY = Math.Clamp(v, 0f, 1f); Helper.WriteConfig(Config); },
-                name: () => "Relative Y (0..1)",
-                tooltip: () => "0 = top, 1 = bottom.",
+                name: () => i18n.Get("config.energyBarRelY.name"),
+                tooltip: () => i18n.Get("config.energyBarRelY.tooltip"),
                 min: 0f, max: 1f, interval: 0.01f
             );
-
-
 
             gmcm.AddNumberOption(
                 ModManifest,
                 getValue: () => Config.EnergyBarWidth,
-                setValue: v =>
-                {
-                
-                    Config.EnergyBarWidth = Math.Max(12, v);
-                    Helper.WriteConfig(Config);
-                },
-                name: () => "Energy Bar Width (px)",
-                tooltip: () => "Sets how thick the Energy bar is (in pixels).",
-                min: 12,
-                max: 400,
-                interval: 2
-                );
-
+                setValue: v => { Config.EnergyBarWidth = Math.Max(12, v); Helper.WriteConfig(Config); },
+                name: () => i18n.Get("config.energyBarWidth.name"),
+                tooltip: () => i18n.Get("config.energyBarWidth.tooltip"),
+                min: 12, max: 400, interval: 2
+            );
 
             gmcm.AddNumberOption(
                 ModManifest,
                 getValue: () => Config.EnergyBarHeight,
-                setValue: v =>
-                {
-                  
-                    Config.EnergyBarHeight = Math.Max(24, v);
-                    Helper.WriteConfig(Config);
-                },
-                name: () => "Energy Bar Height (px)",
-                tooltip: () => "Sets how tall the Energy bar is (in pixels).",
-                min: 24,   
-                max: 1000,  
-                interval: 5 
+                setValue: v => { Config.EnergyBarHeight = Math.Max(24, v); Helper.WriteConfig(Config); },
+                name: () => i18n.Get("config.energyBarHeight.name"),
+                tooltip: () => i18n.Get("config.energyBarHeight.tooltip"),
+                min: 24, max: 1000, interval: 5
             );
-
-
-
-            gmcm.AddBoolOption(
-                ModManifest,
-                () => Config.EnergyBarVertical,
-                v => { Config.EnergyBarVertical = v; Helper.WriteConfig(Config); },
-                () => "Vertical Orientation",
-                () => "ON = bar fills bottom→top like vanilla stamina/health. OFF = horizontal left→right."
-            );
-
-
-            
 
 
         }
+
+
 
         public List<SkillEntry> LoadAllSkills()
         {

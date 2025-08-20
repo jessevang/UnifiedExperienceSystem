@@ -1,4 +1,20 @@
 {
+  "nav.menuSettings.name": "Configuración del menú",
+  "nav.menuSettings.tooltip": "Configura el tamaño y el diseño de los menús de habilidades y aptitudes.",
+  "nav.energySettings.name": "Configuración de energía",
+  "nav.energySettings.tooltip": "Configura la posición y el tamaño de la barra de energía.",
+  "page.menuSettings.title": "Configuración del menú",
+  "page.energySettings.title": "Configuración de energía",
+  "section.energyBarPosition.title": "Posición de la barra de energía",
+  "config.energyBarRelX.name": "Posición X relativa",
+  "config.energyBarRelX.tooltip": "Mueve la barra de energía horizontalmente. 0 = borde izquierdo, 1 = borde derecho.",
+  "config.energyBarRelY.name": "Posición Y relativa",
+  "config.energyBarRelY.tooltip": "Mueve la barra de energía verticalmente. 0 = borde superior, 1 = borde inferior.",
+  "config.energyBarWidth.name": "Ancho de la barra de energía (px)",
+  "config.energyBarWidth.tooltip": "Define el grosor de la barra de energía (en píxeles).",
+  "config.energyBarHeight.name": "Altura de la barra de energía (px)",
+  "config.energyBarHeight.tooltip": "Define la altura de la barra de energía (en píxeles).",
+
   "config.toggleMenuHotkeysSkill.name": "Menú de Habilidades",
   "config.toggleMenuHotkeysSkill.tooltip": "Abrir el menú de habilidades",
 
