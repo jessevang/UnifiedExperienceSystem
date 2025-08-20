@@ -14,8 +14,33 @@ namespace UnifiedExperienceSystem
         private bool _isDraggingEnergy;
         private Point _dragOffset; // cursor - barTopLeft during drag
 
-        private Rectangle EnergyRect =>
-            new Rectangle(Config.EnergyBarX, Config.EnergyBarY, Config.EnergyBarWidth, Config.EnergyBarHeight);
+        private Rectangle EnergyRect
+        {
+            get
+            {
+                int w = Config.EnergyBarWidth;
+                int h = Config.EnergyBarHeight;
+                int vw = Game1.uiViewport.Width;
+                int vh = Game1.uiViewport.Height;
+
+                if (Config.EnergyBarUseRelativePos)
+                {
+                    // available travel area so the bar stays fully on screen
+                    int maxX = Math.Max(0, vw - w);
+                    int maxY = Math.Max(0, vh - h);
+
+                    int x = (int)Math.Round(Config.EnergyBarRelX * maxX);
+                    int y = (int)Math.Round(Config.EnergyBarRelY * maxY);
+                    return new Rectangle(x, y, w, h);
+                }
+                else
+                {
+                    return new Rectangle(Config.EnergyBarX, Config.EnergyBarY, w, h);
+                }
+            }
+        }
+
+
 
         private void InitEnergyMinimal()
         {
@@ -28,9 +53,15 @@ namespace UnifiedExperienceSystem
             Helper.Events.Input.CursorMoved += OnCursorMoved_EnergyBar;
         }
 
+
+
         private void OnRenderedHud_EnergyBar(object? sender, RenderedHudEventArgs e)
         {
             if (!Context.IsWorldReady) return;
+
+            // Always hide during events/cutscenes/festivals
+            if (Game1.eventUp || Game1.CurrentEvent != null || Game1.currentLocation?.currentEvent != null)
+                return;
 
             var b = e.SpriteBatch;
             var rect = EnergyRect;
@@ -46,40 +77,62 @@ namespace UnifiedExperienceSystem
                 drawShadow: false
             );
 
-            // 2) inner fill area of energy bar
-            int border = Math.Max(8, (int)Math.Round(rect.Height * 0.22f)); ;
-            var inner = new Rectangle(
-                 rect.X + border,
-                 rect.Y + border+1,
-                 rect.Width - border * 2,
-                 (rect.Height - border * 2)-1
-             );
+            // 2) inner area (below bevels), tuned for vertical bars
+            // Use the thickness (width) so border scales sensibly; clamp to keep inner positive.
+            int thickness = rect.Width;
+            int border = (int)Math.Round(thickness * 0.22f);
+            border = Math.Clamp(border, 6, Math.Max(0, (thickness - 2) / 2));
 
-            // 3) fill (gold/yellow)
-            float pct = _energy.Current / EnergyData.Max;
-            int fillW = (int)(inner.Width * pct);
-            if (fillW > 0)
-                b.Draw(Game1.staminaRect, new Rectangle(inner.X, inner.Y, fillW, inner.Height), Color.Gold);
+            // 1px extra inset on all sides so the fill never touches the inner bevel
+            const int safeInset = 1;
+            int x = rect.X + border + safeInset;
+            int y = rect.Y + border + safeInset;
+            int w = Math.Max(0, rect.Width - (border * 2) - (safeInset * 2));
+            int h = Math.Max(0, rect.Height - (border * 2) - (safeInset * 2));
+            if (w <= 0 || h <= 0) return;
 
-            // 4) numeric text (optional)
+            var inner = new Rectangle(x, y, w, h);
+
+            // (optional) recessed background to make the fill look nested
+            b.Draw(Game1.staminaRect, inner, Color.Black * 0.25f);
+
+            // 3) fill (bottom -> top)
+            float pct = MathHelper.Clamp(_energy.Current / EnergyData.Max, 0f, 1f);
+            int fillH = (int)Math.Round(inner.Height * pct);
+            if (fillH > 0)
+            {
+                var fillRect = new Rectangle(inner.X, inner.Bottom - fillH, inner.Width, fillH);
+                b.Draw(Game1.staminaRect, fillRect, Color.Gold);
+            }
+
+            // 4) numeric text (optional, rotated -90°, centered in inner)
             if (Config.EnergyBarShowNumeric)
             {
                 string text = ((int)_energy.Current).ToString();
                 Vector2 size = Game1.dialogueFont.MeasureString(text);
-                // scale so it fits comfortably
-                float scale = MathF.Min(1f, inner.Height / (size.Y + 8f));
 
-                float tx = rect.X + rect.Width / 2f - (size.X * scale) / 2f;
-                float ty = rect.Y + rect.Height / 2f - (size.Y * scale) / 2f;
+                // Fit rotated text within bar width
+                float maxRotatedHeight = inner.Width - 6;
+                float scale = MathF.Min(1f, maxRotatedHeight / Math.Max(1f, size.Y));
 
-                b.DrawString(Game1.dialogueFont, text, new Vector2(tx + 2, ty + 2), Color.Black * 0.4f, 0, Vector2.Zero, scale, SpriteEffects.None, 1f);
-                b.DrawString(Game1.dialogueFont, text, new Vector2(tx, ty), Color.White, 0, Vector2.Zero, scale, SpriteEffects.None, 1f);
+                Vector2 center = new(inner.X + inner.Width / 2f, inner.Y + inner.Height / 2f);
+                Vector2 origin = size / 2f;
+
+                b.DrawString(Game1.dialogueFont, text, center + new Vector2(2, 2), Color.Black * 0.4f,
+                    -MathF.PI / 2f, origin, scale, SpriteEffects.None, 1f);
+                b.DrawString(Game1.dialogueFont, text, center, Color.White,
+                    -MathF.PI / 2f, origin, scale, SpriteEffects.None, 1f);
             }
 
-            // 5) tiny hint when dragging
+            // 5) drag hint
             if (_isDraggingEnergy)
                 SpriteText.drawString(b, "Dragging (Shift+LMB)", rect.X, rect.Y - 36);
         }
+
+
+
+
+
 
         private void OnButtonPressed_EnergyBar(object? sender, ButtonPressedEventArgs e)
         {
@@ -101,28 +154,43 @@ namespace UnifiedExperienceSystem
         {
             if (!_isDraggingEnergy) return;
 
-            // clamp to screen
-            var screenW = Game1.uiViewport.Width;
-            var screenH = Game1.uiViewport.Height;
+            int vw = Game1.uiViewport.Width;
+            int vh = Game1.uiViewport.Height;
+            int w = Config.EnergyBarWidth;
+            int h = Config.EnergyBarHeight;
+
+            int maxX = Math.Max(0, vw - w);
+            int maxY = Math.Max(0, vh - h);
 
             int newX = (int)e.NewPosition.ScreenPixels.X - _dragOffset.X;
             int newY = (int)e.NewPosition.ScreenPixels.Y - _dragOffset.Y;
 
-            newX = Math.Clamp(newX, 0, screenW - Config.EnergyBarWidth);
-            newY = Math.Clamp(newY, 0, screenH - Config.EnergyBarHeight);
+            newX = Math.Clamp(newX, 0, maxX);
+            newY = Math.Clamp(newY, 0, maxY);
 
-            Config.EnergyBarX = newX;
-            Config.EnergyBarY = newY;
+            if (Config.EnergyBarUseRelativePos)
+            {
+                // store as 0..1 ratios
+                Config.EnergyBarRelX = maxX == 0 ? 0f : (float)newX / maxX;
+                Config.EnergyBarRelY = maxY == 0 ? 0f : (float)newY / maxY;
+            }
+            else
+            {
+                // legacy absolute mode
+                Config.EnergyBarX = newX;
+                Config.EnergyBarY = newY;
+            }
         }
+
 
         private void OnButtonReleased_EnergyBar(object? sender, ButtonReleasedEventArgs e)
         {
             if (e.Button == SButton.MouseLeft && _isDraggingEnergy)
             {
                 _isDraggingEnergy = false;
-                // persist new position immediately
-                Helper.WriteConfig(Config);
+                Helper.WriteConfig(Config); 
             }
         }
+
     }
 }

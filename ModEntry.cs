@@ -56,10 +56,16 @@ namespace UnifiedExperienceSystem
 
 
         public int EnergyBarX { get; set; } = 48;   
-        public int EnergyBarY { get; set; } = 540; 
-        public int EnergyBarWidth { get; set; } = 300;
-        public int EnergyBarHeight { get; set; } = 48;
+        public int EnergyBarY { get; set; } = 540;
+
+        public int EnergyBarWidth { get; set; } = 48;
+        public int EnergyBarHeight { get; set; } = 250;
+
         public bool EnergyBarShowNumeric { get; set; } = true;
+        public bool EnergyBarUseRelativePos { get; set; } = true;
+        public float EnergyBarRelX { get; set; } = 0.93f; 
+        public float EnergyBarRelY { get; set; } = 0.97f;
+        public bool EnergyBarVertical { get; set; } = true;
 
 
     }
@@ -357,6 +363,85 @@ namespace UnifiedExperienceSystem
                 min: 30, max: 240, interval: 10
             );
 
+
+            gmcm.AddSectionTitle(ModManifest, () => "Energy Bar Position");
+            /*
+            // Positioning mode
+            gmcm.AddBoolOption(
+                ModManifest,
+                getValue: () => Config.EnergyBarUseRelativePos,
+                setValue: v => { Config.EnergyBarUseRelativePos = v; Helper.WriteConfig(Config); },
+                name: () => "Use Relative Position",
+                tooltip: () => "ON: store X/Y as 0..1 ratios so the bar stays in place when window/UI scale changes.\nOFF: use absolute pixel coordinates."
+            );
+            */
+
+            // Relative coords (0..1)
+            gmcm.AddNumberOption(
+                ModManifest,
+                getValue: () => Config.EnergyBarRelX,
+                setValue: v => { Config.EnergyBarRelX = Math.Clamp(v, 0f, 1f); Helper.WriteConfig(Config); },
+                name: () => "Relative X (0..1)",
+                tooltip: () => "0 = left edge, 1 = right edge (bar stays fully on-screen).",
+                min: 0f, max: 1f, interval: 0.01f
+            );
+
+            gmcm.AddNumberOption(
+                ModManifest,
+                getValue: () => Config.EnergyBarRelY,
+                setValue: v => { Config.EnergyBarRelY = Math.Clamp(v, 0f, 1f); Helper.WriteConfig(Config); },
+                name: () => "Relative Y (0..1)",
+                tooltip: () => "0 = top, 1 = bottom.",
+                min: 0f, max: 1f, interval: 0.01f
+            );
+
+
+
+            gmcm.AddNumberOption(
+                ModManifest,
+                getValue: () => Config.EnergyBarWidth,
+                setValue: v =>
+                {
+                
+                    Config.EnergyBarWidth = Math.Max(12, v);
+                    Helper.WriteConfig(Config);
+                },
+                name: () => "Energy Bar Width (px)",
+                tooltip: () => "Sets how thick the Energy bar is (in pixels).",
+                min: 12,
+                max: 400,
+                interval: 2
+                );
+
+
+            gmcm.AddNumberOption(
+                ModManifest,
+                getValue: () => Config.EnergyBarHeight,
+                setValue: v =>
+                {
+                  
+                    Config.EnergyBarHeight = Math.Max(24, v);
+                    Helper.WriteConfig(Config);
+                },
+                name: () => "Energy Bar Height (px)",
+                tooltip: () => "Sets how tall the Energy bar is (in pixels).",
+                min: 24,   
+                max: 1000,  
+                interval: 5 
+            );
+
+
+
+            gmcm.AddBoolOption(
+                ModManifest,
+                () => Config.EnergyBarVertical,
+                v => { Config.EnergyBarVertical = v; Helper.WriteConfig(Config); },
+                () => "Vertical Orientation",
+                () => "ON = bar fills bottom→top like vanilla stamina/health. OFF = horizontal left→right."
+            );
+
+
+            
 
 
         }
