@@ -66,7 +66,8 @@ namespace UnifiedExperienceSystem
         public float EnergyBarRelX { get; set; } = 0.93f; 
         public float EnergyBarRelY { get; set; } = 0.97f;
         public bool EnergyBarVertical { get; set; } = true;
-
+        public float EnergyRegenPerSecond { get; set; } = 0.5f;
+        public bool RegenOnlyOutdoors { get; set; } = false;
 
     }
 
@@ -93,8 +94,11 @@ namespace UnifiedExperienceSystem
 
         private readonly Dictionary<(string modGuid, string abilityId), long> _totalExpByAbility = new();
 
-        private IUnifiedExperienceAPI uesApi;  
+        private IUnifiedExperienceAPI uesApi;
 
+
+        //Energy
+        private bool EnergyCanRegenerateAgain = true;
 
         public override void Entry(IModHelper helper)
         {

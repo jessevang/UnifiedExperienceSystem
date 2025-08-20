@@ -14,6 +14,9 @@ namespace UnifiedExperienceSystem
             this.mod = mod;
         }
 
+        
+
+
         // =========================================================
         //  Start-of-day EXP and Level (existing)
         // =========================================================
@@ -426,6 +429,15 @@ namespace UnifiedExperienceSystem
                 }
             }
         }
+
+        // ---------------------------------------------------------
+        // Energy
+        // ---------------------------------------------------------
+        public bool TryToUseAbility(float energyCost) => mod.TryToUseAbility(energyCost);
+
+
+
+
 
 
     }

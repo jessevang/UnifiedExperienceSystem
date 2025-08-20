@@ -1,4 +1,5 @@
-﻿namespace UnifiedExperienceSystem
+﻿using UnifiedExperienceSystem;
+namespace UnifiedExperienceSystem
 {
     internal sealed class EnergyData
     {
@@ -20,8 +21,9 @@
 
         public bool TrySpend(float amount)
         {
+            Math.Abs(amount);
             if (amount <= 0) return true;
-            if (_current + 1e-3f < amount) return false;
+            if (_current - amount < 0) return false;
             _current -= amount;
             return true;
         }

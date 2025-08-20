@@ -5,6 +5,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Menus;
+using System.Diagnostics.Metrics;
 
 namespace UnifiedExperienceSystem
 {
@@ -12,8 +13,26 @@ namespace UnifiedExperienceSystem
     {
         private EnergyData _energy = new();
         private bool _isDraggingEnergy;
-        private Point _dragOffset; // cursor - barTopLeft during drag
+        private Point _dragOffset; 
+        private int _regenCounter;
+        private const string SpendSfx = "sandyStep";
+        private const string EmptySfx = "cancel";
+        private int CanRegenerateEnergyCounter { get; set; } = 0;
+        private bool CanRegenerateEnergy = true;
 
+        internal bool TryToUseAbility(float energyCost)
+        {
+            
+            bool Successful = _energy.TrySpend(energyCost);
+            if (Successful)
+            {
+                this.CanRegenerateEnergy = false;
+                CanRegenerateEnergyCounter = 0;
+                return Successful;
+            }
+            return Successful;
+
+        }
         private Rectangle EnergyRect
         {
             get
@@ -44,18 +63,59 @@ namespace UnifiedExperienceSystem
 
         private void InitEnergyMinimal()
         {
-            // start full for now (no save-per-farmer yet)
             _energy.ResetFull();
 
-            Helper.Events.Display.RenderedHud += OnRenderedHud_EnergyBar;
+
+            Helper.Events.Display.RenderingHud += OnRenderingHud_EnergyBar;
             Helper.Events.Input.ButtonPressed += OnButtonPressed_EnergyBar;
             Helper.Events.Input.ButtonReleased += OnButtonReleased_EnergyBar;
             Helper.Events.Input.CursorMoved += OnCursorMoved_EnergyBar;
+            Helper.Events.GameLoop.UpdateTicked += OnUpdateTicked_Energy;
+        }
+
+        private void OnUpdateTicked_Energy(object? sender, UpdateTickedEventArgs e)
+        {
+            if (!Context.IsWorldReady)
+                return;
+
+            /*
+             if (!e.IsOneSecond)
+                 return;
+            */
+
+
+            if (!CanRegenerateEnergy)
+            {
+                CanRegenerateEnergyCounter++;
+            }
+
+            if (CanRegenerateEnergy)
+            {
+                if (e.IsOneSecond)
+                {
+                    float regenAmount = 5f;
+
+                    if (_energy.Current < EnergyData.Max && _energy.Current > (EnergyData.Max - regenAmount))
+                        _energy.Set(100f);
+                    if (_energy.Current <= EnergyData.Max)
+                        _energy.Add(regenAmount);
+                }
+
+            }
+
+            if (CanRegenerateEnergyCounter == 120) //After 2 seconds of no regeneration without casting ability can recover energy again
+            {
+                CanRegenerateEnergyCounter = 0;
+                CanRegenerateEnergy = true;
+            }
+
+
+
+
         }
 
 
-
-        private void OnRenderedHud_EnergyBar(object? sender, RenderedHudEventArgs e)
+        private void OnRenderingHud_EnergyBar(object? sender, RenderingHudEventArgs e)
         {
             if (!Context.IsWorldReady) return;
 

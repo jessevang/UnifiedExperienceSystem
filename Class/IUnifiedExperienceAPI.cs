@@ -78,5 +78,10 @@ namespace UnifiedExperienceSystem
         bool IsAbilityAtMax(string modUniqueId, string abilityId);
 
         int GetAbilityRemainingXpToCap(string modId, string abilityId);
+
+        /// <summary>
+        /// Attempt to pay the given energy cost to cast an ability. Returns true if there is enough energy and then energy is consumed to cast; false if not enough no energy consumed.
+        /// </summary>
+        bool TryToUseAbility(float energyCost);
     }
 }
