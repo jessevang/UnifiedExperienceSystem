@@ -606,7 +606,7 @@ namespace UnifiedExperienceSystem
                 {
                     string skillname = spaceCoreApi.GetDisplayNameOfCustomSkill(skillId);
                     //cleans up skill display name before adding it
-                    Monitor.Log($"SkillName: {skillname}", LogLevel.Debug);
+                    //Monitor.Log($"SkillName: {skillname}", LogLevel.Debug);
                     //string friendlyName = skillId.Split('.').Last();
 
                     //friendlyName = char.ToUpper(friendlyName[0]) + friendlyName.Substring(1); 

@@ -128,7 +128,7 @@ namespace UnifiedExperienceSystem
             int titleY = yPositionOnScreen + 40 + yOffset;
             SpriteText.drawString(
                 b,
-                $"{mod.Helper.Translation.Get("ui.availablePoints")}: {mod.SaveData.UnspentSkillPoints}",
+                $"{mod.Helper.Translation.Get("config.toggleMenuHotkeysSkill.name")} - {mod.Helper.Translation.Get("ui.availablePoints")}: {mod.SaveData.UnspentSkillPoints}",
                 xPositionOnScreen + 50,
                 titleY
             );
@@ -163,7 +163,7 @@ namespace UnifiedExperienceSystem
                     buffedLevel = mod.spaceCoreApi?.GetBuffLevelForCustomSkill(Game1.player, skill.Id) ?? -1;
                 }
 
-                string strbuffLevel = (buffedLevel >= 0 && buffedLevel != level) ? $"({buffedLevel})" : "";
+                string strbuffLevel = (buffedLevel >= level && buffedLevel != level) ? $"({buffedLevel})" : "";
                 int xp = mod.GetExperience(Game1.player, skill);
 
                 // --- layout constants ---

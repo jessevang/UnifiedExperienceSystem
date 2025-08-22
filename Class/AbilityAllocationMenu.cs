@@ -176,27 +176,61 @@ namespace UnifiedExperienceSystem
 
 
 
-   
+
 
         public override void draw(SpriteBatch b)
         {
             _hoverRegions.Clear();
             Game1.drawDialogueBox(xPositionOnScreen, yPositionOnScreen, width, height, false, true);
 
+            // === Mini "icon menu" to the LEFT, aligned to Ability menu top ===
+            // (same placement style as your skills screen)
+            const int MiniW = 48;
+            const int MiniH = 48;
+            const int MiniGap = -20;   // horizontal: 0 = touching; negative overlaps a bit
+            const int MiniYOffset = 85; // vertical offset from the menu's top
+
+            int miniX = xPositionOnScreen - (MiniW + MiniGap);
+            int miniY = yPositionOnScreen + MiniYOffset;
+
+            // draw a small menu-style box
+            IClickableMenu.drawTextureBox(
+                b,
+                Game1.menuTexture,
+                new Rectangle(0, 256, 60, 60),
+                miniX, miniY, MiniW, MiniH,
+                Color.White,
+                1f,
+                drawShadow: false
+            );
+
+            // draw the icon centered inside that box
+            var cursorsTex = Game1.content.Load<Texture2D>("LooseSprites/Cursors");
+            Rectangle src = new Rectangle(391, 360, 11, 12); // provided icon
+            int pad = 8;
+            float scale = Math.Min(
+                (MiniW - pad * 2f) / src.Width,
+                (MiniH - pad * 2f) / src.Height
+            );
+            int iconW = (int)Math.Round(src.Width * scale);
+            int iconH = (int)Math.Round(src.Height * scale);
+            int iconX = miniX + (MiniW - iconW) / 2;
+            int iconY = miniY + (MiniH - iconH) / 2;
+
+            b.Draw(cursorsTex, new Rectangle(iconX, iconY, iconW, iconH), src, Color.White);
+            // === End mini icon menu ===
 
             int titleY = yPositionOnScreen + 40 + yOffset;
             SpriteText.drawString(
                 b,
-                $"{mod.Helper.Translation.Get("ui.availablePoints")}: {mod.SaveData.UnspentSkillPoints}",
+                $"{mod.Helper.Translation.Get("config.toggleMenuHotkeysAbility.name")} - {mod.Helper.Translation.Get("ui.availablePoints")}: {mod.SaveData.UnspentSkillPoints}",
                 xPositionOnScreen + 50,
                 titleY
             );
 
-
             var rows = BuildRowsForDraw();
             int maxScroll = Math.Max(0, rows.Count - MaxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
-
 
             string? expandedTooltipToDraw = null;
 
@@ -214,44 +248,30 @@ namespace UnifiedExperienceSystem
                 }
                 else
                 {
-
                     var name = row.AbilityName ?? "";
-                    var shortName = name.Length > 15 ? (name.Substring(0, 15)+ "..") : name;
+                    var shortName = name.Length > 15 ? (name.Substring(0, 15) + "..") : name;
 
                     if (shortName.Length < 15)
                     {
                         var spacesToAdd = 15 - shortName.Length;
-
                         for (int j = 0; j < spacesToAdd; j++)
-                        {
                             shortName += " ";
-                        }
                     }
-                    
-
 
                     string text = "";
-                    bool showPlus = !row.AtMax;  
+                    bool showPlus = !row.AtMax;
 
-
-                    text = row.AtMax ? $"{shortName} (Level: {row.Level})"
-                    : $"{shortName} (Level: {row.Level})    {row.XpNeeded}";
-  
-
-
+                    text = row.AtMax
+                        ? $"{shortName} (Level: {row.Level})"
+                        : $"{shortName} (Level: {row.Level})    {row.XpNeeded}";
 
                     var textRect = new Rectangle(xPositionOnScreen + 70, y, width - 200, RowHeight);
 
-       
                     SpriteText.drawString(b, text, xPositionOnScreen + 70, y);
                     string key = $"{row.ModId}/{row.AbilityId}";
                     if (expandedRowKey == key)
-                    {
-                        expandedTooltipToDraw = BuildAbilityTooltip(row); 
-                    }
+                        expandedTooltipToDraw = BuildAbilityTooltip(row);
 
-
- 
                     if (showPlus)
                     {
                         // layout for Progress Bar
@@ -261,14 +281,10 @@ namespace UnifiedExperienceSystem
                         int rightEdgeOffset = 50;
                         int gapFromButton = 8;
 
-                        // vertical tweak (pixels). try -6, -8, etc.
                         int barOffsetY = -15;
-
-                        // transparency knobs
                         float barAlpha = 0.5f;
                         float bgAlpha = 0.2f;
                         float borderAlpha = 0.4f;
-
 
                         int plusBtnSize = Math.Min(RowHeight - 10, 48);
                         Rectangle plusBtn = new Rectangle(
@@ -278,24 +294,18 @@ namespace UnifiedExperienceSystem
                             plusBtnSize
                         );
 
-                        // compute right-aligned bar rect
                         int barRight = plusBtn.Left - gapFromButton;
                         int leftTextX = xPositionOnScreen + 70;
                         int maxSpace = Math.Max(0, barRight - leftTextX);
                         int barWidth = Math.Min(Math.Max(desiredBarWidth, 0), Math.Min(maxBarWidth, maxSpace));
                         if (barWidth < 60) barWidth = Math.Min(60, maxSpace);
 
-                        // center in row, then nudge by barOffsetY
                         int barY = y + (RowHeight - barHeight) / 2 + barOffsetY;
-
-                        // keep it inside the row (optional clamp)
                         barY = Math.Max(y, Math.Min(barY, y + RowHeight - barHeight));
 
                         var barRect = new Rectangle(barRight - barWidth, barY, barWidth, barHeight);
-
                         b.Draw(Game1.staminaRect, barRect, Color.Black * bgAlpha);
 
-                 
                         if (row.AtMax)
                         {
                             b.Draw(Game1.staminaRect, barRect, Color.Gold * barAlpha);
@@ -307,17 +317,12 @@ namespace UnifiedExperienceSystem
                                 b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, fill, barRect.Height), Color.Lime * barAlpha);
                         }
 
-                        
                         Color bc = Color.Black * borderAlpha;
                         b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, barRect.Width, 1), bc);
                         b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y + barRect.Height - 1, barRect.Width, 1), bc);
                         b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, 1, barRect.Height), bc);
                         b.Draw(Game1.staminaRect, new Rectangle(barRect.Right - 1, barRect.Y, 1, barRect.Height), bc);
                     }
-                    
-
-
-
 
                     // draw [+] button if Ability is not at Max Level
                     if (showPlus)
@@ -325,15 +330,7 @@ namespace UnifiedExperienceSystem
                         Rectangle btn = new Rectangle(xPositionOnScreen + width - buttonSize - 50, y - 6, buttonSize, buttonSize);
                         b.Draw(emojiTexture, btn, new Rectangle(108, 81, 9, 9), Color.White);
                     }
-
-
-                    
-
-
-
-
                 }
-
             }
 
             upArrow.draw(b);
@@ -342,8 +339,8 @@ namespace UnifiedExperienceSystem
             if (!string.IsNullOrEmpty(expandedTooltipToDraw))
                 IClickableMenu.drawHoverText(b, expandedTooltipToDraw, Game1.smallFont);
             drawMouse(b);
-
         }
+
 
         private string BuildAbilityTooltip(Row row)
         {
@@ -381,11 +378,29 @@ namespace UnifiedExperienceSystem
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
+            // --- mini icon bounds (must match draw) ---
+            const int MiniW = 48;
+            const int MiniH = 48;
+            const int MiniGap = -20;
+            const int MiniYOffset = 85;
+
+            int miniX = xPositionOnScreen - (MiniW + MiniGap);
+            int miniY = yPositionOnScreen + MiniYOffset;
+            Rectangle miniIconBounds = new Rectangle(miniX, miniY, MiniW, MiniH);
+
+            // click on mini icon -> go to Skill Allocation menu
+            if (miniIconBounds.Contains(x, y))
+            {
+                if (playSound) Game1.playSound("smallSelect");
+                Game1.activeClickableMenu = new SkillAllocationMenu(mod);
+                Game1.playSound("bigSelect");
+                return;
+            }
+            // --- end mini icon handling ---
+
             var rows = BuildRowsForDraw();
             int maxScroll = Math.Max(0, rows.Count - MaxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
-
-
 
             // --- navigation buttons ---
             if (upArrow.containsPoint(x, y))
@@ -420,17 +435,17 @@ namespace UnifiedExperienceSystem
 
                 int rowY = rowStartY + i * RowHeight;
 
-                //ContextHelp click to trigger
+                // ContextHelp click to trigger
                 var textRect = new Rectangle(xPositionOnScreen + 70, rowY, width - 200, RowHeight);
                 if (textRect.Contains(x, y))
                 {
                     string key = $"{row.ModId}/{row.AbilityId}";
-                    expandedRowKey = (expandedRowKey == key) ? null : key; 
+                    expandedRowKey = (expandedRowKey == key) ? null : key;
                     Game1.playSound("smallSelect");
                     return;
                 }
 
-                //[+] button
+                // [+] button
                 bool showPlus = !row.AtMax;
                 if (!showPlus)
                     continue;
@@ -446,16 +461,13 @@ namespace UnifiedExperienceSystem
                 {
                     if (mod.SaveData.UnspentSkillPoints > 0)
                     {
-
                         mod.AllocateAbilityPoints(row.ModId, row.AbilityId);
 
                         Game1.playSound("coin");
                         if (mod.Config.DebugMode)
                             log.Log($"[AbilityMenu] Allocated point to {row.ModId}/{row.AbilityId}. Remaining points: {mod.SaveData.UnspentSkillPoints}", LogLevel.Debug);
 
-
                         RefreshData(preserveScroll: true);
-                        
                     }
                     else
                     {
@@ -466,7 +478,6 @@ namespace UnifiedExperienceSystem
                 }
             }
 
-
             if (expandedRowKey != null)
             {
                 expandedRowKey = null;
@@ -476,6 +487,7 @@ namespace UnifiedExperienceSystem
 
             base.receiveLeftClick(x, y, playSound);
         }
+
 
 
 
