@@ -7,6 +7,7 @@ using StardewValley.Characters;
 using StardewValley.Menus;
 using System;
 
+
 namespace UnifiedExperienceSystem
 {
     public class SkillAllocationMenu : IClickableMenu
@@ -28,6 +29,19 @@ namespace UnifiedExperienceSystem
         private float holdStartTime = 0f;
         private bool highlightButton = false;
 
+
+        //LooseSprites/cursors     used for Icon for Vanilla Skills
+        private static readonly Rectangle[] VanillaSkillIcons =
+{
+            new Rectangle(11, 428, 8, 10),   // Farming
+            new Rectangle(20, 427, 10, 11),  // Fishing
+            new Rectangle(60, 427, 10, 11),  // Foraging
+            new Rectangle(30, 427, 10, 11),  // Mining
+            new Rectangle(120, 427, 10, 11), // Combat
+        };
+
+        private Texture2D skillIconTexture;
+
         public SkillAllocationMenu(ModEntry mod)
             : base(
                 Game1.uiViewport.Width / 2 - mod.Config.MenuWidth / 2,
@@ -38,6 +52,7 @@ namespace UnifiedExperienceSystem
         {
             this.mod = mod;
             this.skillList = mod.LoadAllSkills();
+            skillIconTexture = Game1.content.Load<Texture2D>("LooseSprites/Cursors");
 
             closeButton = new ClickableTextureComponent(
                 new Rectangle(xPositionOnScreen + width / 2 - 32, yPositionOnScreen + height - 80, 64, 64),
@@ -46,7 +61,7 @@ namespace UnifiedExperienceSystem
                 4f
             );
 
-            int arrowSize = 64; // doubled size
+            int arrowSize = 64; 
             int centerY = yPositionOnScreen + height / 2;
             int arrowX = xPositionOnScreen + width + 10;
 
@@ -63,6 +78,15 @@ namespace UnifiedExperienceSystem
                 4f
             );
         }
+
+        private static string TruncateSpriteText(string s, int maxWidthPx)
+        {
+            // trim characters until it fits (no padding, no ellipsis)
+            while (s.Length > 0 && SpriteText.getWidthOfString(s) > maxWidthPx)
+                s = s.Substring(0, s.Length - 1);
+            return s;
+        }
+
 
         public override void draw(SpriteBatch b)
         {
@@ -83,17 +107,105 @@ namespace UnifiedExperienceSystem
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
 
             int rowStartY = titleY + 100;
-            int buttonSize = Math.Min(rowHeight - 10, 64); 
+            int buttonSize = Math.Min(rowHeight - 10, 64);
 
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
-                var skill = visibleSkills[i + scrollIndex];
-                int level = mod.GetSkillLevel(Game1.player, skill);
-                int xp = mod.GetExperience(Game1.player, skill);
-                
-                int y = rowStartY + i * rowHeight;
-                SpriteText.drawString(b, $"{skill.DisplayName} (Lv {level}) — XP: {xp}", xPositionOnScreen + 50, y);
+                int overallIndex = i + scrollIndex;
+                var skill = visibleSkills[overallIndex];
 
+                int level;
+                int buffedLevel = -1;
+                if (overallIndex <= 4)
+                {
+                    if (int.TryParse(skill.Id, out int vanillaIdx))
+                    {
+                        level = Game1.player.GetUnmodifiedSkillLevel(vanillaIdx);
+                        buffedLevel = Game1.player.GetSkillLevel(vanillaIdx);
+                    }
+                    else
+                        level = 0;
+                }
+                else
+                {
+                    level = mod.spaceCoreApi?.GetLevelForCustomSkill(Game1.player, skill.Id) ?? 0;
+                    buffedLevel = mod.spaceCoreApi?.GetBuffLevelForCustomSkill(Game1.player, skill.Id) ?? -1;
+                }
+
+                string strbuffLevel = (buffedLevel >= 0 && buffedLevel != level) ? $"({buffedLevel})" : "";
+                int xp = mod.GetExperience(Game1.player, skill);
+
+                // --- layout constants ---
+                const int ContentPadLeft = 40;   // inner padding from the dialog box edge
+                const int IconTextGap = 10;   // space between icon and text
+                const int RowVPad = 4;    // top/bottom padding inside each row
+
+                int y = rowStartY + i * rowHeight;
+
+                // choose icon texture + source rect
+                Texture2D iconTex;
+                Rectangle iconSrc;
+
+                if (overallIndex <= 4) // VANILLA
+                {
+                    iconTex = skillIconTexture;                 // Loaded from "LooseSprites/Cursors"
+                    iconSrc = VanillaSkillIcons[overallIndex];  // Your verified rects
+                }
+                else // SPACECORE
+                {
+                    Texture2D? scTex = mod.spaceCoreApi?.GetSkillPageIconForCustomSkill(skill.Id);
+                    if (scTex != null)
+                    {
+                        iconTex = scTex;
+                        iconSrc = new Rectangle(0, 0, scTex.Width, scTex.Height); // full texture
+                    }
+                    else
+                    {
+                        // fallback placeholder from vanilla sheet if SC icon missing
+                        iconTex = skillIconTexture;
+                        iconSrc = new Rectangle(80, 0, 16, 16);
+                    }
+                }
+
+                // scale the icon to fit inside the row height (keep aspect)
+                int iconMaxH = Math.Max(12, rowHeight - RowVPad * 2);
+                float iconScale = iconMaxH / (float)iconSrc.Height;
+                int iconW = (int)Math.Round(iconSrc.Width * iconScale);
+                int iconH = (int)Math.Round(iconSrc.Height * iconScale);
+
+                // position: inside the box with left padding, visually aligned with text
+                int iconX = xPositionOnScreen + ContentPadLeft;
+                int baselineOffset = -16; // tweak -2..+2 to visually match SpriteText baseline
+                int iconY = y + (rowHeight - iconH) / 2 + baselineOffset;
+
+                // draw icon (IMPORTANT: draw with iconTex, not always skillIconTexture)
+                b.Draw(
+                    iconTex,
+                    new Rectangle(iconX, iconY, iconW, iconH),
+                    iconSrc,
+                    Color.White
+                );
+
+                // text starts after icon
+                int textX = iconX + iconW + IconTextGap;
+
+                // --- build fixed-width string ---
+                string strSkillName = (skill.DisplayName.Length > 12
+                    ? skill.DisplayName.Substring(0, 12)
+                    : skill.DisplayName).PadRight(12);
+
+                string strLevelRaw = $"Lv:{level}{strbuffLevel}";
+                string strLevel = (strLevelRaw.Length > 10
+                    ? strLevelRaw.Substring(0, 10)
+                    : strLevelRaw).PadRight(10);
+
+                string strXP = $"XP: {xp}";
+                string finalString = $"{strSkillName}{strLevel}{strXP}";
+
+                // draw text next to icon
+                SpriteText.drawString(b, finalString, textX, y);
+
+                // allocate button (unchanged)
                 Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - buttonSize - 50, y, buttonSize, buttonSize);
                 b.Draw(
                     emojiTexture,

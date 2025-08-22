@@ -40,17 +40,31 @@ namespace UnifiedExperienceSystem
             {
                 int w = Config.EnergyBarWidth;
                 int h = Config.EnergyBarHeight;
-                int vw = Game1.uiViewport.Width;
-                int vh = Game1.uiViewport.Height;
 
+                if (Config.EnergyBarFollowVanillaHud)
+                {
+                    var target = GetAnchorTargetRect();
+
+                    // Position = target's top-left + configured offsets
+                    int x = target.X + Config.EnergyBarAnchorOffsetX;
+                    int y = target.Y + Config.EnergyBarAnchorOffsetY;
+
+                    // Clamp to safe area so it never goes off-screen
+                    Rectangle safe = Utility.getSafeArea();
+                    x = Math.Clamp(x, safe.X, safe.Right - w);
+                    y = Math.Clamp(y, safe.Y, safe.Bottom - h);
+
+                    return new Rectangle(x, y, w, h);
+                }
+
+                // --- your existing modes as fallback ---
                 if (Config.EnergyBarUseRelativePos)
                 {
-                    // available travel area so the bar stays fully on screen
-                    int maxX = Math.Max(0, vw - w);
-                    int maxY = Math.Max(0, vh - h);
-
-                    int x = (int)Math.Round(Config.EnergyBarRelX * maxX);
-                    int y = (int)Math.Round(Config.EnergyBarRelY * maxY);
+                    Rectangle safe = Utility.getSafeArea();
+                    int maxX = Math.Max(0, safe.Width - w);
+                    int maxY = Math.Max(0, safe.Height - h);
+                    int x = safe.X + (int)Math.Round(Config.EnergyBarRelX * maxX);
+                    int y = safe.Y + (int)Math.Round(Config.EnergyBarRelY * maxY);
                     return new Rectangle(x, y, w, h);
                 }
                 else
@@ -59,6 +73,33 @@ namespace UnifiedExperienceSystem
                 }
             }
         }
+
+        private static Rectangle GetVanillaHealthFrameRect()
+        {
+            // Vanilla draws the health frame near the bottom-right.
+            // These constants mirror vanilla HUD placement closely enough; your offset config fine-tunes.
+            Rectangle safe = Utility.getSafeArea();
+            int x = safe.Right - 96;  // top-left X of health frame
+            int y = safe.Bottom - 160; // top-left Y of health frame
+            return new Rectangle(x, y, 60, 172); // (frame size used by vanilla texture box)
+        }
+
+        private static Rectangle GetVanillaStaminaFrameRect()
+        {
+            Rectangle safe = Utility.getSafeArea();
+            int x = safe.Right - 200;      // top-left X of stamina frame
+            int y = safe.Bottom - (96 + 64); // top-left Y of stamina frame
+            return new Rectangle(x, y, 172, 60);
+        }
+
+        private Rectangle GetAnchorTargetRect()
+        {
+            return (Config.EnergyBarAnchorTarget?.Equals("Stamina", StringComparison.OrdinalIgnoreCase) == true)
+                ? GetVanillaStaminaFrameRect()
+                : GetVanillaHealthFrameRect();
+        }
+
+
 
 
 
@@ -120,9 +161,16 @@ namespace UnifiedExperienceSystem
         {
             if (!Context.IsWorldReady) return;
 
-
-            if (Game1.eventUp || Game1.CurrentEvent != null || Game1.currentLocation?.currentEvent != null)
+            if (Game1.CurrentEvent != null
+             || Game1.eventUp
+             || Game1.dialogueUp
+             || Game1.currentLocation?.currentEvent != null
+             || Game1.activeClickableMenu != null
+             || Game1.currentMinigame != null
+             || Game1.isFestival())
                 return;
+
+
 
             var b = e.SpriteBatch;
             var rect = EnergyRect;
@@ -215,33 +263,42 @@ namespace UnifiedExperienceSystem
         {
             if (!_isDraggingEnergy) return;
 
-            int vw = Game1.uiViewport.Width;
-            int vh = Game1.uiViewport.Height;
+            Rectangle safe = Utility.getSafeArea();
             int w = Config.EnergyBarWidth;
             int h = Config.EnergyBarHeight;
 
-            int maxX = Math.Max(0, vw - w);
-            int maxY = Math.Max(0, vh - h);
+            // new absolute top-left, before clamping
+            int newAbsX = (int)e.NewPosition.ScreenPixels.X - _dragOffset.X;
+            int newAbsY = (int)e.NewPosition.ScreenPixels.Y - _dragOffset.Y;
 
-            int newX = (int)e.NewPosition.ScreenPixels.X - _dragOffset.X;
-            int newY = (int)e.NewPosition.ScreenPixels.Y - _dragOffset.Y;
+            // clamp inside safe area
+            newAbsX = Math.Clamp(newAbsX, safe.X, safe.Right - w);
+            newAbsY = Math.Clamp(newAbsY, safe.Y, safe.Bottom - h);
 
-            newX = Math.Clamp(newX, 0, maxX);
-            newY = Math.Clamp(newY, 0, maxY);
-
-            if (Config.EnergyBarUseRelativePos)
+            if (Config.EnergyBarFollowVanillaHud)
             {
-                // store as 0..1 ratios
-                Config.EnergyBarRelX = maxX == 0 ? 0f : (float)newX / maxX;
-                Config.EnergyBarRelY = maxY == 0 ? 0f : (float)newY / maxY;
+                var target = GetAnchorTargetRect();
+                // store offsets from the target's top-left
+                Config.EnergyBarAnchorOffsetX = newAbsX - target.X;
+                Config.EnergyBarAnchorOffsetY = newAbsY - target.Y;
+            }
+            else if (Config.EnergyBarUseRelativePos)
+            {
+                int maxX = Math.Max(0, safe.Width - w);
+                int maxY = Math.Max(0, safe.Height - h);
+                Config.EnergyBarRelX = maxX == 0 ? 0f : (float)(newAbsX - safe.X) / maxX;
+                Config.EnergyBarRelY = maxY == 0 ? 0f : (float)(newAbsY - safe.Y) / maxY;
             }
             else
             {
-                // legacy absolute mode
-                Config.EnergyBarX = newX;
-                Config.EnergyBarY = newY;
+                Config.EnergyBarX = newAbsX;
+                Config.EnergyBarY = newAbsY;
             }
         }
+
+
+
+
 
 
         private void OnButtonReleased_EnergyBar(object? sender, ButtonReleasedEventArgs e)
