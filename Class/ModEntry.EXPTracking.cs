@@ -154,12 +154,11 @@ namespace UnifiedExperienceSystem
 
             isAllocatingPoint = true;
 
-            //Added Logic to configure number of points of XP should be used and allocated
-            int pointsThatCanBeAllocated = SaveData.UnspentSkillPoints - Config.PointsAllocatedPerClick >= 0 ? Config.PointsAllocatedPerClick : SaveData.UnspentSkillPoints;
-            int ModifiedXPToAdd = EXP_PER_POINT * pointsThatCanBeAllocated;
-      
-
-
+            // Intended points to spend this click (respect config but don't exceed what we have)
+            int pointsThatCanBeAllocated =
+                SaveData.UnspentSkillPoints - Config.PointsAllocatedPerClick >= 0
+                    ? Config.PointsAllocatedPerClick
+                    : SaveData.UnspentSkillPoints;
 
             try
             {
@@ -167,40 +166,110 @@ namespace UnifiedExperienceSystem
                 if (skill == null)
                     return;
 
-                int oldLevel = GetSkillLevel(Game1.player, skill);
-
-                AddExperience(Game1.player, skill, ModifiedXPToAdd);
-
-                int newLevel = GetSkillLevel(Game1.player, skill);
-
-                if (skill.IsVanilla && int.TryParse(skill.Id, out int index))
+                // --- DYNAMIC CAP DISCOVERY (respects patched curves) ---
+                // Find the highest defined level by probing Farmer.getBaseExperienceForLevel.
+                // If truly uncapped (mods), we stop at a probe ceiling and treat as uncapped.
+                const int ProbeCeiling = 200; // safety stop for "infinite" curves
+                int maxDefinedLevel = -1;
+                for (int L = 1; L <= ProbeCeiling; L++)
                 {
-                    for (int i = oldLevel + 1; i <= newLevel; i++)
+                    int thr = Farmer.getBaseExperienceForLevel(L);
+                    if (thr < 0)
                     {
-                        manuallyAllocatedLevels.Add((index, i));
+                        maxDefinedLevel = L - 1;
+                        break;
+                    }
+                }
+                bool isUncapped = (maxDefinedLevel < 0); // never hit -1 within ProbeCeiling
+
+                // Current XP in this skill
+                int currentXp = GetExperience(Game1.player, skill);
+
+                // If capped, compute remaining room to the cap
+                int capXp = 0;
+                int room = int.MaxValue;
+                if (!isUncapped)
+                {
+                    capXp = Farmer.getBaseExperienceForLevel(maxDefinedLevel); // cumulative XP at max level
+                    room = Math.Max(0, capXp - currentXp);
+                    if (room <= 0)
+                    {
+                        // already at (or beyond) cap — do nothing and don't spend a point
+                        if (Config.DebugMode)
+                            Monitor.Log($"[{nameof(AllocateSkillPoint)}] {skill.DisplayName} already at XP cap ({capXp}).", LogLevel.Trace);
+                        return;
                     }
                 }
 
+                // How much XP a single point grants
+                int xpPerPoint = EXP_PER_POINT;
 
+                // Cap-aware calculation for how many points can actually be used this click
+                int pointsUsed;
+                int grantXp;
+
+                if (isUncapped)
+                {
+                    // No cap: use all intended points
+                    pointsUsed = pointsThatCanBeAllocated;
+                    grantXp = xpPerPoint * pointsUsed;
+                }
+                else
+                {
+                    // Cap present: clamp to remaining room
+                    int maxPointsByRoom = (int)Math.Ceiling(room / (double)xpPerPoint);
+                    pointsUsed = Math.Min(pointsThatCanBeAllocated, maxPointsByRoom);
+
+                    if (pointsUsed <= 0)
+                    {
+                        if (Config.DebugMode)
+                            Monitor.Log($"[{nameof(AllocateSkillPoint)}] pointsUsed<=0 (room={room}).", LogLevel.Trace);
+                        return;
+                    }
+
+                    int requestedXp = xpPerPoint * pointsUsed;
+                    grantXp = Math.Min(requestedXp, room);
+                }
+                // --- END DYNAMIC CAP DISCOVERY ---
+
+                int oldLevel = GetSkillLevel(Game1.player, skill);
+
+                // Grant exactly the clamped XP
+                AddExperience(Game1.player, skill, grantXp);
+
+                int newLevel = GetSkillLevel(Game1.player, skill);
+
+                // Track manually allocated vanilla levels for your respec/rollback logic
+                if (skill.IsVanilla && int.TryParse(skill.Id, out int index))
+                {
+                    for (int i = oldLevel + 1; i <= newLevel; i++)
+                        manuallyAllocatedLevels.Add((index, i));
+                }
+
+                // snapshot start-of-day after changes
                 foreach (var s in skillList)
                 {
                     startOfDayExp[s.Id] = GetExperience(Game1.player, s);
                     startOfDayLevel[s.Id] = GetSkillLevel(Game1.player, s);
                 }
 
-
-
-                SaveData.UnspentSkillPoints -= pointsThatCanBeAllocated;
+                // Spend only the points actually used
+                SaveData.UnspentSkillPoints -= pointsUsed;
 
                 if (Config.DebugMode)
-                    Monitor.Log($"Allocated EXP to {skill.DisplayName}. Level {oldLevel} -> {newLevel}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
+                {
+                    if (isUncapped)
+                        Monitor.Log($"Allocated {grantXp} XP to {skill.DisplayName} (uncapped). Level {oldLevel} -> {newLevel}. Points used: {pointsUsed}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
+                    else
+                        Monitor.Log($"Allocated {grantXp} XP to {skill.DisplayName} (cap {capXp}). Level {oldLevel} -> {newLevel}. Points used: {pointsUsed}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
+                }
             }
             finally
             {
-
                 isAllocatingPoint = false;
             }
         }
+
 
 
 

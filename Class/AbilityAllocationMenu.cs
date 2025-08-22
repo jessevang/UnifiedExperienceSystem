@@ -228,6 +228,8 @@ namespace UnifiedExperienceSystem
                 titleY
             );
 
+           
+
             var rows = BuildRowsForDraw();
             int maxScroll = Math.Max(0, rows.Count - MaxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
