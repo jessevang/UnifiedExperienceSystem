@@ -30,6 +30,9 @@ namespace UnifiedExperienceSystem
         private bool highlightButton = false;
 
 
+        private Rectangle abilityIconBounds;
+
+
         //LooseSprites/cursors     used for Icon for Vanilla Skills
         private static readonly Rectangle[] VanillaSkillIcons =
 {
@@ -93,6 +96,35 @@ namespace UnifiedExperienceSystem
             Game1.drawDialogueBox(xPositionOnScreen, yPositionOnScreen, width, height, false, true);
 
 
+            // === Mini "icon menu" to the LEFT, aligned to main menu top ===
+            const int MiniW = 48;
+            const int MiniH = 48;
+            const int MiniGap = -20;//0        // horizontal: distance from main menu edge (0 = touching)
+            const int MiniYOffset = 85;//0    // vertical: offset relative to main menu top (0 = same top)
+
+            int miniX = xPositionOnScreen - (MiniW + MiniGap); // move horizontally by changing MiniGap
+            int miniY = yPositionOnScreen + MiniYOffset;       // move vertically by changing MiniYOffset
+
+            abilityIconBounds = new Rectangle(miniX, miniY, MiniW, MiniH);
+
+            IClickableMenu.drawTextureBox(
+                b, Game1.menuTexture, new Rectangle(0, 256, 60, 60),
+                miniX, miniY, MiniW, MiniH, Color.White, 1f, drawShadow: false
+            );
+
+            // Icon centered inside
+            Rectangle miniSrc = new Rectangle(0, 410, 16, 16);
+            int pad = 8;
+            float miniScale = Math.Min((MiniW - pad * 2f) / miniSrc.Width, (MiniH - pad * 2f) / miniSrc.Height);
+            int miniIconW = (int)Math.Round(miniSrc.Width * miniScale);
+            int miniIconH = (int)Math.Round(miniSrc.Height * miniScale);
+            int miniIconX = miniX + (MiniW - miniIconW) / 2;
+            int miniIconY = miniY + (MiniH - miniIconH) / 2;
+
+            b.Draw(skillIconTexture, new Rectangle(miniIconX, miniIconY, miniIconW, miniIconH), miniSrc, Color.White);
+
+            // === End mini icon menu ===
+
             int titleY = yPositionOnScreen + 40 + yOffset;
             SpriteText.drawString(
                 b,
@@ -100,7 +132,6 @@ namespace UnifiedExperienceSystem
                 xPositionOnScreen + 50,
                 titleY
             );
-
 
             var visibleSkills = skillList;
             int maxScroll = Math.Max(0, visibleSkills.Count - maxVisibleRows);
@@ -137,8 +168,8 @@ namespace UnifiedExperienceSystem
 
                 // --- layout constants ---
                 const int ContentPadLeft = 40;   // inner padding from the dialog box edge
-                const int IconTextGap = 10;   // space between icon and text
-                const int RowVPad = 4;    // top/bottom padding inside each row
+                const int IconTextGap = 10;      // space between icon and text
+                const int RowVPad = 4;           // top/bottom padding inside each row
 
                 int y = rowStartY + i * rowHeight;
 
@@ -148,8 +179,8 @@ namespace UnifiedExperienceSystem
 
                 if (overallIndex <= 4) // VANILLA
                 {
-                    iconTex = skillIconTexture;                 // Loaded from "LooseSprites/Cursors"
-                    iconSrc = VanillaSkillIcons[overallIndex];  // Your verified rects
+                    iconTex = skillIconTexture;
+                    iconSrc = VanillaSkillIcons[overallIndex];
                 }
                 else // SPACECORE
                 {
@@ -157,7 +188,7 @@ namespace UnifiedExperienceSystem
                     if (scTex != null)
                     {
                         iconTex = scTex;
-                        iconSrc = new Rectangle(0, 0, scTex.Width, scTex.Height); // full texture
+                        iconSrc = new Rectangle(0, 0, scTex.Width, scTex.Height);
                     }
                     else
                     {
@@ -167,18 +198,18 @@ namespace UnifiedExperienceSystem
                     }
                 }
 
-                // scale the icon to fit inside the row height (keep aspect)
+                // scale the icon to fit inside the row height 
                 int iconMaxH = Math.Max(12, rowHeight - RowVPad * 2);
                 float iconScale = iconMaxH / (float)iconSrc.Height;
                 int iconW = (int)Math.Round(iconSrc.Width * iconScale);
                 int iconH = (int)Math.Round(iconSrc.Height * iconScale);
 
-                // position: inside the box with left padding, visually aligned with text
+                // position: inside the box
                 int iconX = xPositionOnScreen + ContentPadLeft;
-                int baselineOffset = -16; // tweak -2..+2 to visually match SpriteText baseline
+                int baselineOffset = -16;
                 int iconY = y + (rowHeight - iconH) / 2 + baselineOffset;
 
-                // draw icon (IMPORTANT: draw with iconTex, not always skillIconTexture)
+                // draw icon
                 b.Draw(
                     iconTex,
                     new Rectangle(iconX, iconY, iconW, iconH),
@@ -227,8 +258,19 @@ namespace UnifiedExperienceSystem
         }
 
 
+
+
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
+            // check if clicked on the ability icon
+            if (abilityIconBounds.Contains(x, y))
+            {
+                if (playSound) Game1.playSound("smallSelect");
+                Game1.activeClickableMenu = new AbilityAllocationMenu(mod); // <-- replace with your abilities menu class if different
+                Game1.playSound("bigSelect");
+                return;
+            }
+
             var visibleSkills = skillList;
             int maxScroll = visibleSkills.Count - maxVisibleRows;
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
@@ -270,14 +312,13 @@ namespace UnifiedExperienceSystem
                     else
                     {
                         Game1.playSound("cancel");
-                            
                     }
-
                 }
             }
 
             base.receiveLeftClick(x, y, playSound);
         }
+
 
 
         public override void releaseLeftClick(int x, int y)
