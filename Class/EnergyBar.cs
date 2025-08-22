@@ -104,7 +104,7 @@ namespace UnifiedExperienceSystem
 
             }
 
-            if (CanRegenerateEnergyCounter == 120) //After 2 seconds of no regeneration without casting ability can recover energy again
+            if (CanRegenerateEnergyCounter == 120) 
             {
                 CanRegenerateEnergyCounter = 0;
                 CanRegenerateEnergy = true;
@@ -120,7 +120,7 @@ namespace UnifiedExperienceSystem
         {
             if (!Context.IsWorldReady) return;
 
-            // Always hide during events/cutscenes/festivals
+
             if (Game1.eventUp || Game1.CurrentEvent != null || Game1.currentLocation?.currentEvent != null)
                 return;
 

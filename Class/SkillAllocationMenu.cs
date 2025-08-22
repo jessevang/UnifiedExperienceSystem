@@ -90,7 +90,7 @@ namespace UnifiedExperienceSystem
                 var skill = visibleSkills[i + scrollIndex];
                 int level = mod.GetSkillLevel(Game1.player, skill);
                 int xp = mod.GetExperience(Game1.player, skill);
-
+                
                 int y = rowStartY + i * rowHeight;
                 SpriteText.drawString(b, $"{skill.DisplayName} (Lv {level}) — XP: {xp}", xPositionOnScreen + 50, y);
 

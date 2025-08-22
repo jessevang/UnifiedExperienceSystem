@@ -70,6 +70,20 @@ namespace UnifiedExperienceSystem
 
     }
 
+    public class AbilityInfo
+    {
+        public string ModId { get; init; } = "";
+        public string AbilityId { get; init; } = "";
+        public string DisplayName { get; init; } = "";
+        public string Description { get; init; } = "";
+        public int MaxLevel { get; init; }
+        public string? IconPath { get; init; }
+        public string[]? Tags { get; init; }
+        public int CurrentLevel { get; init; }
+        public float TotalExp { get; init; }
+    }
+
+
 
     public class SkillEntry
     {
@@ -133,6 +147,63 @@ namespace UnifiedExperienceSystem
         {
             return apiInstance ??= new UnifiedExperienceAPI(this);
         }
+        internal sealed class ModAbilityIdComparer : IEqualityComparer<(string modId, string abilityId)>
+        {
+            public bool Equals((string modId, string abilityId) x, (string modId, string abilityId) y) =>
+                string.Equals(x.modId, y.modId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(x.abilityId, y.abilityId, StringComparison.OrdinalIgnoreCase);
+
+            public int GetHashCode((string modId, string abilityId) obj) =>
+                HashCode.Combine(
+                    StringComparer.OrdinalIgnoreCase.GetHashCode(obj.modId ?? string.Empty),
+                    StringComparer.OrdinalIgnoreCase.GetHashCode(obj.abilityId ?? string.Empty)
+                );
+        }
+        private static readonly IEqualityComparer<(string modId, string abilityId)> IdTupleComparer = new ModAbilityIdComparer();
+
+
+        //used to reference all data from registered info to saved data
+        public List<AbilityInfo> GetAllAbilityInfos(IUnifiedExperienceAPI? api)
+        {
+
+            var registry = (api?.ListRegisteredAbilities() ?? Enumerable.Empty<(string modId, string abilityId, string displayName, string Description, int maxLevel)>());
+
+
+            var saves = this.SaveData.Abilities ?? new List<AbilitySaveData>();
+            var saveLookup = saves
+                .Where(a => !string.IsNullOrWhiteSpace(a.ModGuid) && !string.IsNullOrWhiteSpace(a.AbilityId))
+                .ToDictionary(
+                    a => (a.ModGuid!, a.AbilityId!),
+                    a => Math.Max(0L, a.TotalExpSpent), 
+                    IdTupleComparer
+                );
+
+            var infos = new List<AbilityInfo>();
+
+            foreach (var (modId, abilityId, displayName, description, maxLevel) in registry)
+            {
+                // pull saved EXP if present
+                saveLookup.TryGetValue((modId, abilityId), out long totalExp);
+
+                // current level from API (int)
+                int currentLevel = api?.GetAbilityLevel(modId, abilityId) ?? 0;
+
+                infos.Add(new AbilityInfo
+                {
+                    ModId = modId,
+                    AbilityId = abilityId,
+                    DisplayName = displayName,
+                    Description = description,
+                    MaxLevel = maxLevel,
+                    CurrentLevel = currentLevel,
+                    TotalExp = totalExp
+                });
+            }
+
+            return infos;
+        }
+
+
 
 
 
@@ -461,19 +532,21 @@ namespace UnifiedExperienceSystem
             {
                 foreach (var skillId in spaceCoreApi.GetCustomSkills())
                 {
-
+                    string skillname = spaceCoreApi.GetDisplayNameOfCustomSkill(skillId);
                     //cleans up skill display name before adding it
-                    string friendlyName = skillId.Split('.').Last();
-                    friendlyName = char.ToUpper(friendlyName[0]) + friendlyName.Substring(1); 
+                    Monitor.Log($"SkillName: {skillname}", LogLevel.Debug);
+                    //string friendlyName = skillId.Split('.').Last();
+
+                    //friendlyName = char.ToUpper(friendlyName[0]) + friendlyName.Substring(1); 
                     result.Add(new SkillEntry
                     {
                         Id = skillId,
-                        DisplayName = friendlyName,
+                        DisplayName = skillname,
                         IsVanilla = false
                     });
                     
                     if(Config.DebugMode)
-                        Monitor.Log($" Spacecore skillID:{skillId} DisplayName={friendlyName}", LogLevel.Info);
+                        Monitor.Log($" Spacecore skillID:{skillId} DisplayName={skillname}", LogLevel.Info);
 
                 }
             }

@@ -18,7 +18,7 @@ namespace UnifiedExperienceSystem
 
 
         // =========================================================
-        //  Start-of-day EXP and Level (existing)
+        //  Start-of-day EXP and Level
         // =========================================================
 
         public int GetStartOfDayExp(string skillName) =>
@@ -55,7 +55,7 @@ namespace UnifiedExperienceSystem
         }
 
         // =========================================================
-        //  Global EXP System (existing)
+        //  Global EXP System
         // =========================================================
 
         public int GetGlobalEXP() => mod.SaveData.GlobalEXP;
@@ -73,7 +73,7 @@ namespace UnifiedExperienceSystem
         }
 
         // =========================================================
-        //  Abilities (NEW)
+        //  Abilities
         //  - Register runtime ability defs
         //  - Compute level/progress from persisted totals
         // =========================================================
@@ -82,30 +82,27 @@ namespace UnifiedExperienceSystem
             = new(new ModAbilityKeyComparer());
 
 
-        public IEnumerable<(string modId, string abilityId, string displayName, string Description, int maxLevel)> ListRegisteredAbilities()
+        public IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel)> ListRegisteredAbilities()
     => _abilities.Values.Select(a => (a.ModId, a.AbilityId, a.DisplayName, a.Description, a.MaxLevel));
 
-        // Minimal internal model (no extra file needed)
+
         private sealed class AbilityDef
         {
             public string ModId = "";
             public string AbilityId = "";
             public string DisplayName = "";
             public string Description = "";
-
-            // curve: "linear" | "step" | "table"
             public string CurveKind = "linear";
-            public int LinearXpPerLevel = 100;       // linear
-            public int StepBase = 100;               // step
-            public int StepPerLevel = 0;             // step
-            public int[] TableLevels = Array.Empty<int>(); // table
-            public long[]? TablePrefix;              // precomputed prefix sums (table)
+            public int LinearXpPerLevel = 100;
+            public int StepBase = 100;
+            public int StepPerLevel = 0;
+            public int[] TableLevels = Array.Empty<int>();
+            public long[]? TablePrefix;
 
             public int MaxLevel = 1;
             public string? IconPath;
             public string[]? Tags;
         }
-
 
 
         public void RegisterAbility(
@@ -136,7 +133,7 @@ namespace UnifiedExperienceSystem
                 Tags = tags
             };
 
-            // Parse curve + precompute
+
             switch (def.CurveKind)
             {
                 case "linear":
@@ -168,10 +165,10 @@ namespace UnifiedExperienceSystem
                     break;
             }
 
-            // Upsert (add or update in-place for this session)
+
             _abilities[(modUniqueId, abilityId)] = def;
 
-            // --- local helpers ---
+            
             static int GetInt(IDictionary<string, object> data, string key, int min)
             {
                 if (!data.TryGetValue(key, out var v)) throw new ArgumentException($"missing '{key}'");
@@ -225,15 +222,15 @@ namespace UnifiedExperienceSystem
         {
             if (exp <= 0) return;
 
-            // Ensure the list exists (note the correct type: AbilitySaveData)
+
             var list = mod.SaveData.Abilities ??= new List<AbilitySaveData>();
 
-            // Find existing entry
+
             var entry = list.FirstOrDefault(a =>
                 string.Equals(a.ModGuid, modUniqueId, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(a.AbilityId, abilityId, StringComparison.OrdinalIgnoreCase));
 
-            // Create if missing
+
             if (entry == null)
             {
                 entry = new AbilitySaveData
@@ -320,6 +317,10 @@ namespace UnifiedExperienceSystem
             }
         }
 
+        public string GetAbilityDisplayName(string modUniqueId, string abilityId)
+        => _abilities.TryGetValue((modUniqueId, abilityId), out var def)
+        ? def.DisplayName : ""; 
+
 
         // ---------------------------------------------------------
         // Helpers: read persisted EXP and compute curve progress
@@ -327,11 +328,10 @@ namespace UnifiedExperienceSystem
 
         private long GetTotalExpPersisted(string modId, string abilityId)
         {
-            // Read from the in-memory SaveData list (which you already mutate during play).
+
             var list = mod.SaveData.Abilities;
             if (list == null || list.Count == 0) return 0;
 
-            // linear scan is fine; list is expected to be small per player
             for (int i = 0; i < list.Count; i++)
             {
                 var a = list[i];
@@ -364,7 +364,7 @@ namespace UnifiedExperienceSystem
 
                 case "step":
                     {
-                        // cost_k = base + (k-1)*step
+
                         static long S(long L, long b, long d) => L * (2 * b + (L - 1) * d) / 2;
                         long b = Math.Max(0, def.StepBase);
                         long d = Math.Max(0, def.StepPerLevel);
@@ -404,7 +404,7 @@ namespace UnifiedExperienceSystem
                     }
 
                 default:
-                    // Safe fallback: linear 100 per level
+ 
                     const int cdef = 100;
                     int Ld = (int)Math.Min(cap, exp / cdef);
                     bool m = Ld >= cap;
@@ -414,7 +414,7 @@ namespace UnifiedExperienceSystem
             }
         }
 
-        // Case-insensitive comparer for (modId, abilityId) tuple keys
+
         private sealed class ModAbilityKeyComparer : IEqualityComparer<(string modId, string abilityId)>
         {
             public bool Equals((string modId, string abilityId) x, (string modId, string abilityId) y)

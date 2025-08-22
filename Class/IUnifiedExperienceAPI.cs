@@ -32,7 +32,7 @@ namespace UnifiedExperienceSystem
         // =========================================================
         //  Abilities
         // =========================================================
-        IEnumerable<(string modId, string abilityId, string displayName, string Description, int maxLevel)> ListRegisteredAbilities();
+        IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel)> ListRegisteredAbilities();
 
         /// <summary>
         /// Register (or update) an ability for this session. Identity is (modUniqueId, abilityId).

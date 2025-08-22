@@ -171,7 +171,7 @@ namespace UnifiedExperienceSystem
                         ModId = modId,
                         ModName = g.ModName,
                         AbilityId = abilityId,
-                        AbilityName = string.IsNullOrWhiteSpace(displayName) ? abilityId : displayName,
+                        AbilityName = displayName,
                         Description = description,
                         TotalExp = totalExp,
                         Level = level,
@@ -181,28 +181,33 @@ namespace UnifiedExperienceSystem
             }
             else
             {
-     
+                var nameLookup = (api?.ListRegisteredAbilities() ?? Enumerable.Empty<(string modId, string abilityId, string displayName, string description, int maxLevel)>())
+                .GroupBy(t => (modId: t.modId.ToLowerInvariant(), abilityId: t.abilityId.ToLowerInvariant()))
+                .ToDictionary(g => g.Key, g => g.First().displayName);
+
                 var list = mod.SaveData.Abilities ?? new List<AbilitySaveData>();
+                
                 foreach (var a in list)
                 {
                     var modId = a.ModGuid ?? "";
                     var abilityId = a.AbilityId ?? "";
-                    if (string.IsNullOrWhiteSpace(modId) || string.IsNullOrWhiteSpace(abilityId)) continue;
+                    if (string.IsNullOrWhiteSpace(modId) || string.IsNullOrWhiteSpace(abilityId))
+                        continue;
 
                     if (!grouped.TryGetValue(modId, out var g))
-                    {
-                        g = new AbilityGroupVM { ModId = modId, ModName = modId }; 
-                    }
+                        g = new AbilityGroupVM { ModId = modId, ModName = modId };
 
                     int level = api?.GetAbilityLevel(modId, abilityId) ?? 0;
+
+                    nameLookup.TryGetValue((modId.ToLowerInvariant(), abilityId.ToLowerInvariant()), out var friendly);
+                    string abilityName = string.IsNullOrEmpty(friendly) ? abilityId : friendly;
 
                     g.Abilities.Add(new AbilityRowVM
                     {
                         ModId = modId,
                         ModName = g.ModName,
                         AbilityId = abilityId,
-                        AbilityName = abilityId,
-
+                        AbilityName = abilityName,
                         TotalExp = Math.Max(0, a.TotalExpSpent),
                         Level = level
                     });
@@ -480,17 +485,17 @@ namespace UnifiedExperienceSystem
 
                 int rowY = rowStartY + i * RowHeight;
 
-                // 1) click on row text toggles context help
+                //ContextHelp click to trigger
                 var textRect = new Rectangle(xPositionOnScreen + 70, rowY, width - 200, RowHeight);
                 if (textRect.Contains(x, y))
                 {
                     string key = $"{row.ModId}/{row.AbilityId}";
-                    expandedRowKey = (expandedRowKey == key) ? null : key; // toggle
+                    expandedRowKey = (expandedRowKey == key) ? null : key; 
                     Game1.playSound("smallSelect");
                     return;
                 }
 
-                // 2) [+] button (only when not at max, preserves your behavior)
+                //[+] button
                 bool showPlus = !row.AtMax;
                 if (!showPlus)
                     continue;
@@ -506,14 +511,14 @@ namespace UnifiedExperienceSystem
                 {
                     if (mod.SaveData.UnspentSkillPoints > 0)
                     {
-                        // spend & allocate
+
                         mod.AllocateAbilityPoints(row.ModId, row.AbilityId);
 
                         Game1.playSound("coin");
                         if (mod.Config.DebugMode)
                             log.Log($"[AbilityMenu] Allocated point to {row.ModId}/{row.AbilityId}. Remaining points: {mod.SaveData.UnspentSkillPoints}", LogLevel.Debug);
 
-                        // refresh menu data so XP/level updates immediately
+
                         RefreshData(preserveScroll: true);
                         
                     }

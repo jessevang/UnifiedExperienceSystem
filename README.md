@@ -41,7 +41,16 @@ public class ModEntry : Mod
 
                 if (Abilitylevel >0)
                 {
-                    //Do Action 
+                    float manaCost = 40.0f;
+                    if (useAPI.TryToUseAbility(manacost))
+                    {
+                        //Use Ability Function
+                    }
+                    else
+                    {
+                        //Not enough Energy do something else
+                    }
+                    
                 }
 
                 
