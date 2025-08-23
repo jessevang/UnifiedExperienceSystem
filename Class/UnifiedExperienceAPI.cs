@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using static UnifiedExperienceSystem.ModEntry;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace UnifiedExperienceSystem
 {
@@ -14,7 +16,7 @@ namespace UnifiedExperienceSystem
             this.mod = mod;
         }
 
-        
+
 
 
         // =========================================================
@@ -104,7 +106,9 @@ namespace UnifiedExperienceSystem
             public string[]? Tags;
         }
 
-
+        // ------------------------------------------------------------------------------------
+        // OLD OVERLOAD (kept for compatibility) → forwards to the new overload/core
+        // ------------------------------------------------------------------------------------
         public void RegisterAbility(
             string modUniqueId,
             string abilityId,
@@ -117,9 +121,86 @@ namespace UnifiedExperienceSystem
             string[]? tags = null
         )
         {
+            RegisterAbilityCore(
+                modUniqueId,
+                abilityId,
+                displayName,
+                description,
+                curveKind,
+                curveData,
+                maxLevel,
+                iconTexture: null,
+                iconSourceRect: null,
+                iconPath: iconPath,
+                tags: tags
+            );
+        }
+
+
+        // ------------------------------------------------------------------------------------
+        // NEW OVERLOAD (matches IUnifiedExperienceAPI exactly)
+        // ------------------------------------------------------------------------------------
+        public void RegisterAbility(
+            string modUniqueId,
+            string abilityId,
+            string displayName,
+            string description,
+            string curveKind,
+            IDictionary<string, object> curveData,
+            int maxLevel,
+            Texture2D? iconTexture,
+            Rectangle? iconSourceRect = null,
+            string? iconPath = null,
+            string[]? tags = null
+        )
+        {
+            RegisterAbilityCore(
+                modUniqueId,
+                abilityId,
+                displayName,
+                description,
+                curveKind,
+                curveData,
+                maxLevel,
+                iconTexture,
+                iconSourceRect,
+                iconPath,
+                tags
+            );
+        }
+
+
+
+        // ------------------------------------------------------------------------------------
+        // CORE IMPLEMENTATION (single place that does all the work)
+        // ------------------------------------------------------------------------------------
+        private void RegisterAbilityCore(
+            string modUniqueId,
+            string abilityId,
+            string displayName,
+            string description,
+            string curveKind,
+            IDictionary<string, object> curveData,
+            int maxLevel,
+            Texture2D? iconTexture,
+            Rectangle? iconSourceRect,
+            string? iconPath,
+            string[]? tags
+        )
+        {
             if (string.IsNullOrWhiteSpace(modUniqueId)) throw new ArgumentException("modUniqueId required");
             if (string.IsNullOrWhiteSpace(abilityId)) throw new ArgumentException("abilityId required");
             if (maxLevel < 1) throw new ArgumentException("maxLevel must be >= 1");
+
+            // Normalize tags: trim, drop empties, distinct (case-insensitive)
+            static string[] NormalizeTags(string[]? input)
+                => input == null
+                    ? Array.Empty<string>()
+                    : input
+                        .Select(t => t?.Trim())
+                        .Where(t => !string.IsNullOrEmpty(t))
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToArray();
 
             var def = new AbilityDef
             {
@@ -129,10 +210,17 @@ namespace UnifiedExperienceSystem
                 Description = description ?? "",
                 CurveKind = (curveKind ?? "linear").ToLowerInvariant(),
                 MaxLevel = maxLevel,
-                IconPath = iconPath,
-                Tags = tags
+
+                // Store metadata for renderer/fallback logic
+                IconPath = string.IsNullOrWhiteSpace(iconPath) ? null : iconPath,
+                Tags = NormalizeTags(tags)
             };
 
+            // NOTE: If you later add fields to AbilityDef for resolved icons, set them here, e.g.:
+            // def.IconTexture = iconTexture;
+            // def.IconSourceRect = iconTexture != null
+            //     ? (iconSourceRect ?? new Rectangle(0, 0, iconTexture.Width, iconTexture.Height))
+            //     : (Rectangle?)null;
 
             switch (def.CurveKind)
             {
@@ -165,10 +253,9 @@ namespace UnifiedExperienceSystem
                     break;
             }
 
-
             _abilities[(modUniqueId, abilityId)] = def;
 
-            
+            // ---- local helpers (same as before) ----
             static int GetInt(IDictionary<string, object> data, string key, int min)
             {
                 if (!data.TryGetValue(key, out var v)) throw new ArgumentException($"missing '{key}'");
@@ -292,20 +379,20 @@ namespace UnifiedExperienceSystem
         {
             if (level <= 0) level = 1;
 
-            switch (def.CurveKind) 
+            switch (def.CurveKind)
             {
                 case "linear":
 
                     return Math.Max(1, def.LinearXpPerLevel);
 
                 case "step":
-   
+
                     return Math.Max(0, def.StepBase + def.StepPerLevel * (level - 1));
 
                 case "table":
                     {
                         var arr = def.TableLevels ?? Array.Empty<int>();
-                        if (arr.Length == 0) return 1; 
+                        if (arr.Length == 0) return 1;
                         int idx = level - 1;
                         if (idx < 0) idx = 0;
                         if (idx >= arr.Length) idx = arr.Length - 1;
@@ -319,7 +406,7 @@ namespace UnifiedExperienceSystem
 
         public string GetAbilityDisplayName(string modUniqueId, string abilityId)
         => _abilities.TryGetValue((modUniqueId, abilityId), out var def)
-        ? def.DisplayName : ""; 
+        ? def.DisplayName : "";
 
 
         // ---------------------------------------------------------
@@ -404,7 +491,7 @@ namespace UnifiedExperienceSystem
                     }
 
                 default:
- 
+
                     const int cdef = 100;
                     int Ld = (int)Math.Min(cap, exp / cdef);
                     bool m = Ld >= cap;

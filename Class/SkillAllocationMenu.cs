@@ -93,17 +93,31 @@ namespace UnifiedExperienceSystem
 
         public override void draw(SpriteBatch b)
         {
-            Game1.drawDialogueBox(xPositionOnScreen, yPositionOnScreen, width, height, false, true);
+            // local helper: find current XP cap (respects patched curves); int.MaxValue => uncapped
+            static int GetDynamicCapXp()
+            {
+                const int ProbeCeiling = 200; // safety limit for "infinite" curves
+                int last = -1;
+                for (int L = 1; L <= ProbeCeiling; L++)
+                {
+                    int thr = Farmer.getBaseExperienceForLevel(L);
+                    if (thr < 0)
+                        return (last < 0) ? 0 : last; // if somehow no levels defined, treat cap as 0
+                    last = thr;
+                }
+                return int.MaxValue; // uncapped
+            }
 
+            Game1.drawDialogueBox(xPositionOnScreen, yPositionOnScreen, width, height, false, true);
 
             // === Mini "icon menu" to the LEFT, aligned to main menu top ===
             const int MiniW = 48;
             const int MiniH = 48;
-            const int MiniGap = -20;//0        // horizontal: distance from main menu edge (0 = touching)
-            const int MiniYOffset = 85;//0    // vertical: offset relative to main menu top (0 = same top)
+            const int MiniGap = -20; // horizontal: 0 = touching; negative overlaps a bit
+            const int MiniYOffset = 85; // vertical offset from the menu's top
 
-            int miniX = xPositionOnScreen - (MiniW + MiniGap); // move horizontally by changing MiniGap
-            int miniY = yPositionOnScreen + MiniYOffset;       // move vertically by changing MiniYOffset
+            int miniX = xPositionOnScreen - (MiniW + MiniGap);
+            int miniY = yPositionOnScreen + MiniYOffset;
 
             abilityIconBounds = new Rectangle(miniX, miniY, MiniW, MiniH);
 
@@ -122,7 +136,6 @@ namespace UnifiedExperienceSystem
             int miniIconY = miniY + (MiniH - miniIconH) / 2;
 
             b.Draw(skillIconTexture, new Rectangle(miniIconX, miniIconY, miniIconW, miniIconH), miniSrc, Color.White);
-
             // === End mini icon menu ===
 
             int titleY = yPositionOnScreen + 40 + yOffset;
@@ -139,6 +152,10 @@ namespace UnifiedExperienceSystem
 
             int rowStartY = titleY + 100;
             int buttonSize = Math.Min(rowHeight - 10, 64);
+
+            // compute cap once per draw (global curve); works for vanilla + most mods
+            int capXp = GetDynamicCapXp();
+            bool isUncapped = capXp == int.MaxValue;
 
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
@@ -165,6 +182,9 @@ namespace UnifiedExperienceSystem
 
                 string strbuffLevel = (buffedLevel >= level && buffedLevel != level) ? $"({buffedLevel})" : "";
                 int xp = mod.GetExperience(Game1.player, skill);
+
+                // Should the [+] button be visible for this row?
+                bool canGainMoreXp = isUncapped || xp < capXp;
 
                 // --- layout constants ---
                 const int ContentPadLeft = 40;   // inner padding from the dialog box edge
@@ -226,24 +246,28 @@ namespace UnifiedExperienceSystem
                     : skill.DisplayName).PadRight(12);
 
                 string strLevelRaw = $"Lv:{level}{strbuffLevel}";
-                string strLevel = (strLevelRaw.Length > 10
+                string strLevelTxt = (strLevelRaw.Length > 10
                     ? strLevelRaw.Substring(0, 10)
                     : strLevelRaw).PadRight(10);
 
                 string strXP = $"XP: {xp}";
-                string finalString = $"{strSkillName}{strLevel}{strXP}";
+                string finalString = $"{strSkillName}{strLevelTxt}{strXP}";
 
                 // draw text next to icon
                 SpriteText.drawString(b, finalString, textX, y);
 
-                // allocate button (unchanged)
-                Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - buttonSize - 50, y, buttonSize, buttonSize);
-                b.Draw(
-                    emojiTexture,
-                    new Rectangle(buttonBounds.X, buttonBounds.Y, buttonBounds.Width, buttonBounds.Height),
-                    new Rectangle(108, 81, 9, 9),
-                    Color.White
-                );
+                // allocate button: only draw if the skill can gain more XP
+                if (canGainMoreXp)
+                {
+                    Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - buttonSize - 50, y, buttonSize, buttonSize);
+                    b.Draw(
+                        emojiTexture,
+                        new Rectangle(buttonBounds.X, buttonBounds.Y, buttonBounds.Width, buttonBounds.Height),
+                        new Rectangle(108, 81, 9, 9),
+                        Color.White
+                    );
+                }
+                // else: hide the [+] when capped
             }
 
             if (highlightButton)
@@ -260,15 +284,32 @@ namespace UnifiedExperienceSystem
 
 
 
+
+
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            // check if clicked on the ability icon
+            // click on the ability icon -> switch menus
             if (abilityIconBounds.Contains(x, y))
             {
                 if (playSound) Game1.playSound("smallSelect");
-                Game1.activeClickableMenu = new AbilityAllocationMenu(mod); // <-- replace with your abilities menu class if different
+                Game1.activeClickableMenu = new AbilityAllocationMenu(mod);
                 Game1.playSound("bigSelect");
                 return;
+            }
+
+            // local helper: find current XP cap (respects patched curves); int.MaxValue => uncapped
+            static int GetDynamicCapXp()
+            {
+                const int ProbeCeiling = 200;
+                int last = -1;
+                for (int L = 1; L <= ProbeCeiling; L++)
+                {
+                    int thr = Farmer.getBaseExperienceForLevel(L);
+                    if (thr < 0)
+                        return (last < 0) ? 0 : last;
+                    last = thr;
+                }
+                return int.MaxValue; // uncapped
             }
 
             var visibleSkills = skillList;
@@ -279,45 +320,70 @@ namespace UnifiedExperienceSystem
             {
                 scrollIndex = Math.Max(0, scrollIndex - 1);
                 Game1.playSound("shwip");
+                return;
             }
             else if (downArrow.containsPoint(x, y))
             {
                 scrollIndex = Math.Min(maxScroll, scrollIndex + 1);
                 Game1.playSound("shwip");
+                return;
             }
 
             if (closeButton.containsPoint(x, y))
             {
                 Game1.exitActiveMenu();
                 Game1.playSound("bigDeSelect");
+                return;
             }
 
             int titleY = yPositionOnScreen + 40 + yOffset;
             int rowStartY = titleY + 100;
             int buttonSize = Math.Min(rowHeight - 10, 64);
 
+            // compute cap once per click processing
+            int capXp = GetDynamicCapXp();
+            bool isUncapped = capXp == int.MaxValue;
+
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
                 var skill = visibleSkills[i + scrollIndex];
                 int yOffsetPos = rowStartY + i * rowHeight;
+
+                // the [+] button bounds for this row
                 Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - buttonSize - 50, yOffsetPos, buttonSize, buttonSize);
 
                 if (buttonBounds.Contains(x, y) && !skill.Id.StartsWith("Test"))
                 {
-                    if (mod.SaveData.UnspentSkillPoints > 0)
+                    // block allocation if at/over cap
+                    int xp = mod.GetExperience(Game1.player, skill);
+                    bool canGainMoreXp = isUncapped || xp < capXp;
+
+                    if (canGainMoreXp)
                     {
-                        mod.AllocateSkillPoint(skill.Id);
-                        Game1.playSound("coin");
+                        if (mod.SaveData.UnspentSkillPoints > 0)
+                        {
+                            mod.AllocateSkillPoint(skill.Id);
+                            Game1.playSound("coin");
+                        }
+                        else
+                        {
+                            Game1.playSound("cancel");
+                        }
                     }
                     else
                     {
+                        // capped: ignore click (and play cancel)
                         Game1.playSound("cancel");
                     }
+
+                    return;
                 }
             }
 
+
             base.receiveLeftClick(x, y, playSound);
         }
+
 
 
 
