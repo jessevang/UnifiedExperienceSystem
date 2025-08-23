@@ -1,4 +1,15 @@
 ﻿{
+  "config.pageTitle.ExperienceSetting": "经验设置",
+  "config.maxSkillLevel.name": "最高技能等级",
+  "config.maxSkillLevel.tooltip": "使用 Unified Experience System 能达到的最高等级。",
+
+  "config.baseStepBeyond10.name": "每级基础经验",
+  "config.baseStepBeyond10.tooltip": "在 11 级时增加的经验。此后每级都会在四舍五入前按增长百分比乘算该数值。",
+
+  "config.beyond10GrowthPercent.name": "每级增长（10 级后）",
+  "config.beyond10GrowthPercent.tooltip": "0 = 每级固定消耗；0.10 = 比前一个 10 级后的等级多 10% 的经验值。",
+
+
   "nav.menuSettings.name": "菜单设置",
   "nav.menuSettings.tooltip": "设置技能与能力菜单的大小和布局。",
   "nav.energySettings.name": "能量设置",

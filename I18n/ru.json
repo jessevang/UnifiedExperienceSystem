@@ -1,4 +1,15 @@
 ﻿{
+  "config.pageTitle.ExperienceSetting": "Настройки опыта",
+  "config.maxSkillLevel.name": "Максимальный уровень навыка",
+  "config.maxSkillLevel.tooltip": "Наивысший уровень, которого можно достичь с Unified Experience System.",
+
+  "config.baseStepBeyond10.name": "Базовый опыт на уровень",
+  "config.baseStepBeyond10.tooltip": "Опыт, добавляемый на уровне 11. Каждый следующий уровень умножает это значение на процент роста до округления.",
+
+  "config.beyond10GrowthPercent.name": "Прирост за уровень (после 10)",
+  "config.beyond10GrowthPercent.tooltip": "0 = фиксированная стоимость за уровень; 0,10 = на 10% больше опыта, чем на предыдущем уровне после 10.",
+
+
   "nav.menuSettings.name": "Настройки меню",
   "nav.menuSettings.tooltip": "Настройте размер и расположение меню навыков и умений.",
   "nav.energySettings.name": "Настройки энергии",

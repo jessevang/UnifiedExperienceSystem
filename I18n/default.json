@@ -1,4 +1,16 @@
 {
+
+  "config.pageTitle.ExperienceSetting": "Experience Setting",
+  "config.maxSkillLevel.name": "Max skill level",
+  "config.maxSkillLevel.tooltip": "Highest level you can reach with Unified Experience System.",
+
+  "config.baseStepBeyond10.name": "Base XP per Level",
+  "config.baseStepBeyond10.tooltip": "XP added at level 11. Each level multiplies this by the growth percent before rounding.",
+
+  "config.beyond10GrowthPercent.name": "Growth per level (post-10)",
+  "config.beyond10GrowthPercent.tooltip": "0 = flat cost each level; 0.10 = +10% more XP than the previous post-10 level.",
+
+
   "nav.menuSettings.name": "Menu Settings",
   "nav.menuSettings.tooltip": "Configure skill and ability menu sizes and layout.",
   "nav.energySettings.name": "Energy Settings",

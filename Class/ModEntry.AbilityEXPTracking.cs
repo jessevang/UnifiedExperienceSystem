@@ -127,7 +127,20 @@ namespace UnifiedExperienceSystem
             return totalXp;
         }
 
+        //Used to add any necessary screens on level up when ability levels up, used generally to handle level pass level 10 when Vanilla code will no longer be used in this mod
+        private void EnqueueVanillaLevelUps(int which, int fromLevel, int toLevel)
+        {
 
+            // respect your config; keep a sane upper bound
+            int cap = Math.Clamp(Config.MaxSkillLevel, 10, 100);
+
+            for (int L = fromLevel + 1; L <= toLevel && L <= cap; L++)
+            {
+                var entry = new Microsoft.Xna.Framework.Point(which, L);
+                if (!Game1.player.newLevels.Contains(entry)) // avoid duplicates if multiple clicks
+                    Game1.player.newLevels.Add(entry);
+            }
+        }
 
 
 

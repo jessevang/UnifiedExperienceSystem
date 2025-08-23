@@ -1,4 +1,14 @@
 {
+  "config.pageTitle.ExperienceSetting": "Erfahrungseinstellungen",
+  "config.maxSkillLevel.name": "Maximale Fertigkeitsstufe",
+  "config.maxSkillLevel.tooltip": "Höchste Stufe, die du mit Unified Experience System erreichen kannst.",
+
+  "config.baseStepBeyond10.name": "Grund-XP pro Stufe",
+  "config.baseStepBeyond10.tooltip": "XP, die auf Stufe 11 hinzugefügt werden. Jede weitere Stufe multipliziert diesen Wert mit dem Wachstumsprozentsatz, bevor gerundet wird.",
+
+  "config.beyond10GrowthPercent.name": "Wachstum pro Stufe (ab Stufe 10)",
+  "config.beyond10GrowthPercent.tooltip": "0 = gleicher Aufwand je Stufe; 0,10 = +10 % mehr XP als die vorherige Stufe nach Stufe 10.",
+
   "nav.menuSettings.name": "Menüeinstellungen",
   "nav.menuSettings.tooltip": "Größe und Layout der Fertigkeiten- und Fähigkeitenmenüs konfigurieren.",
   "nav.energySettings.name": "Energie-Einstellungen",

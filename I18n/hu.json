@@ -1,4 +1,14 @@
 ﻿{
+  "config.pageTitle.ExperienceSetting": "Tapasztalat beállításai",
+  "config.maxSkillLevel.name": "Maximális képességszint",
+  "config.maxSkillLevel.tooltip": "A legmagasabb szint, amelyet az Unified Experience System segítségével elérhetsz.",
+
+  "config.baseStepBeyond10.name": "Alap XP szintenként",
+  "config.baseStepBeyond10.tooltip": "XP, amely a 11. szinten kerül hozzáadásra. Minden további szint a kerekítés előtt a növekedési százalékkal szorozza ezt az értéket.",
+
+  "config.beyond10GrowthPercent.name": "Növekedés szintenként (10 fölött)",
+  "config.beyond10GrowthPercent.tooltip": "0 = fix költség szintenként; 0,10 = 10%-kal több XP, mint az előző, 10 fölötti szinten.",
+
   "nav.menuSettings.name": "Menü beállításai",
   "nav.menuSettings.tooltip": "A készség- és képességmenük méretének és elrendezésének beállítása.",
   "nav.energySettings.name": "Energia beállításai",
@@ -7,13 +17,13 @@
   "page.energySettings.title": "Energia beállításai",
   "section.energyBarPosition.title": "Energiasáv pozíciója",
 
-  
+
   "Menu.AbilityMenu.need": "Szükséges",
   "config.EnergyBarAnchorOffsetX.name": "Energia sáv mozgatása",
   "config.EnergyBarAnchorOffsetX.tooltip": "Mozgasd az energiasávot balra és jobbra. Csökkentsd az értéket balra, növeld az értéket jobbra.",
   "config.EnergyBarShowNumeric.name": "Energia szám megjelenítése",
   "config.EnergyBarShowNumeric.tooltip": "Megjeleníti az energia számát a sávon belül.",
-  
+
 
   "config.energyBarRelX.name": "Relatív X pozíció",
   "config.energyBarRelX.tooltip": "Az energiasáv vízszintes mozgatása. 0 = bal szél, 1 = jobb szél.",

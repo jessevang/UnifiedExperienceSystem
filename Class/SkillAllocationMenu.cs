@@ -87,28 +87,13 @@ namespace UnifiedExperienceSystem
 
         public override void draw(SpriteBatch b)
         {
-            // local helper: find current XP cap (respects patched curves); int.MaxValue => uncapped
-            static int GetDynamicCapXp()
-            {
-                const int ProbeCeiling = 200; // safety limit for "infinite" curves
-                int last = -1;
-                for (int L = 1; L <= ProbeCeiling; L++)
-                {
-                    int thr = Farmer.getBaseExperienceForLevel(L);
-                    if (thr < 0)
-                        return (last < 0) ? 0 : last; // if somehow no levels defined, treat cap as 0
-                    last = thr;
-                }
-                return int.MaxValue; // uncapped
-            }
-
             Game1.drawDialogueBox(xPositionOnScreen, yPositionOnScreen, width, height, false, true);
 
-            // === Mini "icon menu" to the LEFT, aligned to main menu top ===
+            // === Mini icon box on the left ===
             const int MiniW = 48;
             const int MiniH = 48;
-            const int MiniGap = -20; // horizontal: 0 = touching; negative overlaps a bit
-            const int MiniYOffset = 85; // vertical offset from the menu's top
+            const int MiniGap = -20;
+            const int MiniYOffset = 85;
 
             int miniX = xPositionOnScreen - (MiniW + MiniGap);
             int miniY = yPositionOnScreen + MiniYOffset;
@@ -120,7 +105,6 @@ namespace UnifiedExperienceSystem
                 miniX, miniY, MiniW, MiniH, Color.White, 1f, drawShadow: false
             );
 
-            // Icon centered inside
             Rectangle miniSrc = new Rectangle(0, 410, 16, 16);
             int pad = 8;
             float miniScale = Math.Min((MiniW - pad * 2f) / miniSrc.Width, (MiniH - pad * 2f) / miniSrc.Height);
@@ -130,8 +114,8 @@ namespace UnifiedExperienceSystem
             int miniIconY = miniY + (MiniH - miniIconH) / 2;
 
             b.Draw(skillIconTexture, new Rectangle(miniIconX, miniIconY, miniIconW, miniIconH), miniSrc, Color.White);
-            // === End mini icon menu ===
 
+            // Title
             int titleY = yPositionOnScreen + 40 + yOffset;
             SpriteText.drawString(
                 b,
@@ -140,6 +124,7 @@ namespace UnifiedExperienceSystem
                 titleY
             );
 
+            // Paging
             var visibleSkills = skillList;
             int maxScroll = Math.Max(0, visibleSkills.Count - maxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
@@ -147,26 +132,27 @@ namespace UnifiedExperienceSystem
             int rowStartY = titleY + 100;
             int buttonSize = Math.Min(rowHeight - 10, 64);
 
-            // compute cap once per draw (global curve); works for vanilla + most mods
-            int capXp = GetDynamicCapXp();
-            bool isUncapped = capXp == int.MaxValue;
+            // layout constants per row
+            const int ContentPadLeft = 40;
+            const int IconTextGap = 10;
+            const int RowVPad = 4;
+
+            // prefetch vanilla cap XP for configured MaxSkillLevel
+            int cfgMax = Math.Clamp(mod.Config.MaxSkillLevel, 10, 100);
+            int vanillaCapXp = mod.UESgetBaseExperienceForLevel(cfgMax); // requires UESgetBaseExperienceForLevel to be public
 
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
                 int overallIndex = i + scrollIndex;
                 var skill = visibleSkills[overallIndex];
 
+                // Levels: vanilla uses raw (unmodified) + buffed in parens, SpaceCore via API as you already do
                 int level;
                 int buffedLevel = -1;
-                if (overallIndex <= 4)
+                if (skill.IsVanilla && int.TryParse(skill.Id, out int vanillaIdx))
                 {
-                    if (int.TryParse(skill.Id, out int vanillaIdx))
-                    {
-                        level = Game1.player.GetUnmodifiedSkillLevel(vanillaIdx);
-                        buffedLevel = Game1.player.GetSkillLevel(vanillaIdx);
-                    }
-                    else
-                        level = 0;
+                    level = Game1.player.GetUnmodifiedSkillLevel(vanillaIdx); // raw (can be >10 now)
+                    buffedLevel = Game1.player.GetSkillLevel(vanillaIdx);     // buffed (for parentheses)
                 }
                 else
                 {
@@ -174,29 +160,26 @@ namespace UnifiedExperienceSystem
                     buffedLevel = mod.spaceCoreApi?.GetBuffLevelForCustomSkill(Game1.player, skill.Id) ?? -1;
                 }
 
-                string strbuffLevel = (buffedLevel >= level && buffedLevel != level) ? $"({buffedLevel})" : "";
+                string strbuffLevel = (buffedLevel > level) ? $"({buffedLevel})" : "";
                 int xp = mod.GetExperience(Game1.player, skill);
 
-                // Should the [+] button be visible for this row?
-                bool canGainMoreXp = isUncapped || xp < capXp;
-
-                // --- layout constants ---
-                const int ContentPadLeft = 40;   // inner padding from the dialog box edge
-                const int IconTextGap = 10;      // space between icon and text
-                const int RowVPad = 4;           // top/bottom padding inside each row
+                // Per-row can-allocate check (vanilla respects configured cap, SC treated as uncapped here)
+                bool canGainMoreXp =
+                    skill.IsVanilla
+                        ? (level < cfgMax && xp < vanillaCapXp)
+                        : true; // keep SC behavior as uncapped (your backend clamps)
 
                 int y = rowStartY + i * rowHeight;
 
-                // choose icon texture + source rect
+                // Icon
                 Texture2D iconTex;
                 Rectangle iconSrc;
-
-                if (overallIndex <= 4) // VANILLA
+                if (skill.IsVanilla && overallIndex <= 4)
                 {
                     iconTex = skillIconTexture;
                     iconSrc = VanillaSkillIcons[overallIndex];
                 }
-                else // SPACECORE
+                else
                 {
                     Texture2D? scTex = mod.spaceCoreApi?.GetSkillPageIconForCustomSkill(skill.Id);
                     if (scTex != null)
@@ -206,68 +189,42 @@ namespace UnifiedExperienceSystem
                     }
                     else
                     {
-                        // fallback placeholder from vanilla sheet if SC icon missing
                         iconTex = skillIconTexture;
                         iconSrc = new Rectangle(80, 0, 16, 16);
                     }
                 }
 
-                // scale the icon to fit inside the row height 
                 int iconMaxH = Math.Max(12, rowHeight - RowVPad * 2);
                 float iconScale = iconMaxH / (float)iconSrc.Height;
                 int iconW = (int)Math.Round(iconSrc.Width * iconScale);
                 int iconH = (int)Math.Round(iconSrc.Height * iconScale);
 
-                // position: inside the box
                 int iconX = xPositionOnScreen + ContentPadLeft;
                 int baselineOffset = -16;
                 int iconY = y + (rowHeight - iconH) / 2 + baselineOffset;
 
-                // draw icon
-                b.Draw(
-                    iconTex,
-                    new Rectangle(iconX, iconY, iconW, iconH),
-                    iconSrc,
-                    Color.White
-                );
+                b.Draw(iconTex, new Rectangle(iconX, iconY, iconW, iconH), iconSrc, Color.White);
 
-                // text starts after icon
+                // Text
                 int textX = iconX + iconW + IconTextGap;
-
-                // --- build fixed-width string ---
-                string strSkillName = (skill.DisplayName.Length > 12
-                    ? skill.DisplayName.Substring(0, 12)
-                    : skill.DisplayName).PadRight(12);
-
+                string strSkillName = (skill.DisplayName.Length > 12 ? skill.DisplayName.Substring(0, 12) : skill.DisplayName).PadRight(12);
                 string strLevelRaw = $"Lv:{level}{strbuffLevel}";
-                string strLevelTxt = (strLevelRaw.Length > 10
-                    ? strLevelRaw.Substring(0, 10)
-                    : strLevelRaw).PadRight(10);
-
+                string strLevelTxt = (strLevelRaw.Length > 10 ? strLevelRaw.Substring(0, 10) : strLevelRaw).PadRight(10);
                 string strXP = $"XP: {xp}";
                 string finalString = $"{strSkillName}{strLevelTxt}{strXP}";
-
-                // draw text next to icon
                 SpriteText.drawString(b, finalString, textX, y);
 
-                // allocate button: only draw if the skill can gain more XP
+                // [+] button
                 if (canGainMoreXp)
                 {
                     Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - buttonSize - 50, y, buttonSize, buttonSize);
-                    b.Draw(
-                        emojiTexture,
-                        new Rectangle(buttonBounds.X, buttonBounds.Y, buttonBounds.Width, buttonBounds.Height),
-                        new Rectangle(108, 81, 9, 9),
-                        Color.White
-                    );
+                    b.Draw(emojiTexture, new Rectangle(buttonBounds.X, buttonBounds.Y, buttonBounds.Width, buttonBounds.Height), new Rectangle(108, 81, 9, 9), Color.White);
                 }
-                // else: hide the [+] when capped
+                // else hide when capped
             }
 
             if (highlightButton)
-            {
                 b.Draw(Game1.staminaRect, closeButton.bounds, Color.Green * 0.3f);
-            }
 
             upArrow.draw(b);
             downArrow.draw(b);
@@ -280,9 +237,10 @@ namespace UnifiedExperienceSystem
 
 
 
+
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            // click on the ability icon -> switch menus
+            // ability icon -> switch menus
             if (abilityIconBounds.Contains(x, y))
             {
                 if (playSound) Game1.playSound("smallSelect");
@@ -291,23 +249,8 @@ namespace UnifiedExperienceSystem
                 return;
             }
 
-            // local helper: find current XP cap (respects patched curves); int.MaxValue => uncapped
-            static int GetDynamicCapXp()
-            {
-                const int ProbeCeiling = 200;
-                int last = -1;
-                for (int L = 1; L <= ProbeCeiling; L++)
-                {
-                    int thr = Farmer.getBaseExperienceForLevel(L);
-                    if (thr < 0)
-                        return (last < 0) ? 0 : last;
-                    last = thr;
-                }
-                return int.MaxValue; // uncapped
-            }
-
             var visibleSkills = skillList;
-            int maxScroll = visibleSkills.Count - maxVisibleRows;
+            int maxScroll = Math.Max(0, visibleSkills.Count - maxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
 
             if (upArrow.containsPoint(x, y))
@@ -334,23 +277,31 @@ namespace UnifiedExperienceSystem
             int rowStartY = titleY + 100;
             int buttonSize = Math.Min(rowHeight - 10, 64);
 
-            // compute cap once per click processing
-            int capXp = GetDynamicCapXp();
-            bool isUncapped = capXp == int.MaxValue;
+            // prefetch vanilla cap XP for configured MaxSkillLevel
+            int cfgMax = Math.Clamp(mod.Config.MaxSkillLevel, 10, 100);
+            int vanillaCapXp = mod.UESgetBaseExperienceForLevel(cfgMax); // requires public accessor
 
             for (int i = 0; i < maxVisibleRows && i + scrollIndex < visibleSkills.Count; i++)
             {
                 var skill = visibleSkills[i + scrollIndex];
                 int yOffsetPos = rowStartY + i * rowHeight;
 
-                // the [+] button bounds for this row
                 Rectangle buttonBounds = new Rectangle(xPositionOnScreen + width - buttonSize - 50, yOffsetPos, buttonSize, buttonSize);
 
                 if (buttonBounds.Contains(x, y) && !skill.Id.StartsWith("Test"))
                 {
-                    // block allocation if at/over cap
-                    int xp = mod.GetExperience(Game1.player, skill);
-                    bool canGainMoreXp = isUncapped || xp < capXp;
+                    bool canGainMoreXp;
+                    if (skill.IsVanilla && int.TryParse(skill.Id, out int vanillaIdx))
+                    {
+                        int level = Game1.player.GetUnmodifiedSkillLevel(vanillaIdx);
+                        int xp = mod.GetExperience(Game1.player, skill);
+                        canGainMoreXp = (level < cfgMax && xp < vanillaCapXp);
+                    }
+                    else
+                    {
+                        // SpaceCore/custom: treat as uncapped; your backend (AddExperience) handles it
+                        canGainMoreXp = true;
+                    }
 
                     if (canGainMoreXp)
                     {
@@ -366,17 +317,15 @@ namespace UnifiedExperienceSystem
                     }
                     else
                     {
-                        // capped: ignore click (and play cancel)
                         Game1.playSound("cancel");
                     }
-
                     return;
                 }
             }
 
-
             base.receiveLeftClick(x, y, playSound);
         }
+
 
 
 
@@ -402,5 +351,21 @@ namespace UnifiedExperienceSystem
                 Game1.playSound("shiny4");
             }
         }
+
+
+        private static void SetVanillaLevelByIndex(int which, int level)
+        {
+            switch (which)
+            {
+                case 0: Game1.player.farmingLevel.Set(level); break;
+                case 1: Game1.player.fishingLevel.Set(level); break;
+                case 2: Game1.player.foragingLevel.Set(level); break;
+                case 3: Game1.player.miningLevel.Set(level); break;
+                case 4: Game1.player.combatLevel.Set(level); break;
+            }
+        }
+
+
+
     }
 }

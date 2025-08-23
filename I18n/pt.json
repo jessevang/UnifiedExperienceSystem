@@ -1,4 +1,14 @@
 {
+  "config.pageTitle.ExperienceSetting": "Configurações de experiência",
+  "config.maxSkillLevel.name": "Nível máximo de habilidade",
+  "config.maxSkillLevel.tooltip": "Maior nível que você pode alcançar com o Unified Experience System.",
+
+  "config.baseStepBeyond10.name": "XP base por nível",
+  "config.baseStepBeyond10.tooltip": "XP adicionada no nível 11. Cada nível multiplica esse valor pela porcentagem de crescimento antes do arredondamento.",
+
+  "config.beyond10GrowthPercent.name": "Crescimento por nível (após o nível 10)",
+  "config.beyond10GrowthPercent.tooltip": "0 = custo fixo por nível; 0,10 = +10% de XP em relação ao nível anterior após o 10.",
+
   "nav.menuSettings.name": "Configurações do menu",
   "nav.menuSettings.tooltip": "Configure o tamanho e o layout dos menus de habilidades e talentos.",
   "nav.energySettings.name": "Configurações de energia",
@@ -7,13 +17,13 @@
   "page.energySettings.title": "Configurações de energia",
   "section.energyBarPosition.title": "Posição da barra de energia",
 
-  
+
   "Menu.AbilityMenu.need": "Necessário",
   "config.EnergyBarAnchorOffsetX.name": "Mover barra de energia",
   "config.EnergyBarAnchorOffsetX.tooltip": "Move a barra de energia para a esquerda ou direita. Diminuir para mover para a esquerda, aumentar para mover para a direita.",
   "config.EnergyBarShowNumeric.name": "Mostrar número de energia",
   "config.EnergyBarShowNumeric.tooltip": "Exibe o valor numérico da energia dentro da barra.",
-  
+
 
   "config.energyBarRelX.name": "Posição X relativa",
   "config.energyBarRelX.tooltip": "Move a barra de energia horizontalmente. 0 = borda esquerda, 1 = borda direita.",

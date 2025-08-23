@@ -32,6 +32,11 @@ namespace UnifiedExperienceSystem
             new Keybind(SButton.F3)
         );
 
+        public int MaxSkillLevel { get; set; } = 20;
+        public int BaseStepBeyond10 { get; set; } = 5000;
+        public float Beyond10GrowthPercent { get; set; } = 0.10f;
+        public bool AnchorPost10ToVanillaLevel10 { get; set; } = true;
+
         public bool ShowSkillPointButton { get; set; } = false;
 
         public int UpdateIntervalTicks { get; set; } = 6;
@@ -121,6 +126,8 @@ namespace UnifiedExperienceSystem
         private readonly Dictionary<(string modGuid, string abilityId), long> _totalExpByAbility = new();
 
         private IUnifiedExperienceAPI uesApi;
+
+        private List<int> _uesXpCurve;
 
 
         //Energy
@@ -431,12 +438,57 @@ namespace UnifiedExperienceSystem
                 tooltip: () => T.Get("nav.energySettings.tooltip")
             );
 
-
+            gmcmExperience(gmcm);
             gmcmSkillAndAbilityMenuSettings(gmcm);
             gmcmEnergyPage(gmcm);
 
         }
 
+        private void gmcmExperience(IGenericModConfigMenuApi gmcm)
+        {
+            ITranslationHelper T = Helper.Translation;
+            gmcm.AddPage(mod: ModManifest, pageId: "Experience Setting", pageTitle: () => T.Get("config.pageTitle.ExperienceSetting"));
+            gmcm.AddParagraph(mod: ModManifest, text:() => "config.paragraph.ExperienceSetting");
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => T.Get("config.maxSkillLevel.name"),
+                tooltip: () => T.Get("config.maxSkillLevel.tooltip"),
+                getValue: () => Config.MaxSkillLevel,
+                setValue: v =>
+                {
+                    Config.MaxSkillLevel = Math.Clamp(v, 10, 100);
+                    RebuildUesXpCurve();
+                },
+                min: 10, max: 100, interval: 1
+            );
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => T.Get("config.baseStepBeyond10.name"),
+                tooltip: () => T.Get("config.baseStepBeyond10.tooltip"),
+                getValue: () => Config.BaseStepBeyond10,
+                setValue: v =>
+                {
+                    Config.BaseStepBeyond10 = Math.Max(1, v);
+                    RebuildUesXpCurve();
+                },
+                min: 1000, max: 25000, interval: 100 
+            );
+
+            gmcm.AddNumberOption(
+                mod: ModManifest,
+                name: () => T.Get("config.beyond10GrowthPercent.name"),
+                tooltip: () => T.Get("config.beyond10GrowthPercent.tooltip"),
+                getValue: () => Config.Beyond10GrowthPercent,
+                setValue: v =>
+                {
+                    Config.Beyond10GrowthPercent = Math.Max(0f, v); 
+                    RebuildUesXpCurve();
+                },
+                min: 0f, max: 1f, interval: 0.01f 
+            );
+        }
 
         private void gmcmSkillAndAbilityMenuSettings(IGenericModConfigMenuApi gmcm)
         {
@@ -562,6 +614,7 @@ namespace UnifiedExperienceSystem
 
         public int GetExperience(Farmer farmer, SkillEntry skill)
         {
+
             if (skill.IsVanilla)
                 return farmer.experiencePoints[int.Parse(skill.Id)];
             else if (spaceCoreApi != null)
@@ -591,6 +644,7 @@ namespace UnifiedExperienceSystem
             {
 
                 spaceCoreApi.AddExperienceForCustomSkill(farmer, skill.Id, amount);
+               
             }
         }
 

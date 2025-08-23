@@ -1,4 +1,14 @@
 ﻿{
+  "config.pageTitle.ExperienceSetting": "経験の設定",
+  "config.maxSkillLevel.name": "スキルの最大レベル",
+  "config.maxSkillLevel.tooltip": "Unified Experience System で到達できる最高レベルです。",
+
+  "config.baseStepBeyond10.name": "レベルごとの基礎経験値",
+  "config.baseStepBeyond10.tooltip": "レベル11で追加される経験値。以降の各レベルは、丸める前にこの値に成長率を乗算します。",
+
+  "config.beyond10GrowthPercent.name": "レベルごとの成長率（10超）",
+  "config.beyond10GrowthPercent.tooltip": "0 = 各レベルで一定のコスト；0.10 = 直前の10超レベルより経験値が10%増加。",
+
   "nav.menuSettings.name": "メニュー設定",
   "nav.menuSettings.tooltip": "スキル／アビリティメニューのサイズとレイアウトを設定します。",
   "nav.energySettings.name": "エネルギー設定",
@@ -7,13 +17,13 @@
   "page.energySettings.title": "エネルギー設定",
   "section.energyBarPosition.title": "エネルギーバーの位置",
 
-  
+
   "Menu.AbilityMenu.need": "必要",
   "config.EnergyBarAnchorOffsetX.name": "エネルギーバーを移動",
   "config.EnergyBarAnchorOffsetX.tooltip": "エネルギーバーを左右に移動します。値を減らすと左へ、増やすと右へ移動します。",
   "config.EnergyBarShowNumeric.name": "エネルギー数値を表示",
   "config.EnergyBarShowNumeric.tooltip": "バーの中にエネルギーの数値を表示します。",
- 
+
 
   "config.energyBarRelX.name": "相対X位置",
   "config.energyBarRelX.tooltip": "エネルギーバーを水平方向に移動します。0 = 左端、1 = 右端。",

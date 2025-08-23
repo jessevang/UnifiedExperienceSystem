@@ -1,4 +1,15 @@
 ﻿{
+
+  "config.pageTitle.ExperienceSetting": "Deneyim ayarları",
+  "config.maxSkillLevel.name": "Maksimum beceri seviyesi",
+  "config.maxSkillLevel.tooltip": "Unified Experience System ile ulaşabileceğin en yüksek seviye.",
+
+  "config.baseStepBeyond10.name": "Seviye başına temel XP",
+  "config.baseStepBeyond10.tooltip": "11. seviyede eklenen XP. Her seviye, yuvarlamadan önce bu değeri büyüme yüzdesiyle çarpar.",
+
+  "config.beyond10GrowthPercent.name": "Seviye başına büyüme (10 sonrası)",
+  "config.beyond10GrowthPercent.tooltip": "0 = her seviyede sabit maliyet; 0,10 = bir önceki 10 sonrası seviyeden %10 daha fazla XP.",
+
   "nav.menuSettings.name": "Menü ayarları",
   "nav.menuSettings.tooltip": "Yetenek ve kabiliyet menülerinin boyutunu ve düzenini yapılandırın.",
   "nav.energySettings.name": "Enerji ayarları",

@@ -166,6 +166,82 @@ namespace UnifiedExperienceSystem
                 if (skill == null)
                     return;
 
+                // ===== VANILLA SKILLS: allow >10 using our curve =====
+                if (skill.IsVanilla)
+                {
+                    int idx = int.Parse(skill.Id);
+                    int maxL = Math.Clamp(Config.MaxSkillLevel, 10, 100);
+
+                    // Current raw (unmodified) level + XP
+                    int oldLevel = Game1.player.GetUnmodifiedSkillLevel(idx);
+                    int currentXp = GetExperience(Game1.player, skill);
+
+                    // Total XP cap for our configured max level
+                    int capXp = UESgetBaseExperienceForLevel(maxL);
+                    int room = Math.Max(0, capXp - currentXp);
+                    if (room <= 0)
+                    {
+                        if (Config.DebugMode)
+                            Monitor.Log($"[{nameof(AllocateSkillPoint)}] {skill.DisplayName} already at XP cap ({capXp}) for MaxSkillLevel={maxL}.", LogLevel.Trace);
+                        return;
+                    }
+
+                    int xpPerPoint = EXP_PER_POINT;
+                    int maxPointsByRoom = (int)Math.Ceiling(room / (double)xpPerPoint);
+                    int pointsUsed = Math.Min(pointsThatCanBeAllocated, maxPointsByRoom);
+                    if (pointsUsed <= 0) return;
+
+                    int grantXp = Math.Min(pointsUsed * xpPerPoint, room);
+                    int newXp = currentXp + grantXp;
+
+                    // Compute resulting level using vanilla≤10 + UES>10 thresholds
+                    int newLevel = UESlevelFromXp(newXp);
+
+                    // Track for end-of-day vanilla level-up UI only up to 10
+                    if (newLevel > oldLevel)
+                    {
+                        for (int i = oldLevel + 1; i <= newLevel && i <= 10; i++)
+                            manuallyAllocatedLevels.Add((idx, i));
+                    }
+                    //
+
+
+                    // Apply the two raw vanilla fields (no readers patched)
+                    switch (idx)
+                    {
+                        case 0: Game1.player.farmingLevel.Set(newLevel); break;
+                        case 1: Game1.player.fishingLevel.Set(newLevel); break;
+                        case 2: Game1.player.foragingLevel.Set(newLevel); break;
+                        case 3: Game1.player.miningLevel.Set(newLevel); break;
+                        case 4: Game1.player.combatLevel.Set(newLevel); break;
+                    }
+                    Game1.player.experiencePoints[idx] = newXp;
+
+                    EnqueueVanillaLevelUps(idx, oldLevel, newLevel);
+
+                    if (newLevel > oldLevel)
+                        Game1.playSound("powerup");
+
+                    // Spend only points actually used
+                    SaveData.UnspentSkillPoints -= pointsUsed;
+
+                    // Refresh day-start snapshots so the revert loop won’t undo this
+                    foreach (var s in skillList)
+                    {
+                        startOfDayExp[s.Id] = GetExperience(Game1.player, s);
+                        startOfDayLevel[s.Id] = s.IsVanilla
+                            ? Game1.player.GetUnmodifiedSkillLevel(int.Parse(s.Id))
+                            : GetSkillLevel(Game1.player, s);
+                    }
+
+                    if (Config.DebugMode)
+                        Monitor.Log($"Allocated {grantXp} XP to {skill.DisplayName}. Level {oldLevel} -> {newLevel}. Points used: {pointsUsed}. Left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
+
+                    return; // IMPORTANT: do not fall through
+                }
+
+                // ===== CUSTOM / SPACECORE SKILLS: keep your existing logic =====
+
                 // --- DYNAMIC CAP DISCOVERY (respects patched curves) ---
                 // Find the highest defined level by probing Farmer.getBaseExperienceForLevel.
                 // If truly uncapped (mods), we stop at a probe ceiling and treat as uncapped.
@@ -183,72 +259,57 @@ namespace UnifiedExperienceSystem
                 bool isUncapped = (maxDefinedLevel < 0); // never hit -1 within ProbeCeiling
 
                 // Current XP in this skill
-                int currentXp = GetExperience(Game1.player, skill);
+                int currentXp2 = GetExperience(Game1.player, skill);
 
                 // If capped, compute remaining room to the cap
-                int capXp = 0;
-                int room = int.MaxValue;
+                int capXp2 = 0;
+                int room2 = int.MaxValue;
+
                 if (!isUncapped)
                 {
-                    capXp = Farmer.getBaseExperienceForLevel(maxDefinedLevel); // cumulative XP at max level
-                    room = Math.Max(0, capXp - currentXp);
-                    if (room <= 0)
+                    capXp2 = Farmer.getBaseExperienceForLevel(maxDefinedLevel);
+                    room2 = Math.Max(0, capXp2 - currentXp2);
+                    if (room2 <= 0)
                     {
-                        // already at (or beyond) cap — do nothing and don't spend a point
                         if (Config.DebugMode)
-                            Monitor.Log($"[{nameof(AllocateSkillPoint)}] {skill.DisplayName} already at XP cap ({capXp}).", LogLevel.Trace);
+                            Monitor.Log($"[{nameof(AllocateSkillPoint)}] {skill.DisplayName} already at XP cap ({capXp2}).", LogLevel.Trace);
                         return;
                     }
                 }
 
-                // How much XP a single point grants
-                int xpPerPoint = EXP_PER_POINT;
-
-                // Cap-aware calculation for how many points can actually be used this click
-                int pointsUsed;
-                int grantXp;
+                int xpPerPoint2 = EXP_PER_POINT;
+                int pointsUsed2;
+                int grantXp2;
 
                 if (isUncapped)
                 {
-                    // No cap: use all intended points
-                    pointsUsed = pointsThatCanBeAllocated;
-                    grantXp = xpPerPoint * pointsUsed;
+                    pointsUsed2 = pointsThatCanBeAllocated;
+                    grantXp2 = xpPerPoint2 * pointsUsed2;
                 }
                 else
                 {
-                    // Cap present: clamp to remaining room
-                    int maxPointsByRoom = (int)Math.Ceiling(room / (double)xpPerPoint);
-                    pointsUsed = Math.Min(pointsThatCanBeAllocated, maxPointsByRoom);
-
-                    if (pointsUsed <= 0)
+                    int maxPointsByRoom2 = (int)Math.Ceiling(room2 / (double)xpPerPoint2);
+                    pointsUsed2 = Math.Min(pointsThatCanBeAllocated, maxPointsByRoom2);
+                    if (pointsUsed2 <= 0)
                     {
                         if (Config.DebugMode)
-                            Monitor.Log($"[{nameof(AllocateSkillPoint)}] pointsUsed<=0 (room={room}).", LogLevel.Trace);
+                            Monitor.Log($"[{nameof(AllocateSkillPoint)}] pointsUsed<=0 (room={room2}).", LogLevel.Trace);
                         return;
                     }
 
-                    int requestedXp = xpPerPoint * pointsUsed;
-                    grantXp = Math.Min(requestedXp, room);
+                    int requestedXp2 = xpPerPoint2 * pointsUsed2;
+                    grantXp2 = Math.Min(requestedXp2, room2);
                 }
                 // --- END DYNAMIC CAP DISCOVERY ---
 
-                int oldLevel = GetSkillLevel(Game1.player, skill);
+                int oldLevel2 = GetSkillLevel(Game1.player, skill);
 
-                // Grant exactly the clamped XP
-                AddExperience(Game1.player, skill, grantXp);
+                // Grant exactly the clamped XP for custom/SpaceCore via your existing method
+                AddExperience(Game1.player, skill, grantXp2);
 
-                int newLevel = GetSkillLevel(Game1.player, skill);
-                if (newLevel > oldLevel)
-                {
-                    Game1.playSound("powerup"); // or "levelUp", "reward", etc.
-                }
-
-                // Track manually allocated vanilla levels for your respec/rollback logic
-                if (skill.IsVanilla && int.TryParse(skill.Id, out int index))
-                {
-                    for (int i = oldLevel + 1; i <= newLevel; i++)
-                        manuallyAllocatedLevels.Add((index, i));
-                }
+                int newLevel2 = GetSkillLevel(Game1.player, skill);
+                if (newLevel2 > oldLevel2)
+                    Game1.playSound("powerup");
 
                 // snapshot start-of-day after changes
                 foreach (var s in skillList)
@@ -258,14 +319,14 @@ namespace UnifiedExperienceSystem
                 }
 
                 // Spend only the points actually used
-                SaveData.UnspentSkillPoints -= pointsUsed;
+                SaveData.UnspentSkillPoints -= pointsUsed2;
 
                 if (Config.DebugMode)
                 {
                     if (isUncapped)
-                        Monitor.Log($"Allocated {grantXp} XP to {skill.DisplayName} (uncapped). Level {oldLevel} -> {newLevel}. Points used: {pointsUsed}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
+                        Monitor.Log($"Allocated {grantXp2} XP to {skill.DisplayName} (uncapped). Level {oldLevel2} -> {newLevel2}. Points used: {pointsUsed2}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
                     else
-                        Monitor.Log($"Allocated {grantXp} XP to {skill.DisplayName} (cap {capXp}). Level {oldLevel} -> {newLevel}. Points used: {pointsUsed}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
+                        Monitor.Log($"Allocated {grantXp2} XP to {skill.DisplayName} (cap {capXp2}). Level {oldLevel2} -> {newLevel2}. Points used: {pointsUsed2}. Points left: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
                 }
             }
             finally
@@ -275,6 +336,58 @@ namespace UnifiedExperienceSystem
         }
 
 
+
+
+        private void RebuildUesXpCurve()
+        {
+            _uesXpCurve = new List<int> { 0 }; // pad index 0
+
+            // 1..10: take vanilla totals as-is (supports other mods patching these)
+            for (int L = 1; L <= 10; L++)
+                _uesXpCurve.Add(Farmer.getBaseExperienceForLevel(L));
+
+            int maxL = Math.Clamp(Config?.MaxSkillLevel ?? 20, 10, 100);
+            if (maxL <= 10) return;
+
+            // post-10 parameters
+            double step = Math.Max(1, (double)Config.BaseStepBeyond10);      // base step at L11
+            double g = Math.Max(0.0, (double)Config.Beyond10GrowthPercent); // growth per level (0.05 = +5%)
+
+            int lastTotal = _uesXpCurve[10]; // anchor at the runtime L10 total
+
+            for (int L = 11; L <= maxL; L++)
+            {
+                // add current step (rounded to nearest int, never < 1)
+                int add = Math.Max(1, (int)Math.Round(step));
+                lastTotal += add;
+                _uesXpCurve.Add(lastTotal);
+
+                // grow step for the NEXT level (compounding)
+                step *= (1.0 + g);
+            }
+        }
+
+
+        public int UESgetBaseExperienceForLevel(int level)
+        {
+            if (_uesXpCurve == null || _uesXpCurve.Count == 0) RebuildUesXpCurve();
+            int maxL = Math.Clamp(Config?.MaxSkillLevel ?? 20, 10, 100);
+            level = Math.Clamp(level, 1, maxL);
+            return _uesXpCurve[level];
+        }
+
+        // Find level from TOTAL XP (works up to MaxSkillLevel)
+        private int UESlevelFromXp(int totalXp)
+        {
+            if (_uesXpCurve == null || _uesXpCurve.Count == 0) RebuildUesXpCurve();
+            int lo = 0, hi = _uesXpCurve.Count - 1;
+            while (lo < hi)
+            {
+                int mid = (lo + hi + 1) >> 1;
+                if (_uesXpCurve[mid] <= totalXp) lo = mid; else hi = mid - 1;
+            }
+            return lo;
+        }
 
 
 

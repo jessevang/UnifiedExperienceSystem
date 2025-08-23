@@ -1,4 +1,15 @@
 {
+  "config.pageTitle.ExperienceSetting": "Impostazioni esperienza",
+  "config.maxSkillLevel.name": "Livello abilità massimo",
+  "config.maxSkillLevel.tooltip": "Livello più alto raggiungibile con Unified Experience System.",
+
+  "config.baseStepBeyond10.name": "XP base per livello",
+  "config.baseStepBeyond10.tooltip": "XP aggiunta al livello 11. Ogni livello moltiplica questo valore per la percentuale di crescita prima dell’arrotondamento.",
+
+  "config.beyond10GrowthPercent.name": "Crescita per livello (oltre il 10)",
+  "config.beyond10GrowthPercent.tooltip": "0 = costo fisso per livello; 0,10 = +10% di XP rispetto al livello precedente oltre il 10.",
+
+
   "nav.menuSettings.name": "Impostazioni del menu",
   "nav.menuSettings.tooltip": "Configura dimensioni e layout dei menu abilità e capacità.",
   "nav.energySettings.name": "Impostazioni energia",

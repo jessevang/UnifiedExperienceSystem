@@ -1,4 +1,14 @@
 ﻿{
+  "config.pageTitle.ExperienceSetting": "경험치 설정",
+  "config.maxSkillLevel.name": "최대 스킬 레벨",
+  "config.maxSkillLevel.tooltip": "Unified Experience System으로 도달할 수 있는 최고 레벨입니다.",
+
+  "config.baseStepBeyond10.name": "레벨당 기본 경험치",
+  "config.baseStepBeyond10.tooltip": "11레벨에서 추가되는 경험치입니다. 이후 각 레벨은 반올림 전에 성장률만큼 이 값을 곱합니다.",
+
+  "config.beyond10GrowthPercent.name": "레벨당 성장률(10레벨 초과)",
+  "config.beyond10GrowthPercent.tooltip": "0 = 각 레벨 동일 비용; 0.10 = 이전 10레벨 초과 단계보다 경험치 10% 증가.",
+
   "nav.menuSettings.name": "메뉴 설정",
   "nav.menuSettings.tooltip": "스킬/어빌리티 메뉴의 크기와 레이아웃을 설정합니다.",
   "nav.energySettings.name": "에너지 설정",
@@ -8,13 +18,13 @@
   "section.energyBarPosition.title": "에너지 바 위치",
 
 
-  
+
   "Menu.AbilityMenu.need": "필요",
   "config.EnergyBarAnchorOffsetX.name": "에너지 바 이동",
   "config.EnergyBarAnchorOffsetX.tooltip": "에너지 바를 좌우로 이동합니다. 값을 줄이면 왼쪽, 늘리면 오른쪽으로 이동합니다.",
   "config.EnergyBarShowNumeric.name": "에너지 숫자 표시",
   "config.EnergyBarShowNumeric.tooltip": "에너지 수치를 바 안에 표시합니다.",
-  
+
 
   "config.energyBarRelX.name": "상대 X 위치",
   "config.energyBarRelX.tooltip": "에너지 바를 가로로 이동합니다. 0 = 왼쪽 가장자리, 1 = 오른쪽 가장자리.",
