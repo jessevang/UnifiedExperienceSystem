@@ -16,6 +16,15 @@ namespace UnifiedExperienceSystem
 
         private IUnifiedExperienceAPI? uesApi;
 
+        //troubleshooting 
+        private readonly HashSet<string> _iconLogOnce = new();
+        private static readonly HashSet<string> _loggedIconKeys = new(StringComparer.OrdinalIgnoreCase);
+        private static string R(Rectangle? r)
+            => r.HasValue ? $"[{r.Value.X},{r.Value.Y},{r.Value.Width},{r.Value.Height}]" : "(null)";
+
+        private static bool SrcWithin(Texture2D tex, Rectangle src)
+            => src.X >= 0 && src.Y >= 0 && src.Right <= tex.Width && src.Bottom <= tex.Height;
+
         // UI config
         private const int yOffset = 60;
         private int RowHeight => mod.Config.SkillMenuRowSpacing;
@@ -48,6 +57,8 @@ namespace UnifiedExperienceSystem
             public int Level = 0;
             public int MaxLevel = 0;
             public string? IconPath { get; set; }
+            public Rectangle? IconSourceRect { get; set; }
+            public bool HasInlineTexture { get; set; }
         }
 
         private sealed class AbilityGroupVM
@@ -145,28 +156,62 @@ namespace UnifiedExperienceSystem
 
         private List<AbilityGroupVM> BuildAbilityListingForUi()
         {
+            // Build a quick lookup of icon metadata from the API (detailed)
+            var iconMap = new Dictionary<(string modId, string abilityId),
+                                         (string? iconPath, Rectangle? srcRect, bool hasInlineTex)>(
+                new ModAbilityKeyComparer_UI()
+            );
 
+            if (uesApi != null)
+            {
+                try
+                {
+                    var detailed = uesApi.ListRegisteredAbilitiesDetailed();
+                    foreach (var t in detailed)
+                    {
+                        // NOTE: your IAPI detailed tuple includes iconSourceRect + hasInlineTexture
+                        iconMap[(t.modId, t.abilityId)] = (t.iconPath, t.iconSourceRect, t.hasInlineTexture);
+                    }
+                }
+                catch
+                {
+                    // API might not be ready yet at construction time; ignore and fall back to defaults.
+                }
+            }
+
+            // Your existing ability infos (levels/exp etc.)
             var infos = mod.GetAllAbilityInfos(uesApi) ?? new List<AbilityInfo>();
 
-         
+            // Group and project rows; attach iconPath/sourceRect if present in iconMap
             var grouped = infos
                 .GroupBy(i => i.ModId, StringComparer.OrdinalIgnoreCase)
                 .Select(g => new AbilityGroupVM
                 {
                     ModId = g.Key,
-                    ModName = g.Key, 
+                    ModName = g.Key,
                     Abilities = g
                         .OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase)
-                        .Select(a => new AbilityRowVM
+                        .Select(a =>
                         {
-                            ModId = a.ModId,
-                            ModName = g.Key,
-                            AbilityId = a.AbilityId,
-                            AbilityName = a.DisplayName,
-                            Description = a.Description,
-                            TotalExp = (long)a.TotalExp,
-                            Level = a.CurrentLevel,
-                            MaxLevel = a.MaxLevel
+                            iconMap.TryGetValue((a.ModId, a.AbilityId), out var meta);
+                            return new AbilityRowVM
+                            {
+                                ModId = a.ModId,
+                                ModName = g.Key,
+                                AbilityId = a.AbilityId,
+                                AbilityName = a.DisplayName,
+                                Description = a.Description,
+                                TotalExp = (long)a.TotalExp,
+                                Level = a.CurrentLevel,
+                                MaxLevel = a.MaxLevel,
+
+                                // If the mod passed iconPath+rect during RegisterAbility, you'll get them here:
+                                IconPath = meta.iconPath,
+                                IconSourceRect = meta.srcRect,
+
+                                // hint if the icon might be supplied inline via GetAbilityIcon at draw-time
+                                HasInlineTexture = meta.hasInlineTex
+                            };
                         })
                         .ToList()
                 })
@@ -174,6 +219,25 @@ namespace UnifiedExperienceSystem
                 .ToList();
 
             return grouped;
+        }
+
+
+
+        private sealed class ModAbilityKeyComparer_UI : IEqualityComparer<(string modId, string abilityId)>
+        {
+            public bool Equals((string modId, string abilityId) x, (string modId, string abilityId) y)
+                => string.Equals(x.modId, y.modId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(x.abilityId, y.abilityId, StringComparison.OrdinalIgnoreCase);
+
+            public int GetHashCode((string modId, string abilityId) key)
+            {
+                unchecked
+                {
+                    int h1 = StringComparer.OrdinalIgnoreCase.GetHashCode(key.modId ?? string.Empty);
+                    int h2 = StringComparer.OrdinalIgnoreCase.GetHashCode(key.abilityId ?? string.Empty);
+                    return (h1 * 397) ^ h2;
+                }
+            }
         }
 
 
@@ -249,28 +313,49 @@ namespace UnifiedExperienceSystem
                     continue;
                 }
 
-                // 1) Resolve row icon (from row.IconPath with fallback to magnifying glass)
-                Texture2D rowIconTex;
-                Rectangle rowIconSrc;
-                if (!string.IsNullOrWhiteSpace(row.IconPath))
+                // 1) Resolve row icon via API or row.IconPath; else default
+                string iconKey = $"{row.ModId}/{row.AbilityId}";
+                Texture2D rowIconTex = cursorsTex;                // default sheet
+                Rectangle rowIconSrc = new Rectangle(322, 498, 12, 12); // default magnifier
+                                                                        // Prefer inline texture from API
+                bool resolved = false;
+                if (uesApi != null)
+                {
+                    var icon = uesApi.GetAbilityIcon(row.ModId, row.AbilityId);
+                    if (icon.hasTexture && icon.texture != null)
+                    {
+                        rowIconTex = icon.texture;
+                        rowIconSrc = icon.sourceRect ?? new Rectangle(0, 0, rowIconTex.Width, rowIconTex.Height);
+                        resolved = true;
+
+                        if (_loggedIconKeys.Add(iconKey))
+                            log.Log($"[AbilityMenu] Icon (inline texture) for {iconKey}: size=({rowIconTex.Width}x{rowIconTex.Height}) src={rowIconSrc}", LogLevel.Trace);
+                    }
+                }
+
+                // Fall back to iconPath (from rows built above)
+                if (!resolved && !string.IsNullOrWhiteSpace(row.IconPath))
                 {
                     try
                     {
-                        rowIconTex = Game1.content.Load<Texture2D>(row.IconPath);
-                        rowIconSrc = new Rectangle(0, 0, rowIconTex.Width, rowIconTex.Height);
+                        var tex = Game1.content.Load<Texture2D>(row.IconPath);
+                        rowIconTex = tex;
+                        rowIconSrc = row.IconSourceRect ?? new Rectangle(0, 0, tex.Width, tex.Height);
+                        resolved = true;
+
+                        if (_loggedIconKeys.Add(iconKey))
+                            log.Log($"[AbilityMenu] Icon (iconPath) for {iconKey}: '{row.IconPath}' src={rowIconSrc}", LogLevel.Trace);
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        // fallback on load failure
-                        rowIconTex = cursorsTex;
-                        rowIconSrc = new Rectangle(322, 498, 12, 12);
+                        if (_loggedIconKeys.Add(iconKey))
+                            log.Log($"[AbilityMenu] Icon load FAILED for {iconKey} path='{row.IconPath}': {e.Message}", LogLevel.Warn);
                     }
                 }
-                else
-                {
-                    rowIconTex = cursorsTex;
-                    rowIconSrc = new Rectangle(322, 498, 12, 12);
-                }
+
+                // If still unresolved, we keep the magnifier default and log once
+                if (!resolved && _loggedIconKeys.Add(iconKey))
+                    log.Log($"[AbilityMenu] Icon fallback (magnifier) for {iconKey}", LogLevel.Trace);
 
                 // 2) Scale and position the icon
                 int iconMaxHRow = Math.Max(12, RowHeight - RowVPad * 2);
@@ -290,11 +375,12 @@ namespace UnifiedExperienceSystem
                     int spacesToAdd = 12 - shortName.Length;
                     if (spacesToAdd > 0) shortName = shortName + new string(' ', spacesToAdd);
                 }
+                ITranslationHelper T = mod.Helper.Translation;
 
                 bool showPlus = !row.AtMax;
                 string text = row.AtMax
                     ? $"{shortName} (Lv{row.Level})"
-                    : $"{shortName} (Lv{row.Level})   Need {row.XpNeeded} XP";
+                    : $"{shortName} (Lv{row.Level})   {T.Get("Menu.AbilityMenu.need")} {row.XpNeeded} XP";
 
                 // left edge for text is after the icon
                 int textX = rowIconX + rowIconW + IconTextGap;
@@ -579,12 +665,12 @@ namespace UnifiedExperienceSystem
                         Level = a.Level,
                         TotalExp = a.TotalExp,
                         MaxLevel = a.MaxLevel,
-
-         
                         AtMax = atMax,
                         XpInto = into,
                         XpNeeded = needed,
-                        XpLevelTotal = total
+                        XpLevelTotal = total,
+                        IconPath = a.IconPath,
+                        IconSourceRect = a.IconSourceRect
                     });
                 }
             }

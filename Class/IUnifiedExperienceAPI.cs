@@ -34,13 +34,17 @@ namespace UnifiedExperienceSystem
         // =========================================================
         //  Abilities
         // =========================================================
-        // Existing (keep as-is for compatibility)
         IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel)>
-            ListRegisteredAbilities();
+           ListRegisteredAbilities();
 
-        // New: includes iconPath and tags (normalized to non-null)
-        IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel, string? iconPath, string[] tags)>
+
+        IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel,
+                     string? iconPath, Rectangle? iconSourceRect, bool hasInlineTexture, string[] tags)>
             ListRegisteredAbilitiesDetailed();
+
+
+        (bool hasTexture, Texture2D? texture, Rectangle? sourceRect, string? iconPath)
+            GetAbilityIcon(string modId, string abilityId);
 
 
 
@@ -137,7 +141,18 @@ namespace UnifiedExperienceSystem
             string[]? tags = null
         );
 
-
+        void RegisterAbility(
+           string modUniqueId,
+           string abilityId,
+           string displayName,
+           string description,
+           string curveKind,
+           IDictionary<string, object> curveData,
+           int maxLevel,
+           string iconPath,
+           Rectangle iconSourceRect,
+           string[]? tags = null
+        );
 
 
 

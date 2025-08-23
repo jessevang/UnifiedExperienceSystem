@@ -88,12 +88,19 @@ namespace UnifiedExperienceSystem
             ListRegisteredAbilities()
 =>          _abilities.Values.Select(a => (a.ModId, a.AbilityId, a.DisplayName, a.Description, a.MaxLevel));
 
-        // New: detailed variant that includes icon/tags
-        public IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel, string? iconPath, string[] tags)>
+
+        public IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel,
+                   string? iconPath, Rectangle? iconSourceRect, bool hasInlineTexture, string[] tags)>
             ListRegisteredAbilitiesDetailed()
-            => _abilities.Values.Select(a =>(a.ModId,a.AbilityId,a.DisplayName,a.Description,a.MaxLevel,a.IconPath,a.Tags ?? Array.Empty<string>()));
+            => _abilities.Values.Select(a =>(a.ModId,a.AbilityId,a.DisplayName,a.Description,a.MaxLevel, a.IconPath,a.IconSourceRect,hasInlineTexture: a.IconTexture != null,a.Tags ?? Array.Empty<string>()));
 
-
+        public (bool hasTexture, Texture2D? texture, Rectangle? sourceRect, string? iconPath)
+            GetAbilityIcon(string modId, string abilityId)
+                {
+                    if (_abilities.TryGetValue((modId, abilityId), out var def))
+                        return (def.IconTexture != null, def.IconTexture, def.IconSourceRect, def.IconPath);
+                    return (false, null, null, null);
+                }
 
         private sealed class AbilityDef
         {
@@ -109,6 +116,9 @@ namespace UnifiedExperienceSystem
             public long[]? TablePrefix;
 
             public int MaxLevel = 1;
+
+            public Texture2D? IconTexture;
+            public Rectangle? IconSourceRect;
             public string? IconPath;
             public string[]? Tags;
         }
@@ -143,6 +153,9 @@ namespace UnifiedExperienceSystem
             );
         }
 
+       
+
+
 
         // ------------------------------------------------------------------------------------
         // NEW OVERLOAD (matches IUnifiedExperienceAPI exactly)
@@ -176,38 +189,56 @@ namespace UnifiedExperienceSystem
             );
         }
 
+        public void RegisterAbility(
+           string modUniqueId,
+           string abilityId,
+           string displayName,
+           string description,
+           string curveKind,
+           IDictionary<string, object> curveData,
+           int maxLevel,
+           string iconPath,
+           Rectangle iconSourceRect,
+           string[]? tags = null
+       )
+        {
+
+            RegisterAbilityCore(
+                modUniqueId, abilityId, displayName, description, curveKind, curveData, maxLevel,
+                iconTexture: null,
+                iconSourceRect: iconSourceRect,
+                iconPath: iconPath,
+                tags: tags
+            );
+        }
+
 
 
         // ------------------------------------------------------------------------------------
         // CORE IMPLEMENTATION (single place that does all the work)
         // ------------------------------------------------------------------------------------
         private void RegisterAbilityCore(
-            string modUniqueId,
-            string abilityId,
-            string displayName,
-            string description,
-            string curveKind,
-            IDictionary<string, object> curveData,
-            int maxLevel,
-            Texture2D? iconTexture,
-            Rectangle? iconSourceRect,
-            string? iconPath,
-            string[]? tags
-        )
+    string modUniqueId,
+    string abilityId,
+    string displayName,
+    string description,
+    string curveKind,
+    IDictionary<string, object> curveData,
+    int maxLevel,
+    Texture2D? iconTexture,
+    Rectangle? iconSourceRect,
+    string? iconPath,
+    string[]? tags
+)
         {
             if (string.IsNullOrWhiteSpace(modUniqueId)) throw new ArgumentException("modUniqueId required");
             if (string.IsNullOrWhiteSpace(abilityId)) throw new ArgumentException("abilityId required");
             if (maxLevel < 1) throw new ArgumentException("maxLevel must be >= 1");
 
-            // Normalize tags: trim, drop empties, distinct (case-insensitive)
-            static string[] NormalizeTags(string[]? input)
-                => input == null
-                    ? Array.Empty<string>()
-                    : input
-                        .Select(t => t?.Trim())
-                        .Where(t => !string.IsNullOrEmpty(t))
-                        .Distinct(StringComparer.OrdinalIgnoreCase)
-                        .ToArray();
+            static string[] NormalizeTags(string[]? input) =>
+                input == null ? Array.Empty<string>() :
+                input.Select(t => t?.Trim()).Where(t => !string.IsNullOrEmpty(t))
+                     .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 
             var def = new AbilityDef
             {
@@ -218,34 +249,29 @@ namespace UnifiedExperienceSystem
                 CurveKind = (curveKind ?? "linear").ToLowerInvariant(),
                 MaxLevel = maxLevel,
 
-                // Store metadata for renderer/fallback logic
+                // icon fields
+                IconTexture = iconTexture,                  // may be null
+                IconSourceRect = iconSourceRect,            // may be null
                 IconPath = string.IsNullOrWhiteSpace(iconPath) ? null : iconPath,
+
                 Tags = NormalizeTags(tags)
             };
 
-            // NOTE: If you later add fields to AbilityDef for resolved icons, set them here, e.g.:
-            // def.IconTexture = iconTexture;
-            // def.IconSourceRect = iconTexture != null
-            //     ? (iconSourceRect ?? new Rectangle(0, 0, iconTexture.Width, iconTexture.Height))
-            //     : (Rectangle?)null;
-
+            // curves (unchanged from your code)
             switch (def.CurveKind)
             {
                 case "linear":
                     def.LinearXpPerLevel = GetInt(curveData, "xpPerLevel", min: 1);
                     break;
-
                 case "step":
                     def.StepBase = GetInt(curveData, "base", min: 0);
                     def.StepPerLevel = GetInt(curveData, "step", min: 0);
                     break;
-
                 case "table":
                     {
                         var levels = GetIntArray(curveData, "levels");
                         if (levels.Length == 0 || levels.Any(v => v <= 0))
                             throw new ArgumentException("table 'levels' must be positive and non-empty.");
-
                         def.TableLevels = levels;
                         var cap = Math.Min(def.MaxLevel, def.TableLevels.Length);
                         def.TablePrefix = new long[cap + 1];
@@ -253,7 +279,6 @@ namespace UnifiedExperienceSystem
                             def.TablePrefix[i] = def.TablePrefix[i - 1] + def.TableLevels[i - 1];
                         break;
                     }
-
                 default:
                     def.CurveKind = "linear";
                     def.LinearXpPerLevel = 100;
@@ -262,7 +287,7 @@ namespace UnifiedExperienceSystem
 
             _abilities[(modUniqueId, abilityId)] = def;
 
-            // ---- local helpers (same as before) ----
+            // Local helpers (same as your current ones)
             static int GetInt(IDictionary<string, object> data, string key, int min)
             {
                 if (!data.TryGetValue(key, out var v)) throw new ArgumentException($"missing '{key}'");
@@ -301,6 +326,7 @@ namespace UnifiedExperienceSystem
                 throw new ArgumentException($"'{key}' must be int[]");
             }
         }
+
 
         public int GetAbilityLevel(string modUniqueId, string abilityId)
         {

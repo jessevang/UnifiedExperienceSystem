@@ -75,7 +75,9 @@ namespace UnifiedExperienceSystem
         public int EnergyBarAnchorOffsetY { get; set; } = -104;
 
 
-
+        //for troubleshooting
+        private static string RectToStr(Microsoft.Xna.Framework.Rectangle? r)
+    => r.HasValue ? $"[{r.Value.X},{r.Value.Y},{r.Value.Width},{r.Value.Height}]" : "(null)";
 
     }
 
@@ -90,6 +92,8 @@ namespace UnifiedExperienceSystem
         public string[]? Tags { get; init; }
         public int CurrentLevel { get; init; }
         public float TotalExp { get; init; }
+
+        public Rectangle IconSourceRect { get; init; }
     }
 
 
@@ -482,46 +486,16 @@ namespace UnifiedExperienceSystem
             ITranslationHelper i18n = Helper.Translation;
             gmcm.AddPage(mod: ModManifest, pageId: "Energy Settings", pageTitle: () => i18n.Get("page.energySettings.title"));
 
-            gmcm.AddSectionTitle(this.ModManifest, () => "Energy Bar Positioning");
-            gmcm.AddParagraph(this.ModManifest, () => "Offset X (Default: 140 to move bar left and Right");
-
             gmcm.AddNumberOption(
                 this.ModManifest,
                 getValue: () => Config.EnergyBarAnchorOffsetX,
                 setValue: v => Config.EnergyBarAnchorOffsetX = v,
                 name: () => "Offset X (px)",
-                tooltip: () => "Horizontal offset from the anchor frame’s LEFT edge. Negative = left of target.",
-                min: -600, max: 600, interval: 2
+                tooltip: () => "Horizontal offset from the anchor other bar's frame edge. Negative = left of other Bars.",
+                min: -1000, max: 200, interval: 1
             );
 
-            gmcm.AddNumberOption(
-                this.ModManifest,
-                getValue: () => Config.EnergyBarAnchorOffsetY,
-                setValue: v => Config.EnergyBarAnchorOffsetY = v,
-                name: () => "Offset Y (px)",
-                tooltip: () => "Vertical offset from the anchor frame’s TOP edge. Negative = above target.",
-                min: -600, max: 600, interval: 2
-            );
 
-            gmcm.AddSectionTitle(this.ModManifest, () => "Energy Bar Size");
-
-            gmcm.AddNumberOption(
-                this.ModManifest,
-                getValue: () => Config.EnergyBarWidth,
-                setValue: v => Config.EnergyBarWidth = Math.Clamp(v, 40, 800),
-                name: () => "Width (px)",
-                tooltip: () => "Overall width of the energy bar.",
-                min: 40, max: 800, interval: 2
-            );
-
-            gmcm.AddNumberOption(
-                this.ModManifest,
-                getValue: () => Config.EnergyBarHeight,
-                setValue: v => Config.EnergyBarHeight = Math.Clamp(v, 20, 400),
-                name: () => "Height (px)",
-                tooltip: () => "Overall height of the energy bar.",
-                min: 20, max: 400, interval: 2
-            );
 
             gmcm.AddBoolOption(
                 this.ModManifest,

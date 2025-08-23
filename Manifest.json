@@ -1,7 +1,7 @@
 {
   "Name": "UnifiedExperienceSystem",
   "Author": "Darkmushu1",
-  "Version": "1.1.3",
+  "Version": "1.1.4",
   "Description": "Unifies all experiences gained, and allows you to allocate to a skill or ability. Allows other mods to add abilities.",
   "UniqueID": "Darkmushu.UnifiedExperienceSystem",
   "EntryDll": "UnifiedExperienceSystem.dll",
