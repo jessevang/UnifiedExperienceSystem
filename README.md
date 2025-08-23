@@ -81,11 +81,16 @@ public class ModEntry : Mod
             curveKind: "linear",
             curveData: new Dictionary<string, object>
             {
-        { "xpPerLevel", 1000 }
+                { "xpPerLevel", 1000 }
             },
             maxLevel: 1
+            iconPath: "TileSheets/tools",
+            iconSourceRect: new Rectangle(80, 192, 16, 16), // Axe icon
+            tags: new[] { "foraging", "axe" }  //Does nothing at this time but might use to sort listing in future
         );
 
+
+         Texture2D weaponsTex = Game1.content.Load<Texture2D>("TileSheets/weapons");
         //Step Curve - base 200xp, next level is 400+200, next one is 600+200... at level 10 it's 400+(10-1)*200 = 2200, total experience need to reach 10 is 13k xp
         uesApi.RegisterAbility(
             modUniqueId: this.ModManifest.UniqueID,
@@ -99,6 +104,12 @@ public class ModEntry : Mod
                 { "step", 200 }
             },
             maxLevel: 10
+            iconTexture: weaponsTex,
+            iconSourceRect: new Rectangle(48, 0, 16, 16), 
+
+            // path is optional when you supply a texture
+            iconPath: null,
+            tags: new[] { "combat", "weapon" }
         );
 
         //Table Curve - Level 1 needs 100 XP, level 2 needs 200xp, level 3 need 300 xp, level 10 needs 1500xp, total xp to reach level 10 is 7300XP.

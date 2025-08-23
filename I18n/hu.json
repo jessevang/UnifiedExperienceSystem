@@ -6,6 +6,15 @@
   "page.menuSettings.title": "Menü beállításai",
   "page.energySettings.title": "Energia beállításai",
   "section.energyBarPosition.title": "Energiasáv pozíciója",
+
+  
+  "Menu.AbilityMenu.need": "Szükséges",
+  "config.EnergyBarAnchorOffsetX.name": "Energia sáv mozgatása",
+  "config.EnergyBarAnchorOffsetX.tooltip": "Mozgasd az energiasávot balra és jobbra. Csökkentsd az értéket balra, növeld az értéket jobbra.",
+  "config.EnergyBarShowNumeric.name": "Energia szám megjelenítése",
+  "config.EnergyBarShowNumeric.tooltip": "Megjeleníti az energia számát a sávon belül.",
+  
+
   "config.energyBarRelX.name": "Relatív X pozíció",
   "config.energyBarRelX.tooltip": "Az energiasáv vízszintes mozgatása. 0 = bal szél, 1 = jobb szél.",
   "config.energyBarRelY.name": "Relatív Y pozíció",

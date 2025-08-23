@@ -6,7 +6,13 @@
 
   "page.menuSettings.title": "Menu Settings",
   "page.energySettings.title": "Energy Settings",
+
   "Menu.AbilityMenu.need": "Need",
+  "config.EnergyBarAnchorOffsetX.name": "Move Energy Bar",
+  "config.EnergyBarAnchorOffsetX.tooltip": "Move the Energy Bar Left and Right. Decrease value to move bar left, increasing value to move Energy bar to the right",
+
+  "config.EnergyBarShowNumeric.name": "Show Energy Bar Number",
+  "config.EnergyBarShowNumeric.tooltip": "Display the energy number inside the bar.",
 
   "section.energyBarPosition.title": "Energy Bar Position",
 

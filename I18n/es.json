@@ -6,6 +6,13 @@
   "page.menuSettings.title": "Configuración del menú",
   "page.energySettings.title": "Configuración de energía",
   "section.energyBarPosition.title": "Posición de la barra de energía",
+
+  "Menu.AbilityMenu.need": "Necesita",
+  "config.EnergyBarAnchorOffsetX.name": "Mover barra de energía",
+  "config.EnergyBarAnchorOffsetX.tooltip": "Mueve la barra de energía hacia la izquierda o la derecha. Disminuye para mover a la izquierda, aumenta para mover a la derecha.",
+  "config.EnergyBarShowNumeric.name": "Mostrar número de energía",
+  "config.EnergyBarShowNumeric.tooltip": "Muestra el número de energía dentro de la barra.",
+
   "config.energyBarRelX.name": "Posición X relativa",
   "config.energyBarRelX.tooltip": "Mueve la barra de energía horizontalmente. 0 = borde izquierdo, 1 = borde derecho.",
   "config.energyBarRelY.name": "Posición Y relativa",

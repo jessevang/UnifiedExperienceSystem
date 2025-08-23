@@ -6,6 +6,13 @@
   "page.menuSettings.title": "Настройки меню",
   "page.energySettings.title": "Настройки энергии",
   "section.energyBarPosition.title": "Положение полосы энергии",
+
+  "Menu.AbilityMenu.need": "Нужно",
+  "config.EnergyBarAnchorOffsetX.name": "Переместить панель энергии",
+  "config.EnergyBarAnchorOffsetX.tooltip": "Перемещает панель энергии влево или вправо. Уменьшите значение для сдвига влево, увеличьте для сдвига вправо.",
+  "config.EnergyBarShowNumeric.name": "Показывать число энергии",
+  "config.EnergyBarShowNumeric.tooltip": "Отображает числовое значение энергии внутри панели.",
+
   "config.energyBarRelX.name": "Относительная позиция по X",
   "config.energyBarRelX.tooltip": "Перемещает полосу энергии по горизонтали. 0 = левый край, 1 = правый край.",
   "config.energyBarRelY.name": "Относительная позиция по Y",

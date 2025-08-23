@@ -6,6 +6,16 @@
   "page.menuSettings.title": "메뉴 설정",
   "page.energySettings.title": "에너지 설정",
   "section.energyBarPosition.title": "에너지 바 위치",
+
+
+  
+  "Menu.AbilityMenu.need": "필요",
+  "config.EnergyBarAnchorOffsetX.name": "에너지 바 이동",
+  "config.EnergyBarAnchorOffsetX.tooltip": "에너지 바를 좌우로 이동합니다. 값을 줄이면 왼쪽, 늘리면 오른쪽으로 이동합니다.",
+  "config.EnergyBarShowNumeric.name": "에너지 숫자 표시",
+  "config.EnergyBarShowNumeric.tooltip": "에너지 수치를 바 안에 표시합니다.",
+  
+
   "config.energyBarRelX.name": "상대 X 위치",
   "config.energyBarRelX.tooltip": "에너지 바를 가로로 이동합니다. 0 = 왼쪽 가장자리, 1 = 오른쪽 가장자리.",
   "config.energyBarRelY.name": "상대 Y 위치",

@@ -6,6 +6,14 @@
   "page.menuSettings.title": "Menüeinstellungen",
   "page.energySettings.title": "Energie-Einstellungen",
   "section.energyBarPosition.title": "Position der Energieleiste",
+
+  "Menu.AbilityMenu.need": "Benötigt",
+  "config.EnergyBarAnchorOffsetX.name": "Energieleiste verschieben",
+  "config.EnergyBarAnchorOffsetX.tooltip": "Verschiebe die Energieleiste nach links und rechts. Verringern, um nach links zu verschieben, erhöhen, um nach rechts zu verschieben.",
+  "config.EnergyBarShowNumeric.name": "Energiewert anzeigen",
+  "config.EnergyBarShowNumeric.tooltip": "Zeigt den Energiewert innerhalb der Leiste an.",
+
+
   "config.energyBarRelX.name": "Relative X-Position",
   "config.energyBarRelX.tooltip": "Verschiebt die Energieleiste horizontal. 0 = linker Rand, 1 = rechter Rand.",
   "config.energyBarRelY.name": "Relative Y-Position",

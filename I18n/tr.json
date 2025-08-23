@@ -6,6 +6,14 @@
   "page.menuSettings.title": "Menü ayarları",
   "page.energySettings.title": "Enerji ayarları",
   "section.energyBarPosition.title": "Enerji çubuğu konumu",
+
+
+  "Menu.AbilityMenu.need": "Gerekli",
+  "config.EnergyBarAnchorOffsetX.name": "Enerji çubuğunu taşı",
+  "config.EnergyBarAnchorOffsetX.tooltip": "Enerji çubuğunu sola veya sağa taşı. Değeri azalt sola, artır sağa taşır.",
+  "config.EnergyBarShowNumeric.name": "Enerji sayısını göster",
+  "config.EnergyBarShowNumeric.tooltip": "Enerji sayısını çubuğun içinde gösterir.",
+
   "config.energyBarRelX.name": "Bağıl X konumu",
   "config.energyBarRelX.tooltip": "Enerji çubuğunu yatay olarak taşır. 0 = sol kenar, 1 = sağ kenar.",
   "config.energyBarRelY.name": "Bağıl Y konumu",

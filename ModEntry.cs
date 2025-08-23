@@ -490,8 +490,8 @@ namespace UnifiedExperienceSystem
                 this.ModManifest,
                 getValue: () => Config.EnergyBarAnchorOffsetX,
                 setValue: v => Config.EnergyBarAnchorOffsetX = v,
-                name: () => "Offset X (px)",
-                tooltip: () => "Horizontal offset from the anchor other bar's frame edge. Negative = left of other Bars.",
+                name: () => Helper.Translation.Get("config.EnergyBarAnchorOffsetX.name"),
+                tooltip: () => Helper.Translation.Get("config.EnergyBarAnchorOffsetX.tooltip"),
                 min: -1000, max: 200, interval: 1
             );
 
@@ -501,8 +501,8 @@ namespace UnifiedExperienceSystem
                 this.ModManifest,
                 getValue: () => Config.EnergyBarShowNumeric,
                 setValue: v => Config.EnergyBarShowNumeric = v,
-                name: () => "Show numeric value",
-                tooltip: () => "Display the current energy as a rotated number inside the bar."
+                name: () => Helper.Translation.Get("config.EnergyBarShowNumeric.name"),
+                tooltip: () => Helper.Translation.Get("config.EnergyBarShowNumeric.tooltip")
             );
 
 

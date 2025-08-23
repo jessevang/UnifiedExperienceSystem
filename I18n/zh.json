@@ -6,6 +6,14 @@
   "page.menuSettings.title": "菜单设置",
   "page.energySettings.title": "能量设置",
   "section.energyBarPosition.title": "能量条位置",
+
+  "Menu.AbilityMenu.need": "需要",
+  "config.EnergyBarAnchorOffsetX.name": "移动能量条",
+  "config.EnergyBarAnchorOffsetX.tooltip": "左右移动能量条。减少数值向左移动，增加数值向右移动。",
+  "config.EnergyBarShowNumeric.name": "显示能量数值",
+  "config.EnergyBarShowNumeric.tooltip": "在能量条内显示数值。",
+
+
   "config.energyBarRelX.name": "相对 X 位置",
   "config.energyBarRelX.tooltip": "水平移动能量条。0 = 左边缘，1 = 右边缘。",
   "config.energyBarRelY.name": "相对 Y 位置",

@@ -6,6 +6,15 @@
   "page.menuSettings.title": "メニュー設定",
   "page.energySettings.title": "エネルギー設定",
   "section.energyBarPosition.title": "エネルギーバーの位置",
+
+  
+  "Menu.AbilityMenu.need": "必要",
+  "config.EnergyBarAnchorOffsetX.name": "エネルギーバーを移動",
+  "config.EnergyBarAnchorOffsetX.tooltip": "エネルギーバーを左右に移動します。値を減らすと左へ、増やすと右へ移動します。",
+  "config.EnergyBarShowNumeric.name": "エネルギー数値を表示",
+  "config.EnergyBarShowNumeric.tooltip": "バーの中にエネルギーの数値を表示します。",
+ 
+
   "config.energyBarRelX.name": "相対X位置",
   "config.energyBarRelX.tooltip": "エネルギーバーを水平方向に移動します。0 = 左端、1 = 右端。",
   "config.energyBarRelY.name": "相対Y位置",
