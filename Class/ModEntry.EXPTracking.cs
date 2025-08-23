@@ -238,6 +238,10 @@ namespace UnifiedExperienceSystem
                 AddExperience(Game1.player, skill, grantXp);
 
                 int newLevel = GetSkillLevel(Game1.player, skill);
+                if (newLevel > oldLevel)
+                {
+                    Game1.playSound("powerup"); // or "levelUp", "reward", etc.
+                }
 
                 // Track manually allocated vanilla levels for your respec/rollback logic
                 if (skill.IsVanilla && int.TryParse(skill.Id, out int index))

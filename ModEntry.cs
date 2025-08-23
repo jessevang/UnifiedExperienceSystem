@@ -71,8 +71,8 @@ namespace UnifiedExperienceSystem
         public bool EnergyBarFollowVanillaHud { get; set; } = true;  // new mode ON by default
         public string EnergyBarAnchorTarget { get; set; } = "Health"; // "Health" or "Stamina"
 
-        public int EnergyBarAnchorOffsetX { get; set; } = -84;
-        public int EnergyBarAnchorOffsetY { get; set; } = 0;
+        public int EnergyBarAnchorOffsetX { get; set; } = -140;
+        public int EnergyBarAnchorOffsetY { get; set; } = -104;
 
 
 
@@ -481,58 +481,10 @@ namespace UnifiedExperienceSystem
         {
             ITranslationHelper i18n = Helper.Translation;
             gmcm.AddPage(mod: ModManifest, pageId: "Energy Settings", pageTitle: () => i18n.Get("page.energySettings.title"));
-            gmcm.AddSectionTitle(ModManifest, () => i18n.Get("section.energyBarPosition.title"));
-
-            gmcm.AddNumberOption(
-                ModManifest,
-                getValue: () => Config.EnergyBarRelX,
-                setValue: v => { Config.EnergyBarRelX = Math.Clamp(v, 0f, 1f); Helper.WriteConfig(Config); },
-                name: () => i18n.Get("config.energyBarRelX.name"),
-                tooltip: () => i18n.Get("config.energyBarRelX.tooltip"),
-                min: 0f, max: 1f, interval: 0.005f
-            );
-
-            gmcm.AddNumberOption(
-                ModManifest,
-                getValue: () => Config.EnergyBarRelY,
-                setValue: v => { Config.EnergyBarRelY = Math.Clamp(v, 0f, 1f); Helper.WriteConfig(Config); },
-                name: () => i18n.Get("config.energyBarRelY.name"),
-                tooltip: () => i18n.Get("config.energyBarRelY.tooltip"),
-                min: 0f, max: 1f, interval: 0.005f
-            );
-
-            gmcm.AddNumberOption(
-                ModManifest,
-                getValue: () => Config.EnergyBarWidth,
-                setValue: v => { Config.EnergyBarWidth = Math.Max(12, v); Helper.WriteConfig(Config); },
-                name: () => i18n.Get("config.energyBarWidth.name"),
-                tooltip: () => i18n.Get("config.energyBarWidth.tooltip"),
-                min: 12, max: 400, interval: 2
-            );
-
-            gmcm.AddNumberOption(
-                ModManifest,
-                getValue: () => Config.EnergyBarHeight,
-                setValue: v => { Config.EnergyBarHeight = Math.Max(24, v); Helper.WriteConfig(Config); },
-                name: () => i18n.Get("config.energyBarHeight.name"),
-                tooltip: () => i18n.Get("config.energyBarHeight.tooltip"),
-                min: 24, max: 1000, interval: 5
-            );
-
 
             gmcm.AddSectionTitle(this.ModManifest, () => "Energy Bar Positioning");
+            gmcm.AddParagraph(this.ModManifest, () => "Offset X (Default: 140 to move bar left and Right");
 
-            gmcm.AddBoolOption(
-                this.ModManifest,
-                getValue: () => Config.EnergyBarFollowVanillaHud,
-                setValue: v => Config.EnergyBarFollowVanillaHud = v,
-                name: () => "Follow vanilla HUD (recommended)",
-                tooltip: () => "Anchors the custom bar to the vanilla Health/Stamina frame so it tracks across resolutions."
-            );
-
-
-            // Offsets: measured from the TARGET frame's top-left (px)
-            // Negative X moves LEFT of the target; positive to the right.
             gmcm.AddNumberOption(
                 this.ModManifest,
                 getValue: () => Config.EnergyBarAnchorOffsetX,

@@ -284,17 +284,17 @@ namespace UnifiedExperienceSystem
 
                 // 3) Build the label text and draw it AFTER the icon
                 var name = row.AbilityName ?? "";
-                var shortName = name.Length > 15 ? (name.Substring(0, 15) + "..") : name;
-                if (shortName.Length < 15)
+                var shortName = name.Length > 12 ? (name.Substring(0, 12) + "..") : name;
+                if (shortName.Length < 12)
                 {
-                    int spacesToAdd = 15 - shortName.Length;
+                    int spacesToAdd = 12 - shortName.Length;
                     if (spacesToAdd > 0) shortName = shortName + new string(' ', spacesToAdd);
                 }
 
                 bool showPlus = !row.AtMax;
                 string text = row.AtMax
-                    ? $"{shortName} (L{row.Level})"
-                    : $"{shortName} (L{row.Level})    Need {row.XpNeeded}XP";
+                    ? $"{shortName} (Lv{row.Level})"
+                    : $"{shortName} (Lv{row.Level})   Need {row.XpNeeded} XP";
 
                 // left edge for text is after the icon
                 int textX = rowIconX + rowIconW + IconTextGap;
@@ -339,7 +339,8 @@ namespace UnifiedExperienceSystem
                     int barY = y + (RowHeight - barHeight) / 2 + barOffsetY;
                     barY = Math.Max(y, Math.Min(barY, y + RowHeight - barHeight));
 
-                    var barRect = new Rectangle(barRight - barWidth, barY, barWidth, barHeight);
+                    const int ExtendLeft = 100;
+                    var barRect = new Rectangle(barRight - barWidth - ExtendLeft, barY, barWidth+ ExtendLeft, barHeight); 
                     b.Draw(Game1.staminaRect, barRect, Color.Black * bgAlpha);
 
                     if (row.AtMax)

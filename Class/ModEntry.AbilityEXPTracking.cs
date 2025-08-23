@@ -1,5 +1,6 @@
 ﻿using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley;
 
 namespace UnifiedExperienceSystem
 {
@@ -39,7 +40,7 @@ namespace UnifiedExperienceSystem
             long current = Math.Max(0, (long)entry.TotalExpSpent);
 
             // ---------- How much XP is left before hard cap? ----------
-
+            int oldLevel = uesApi?.GetAbilityLevel(modGuid, abilityId) ?? 0;
             int remainXpToCap = uesApi?.GetAbilityRemainingXpToCap(modGuid, abilityId) ?? int.MaxValue;
             if (remainXpToCap <= 0)
             {
@@ -74,7 +75,11 @@ namespace UnifiedExperienceSystem
             long appliedXp = Math.Min(remainXpToCap, requestedXp);
 
             entry.TotalExpSpent = checked((int)(current + appliedXp));
+
             SaveData.UnspentSkillPoints -= pointsToApply;
+            int newLevel = uesApi?.GetAbilityLevel(modGuid, abilityId) ?? oldLevel;
+            if (newLevel > oldLevel)
+                Game1.playSound("powerup");
 
             if (Config.DebugMode)
                 Monitor.Log($"[Abilities] +{appliedXp} XP using {pointsToApply} pts → total {entry.TotalExpSpent}/{GetMaxExpForAbility(modGuid, abilityId)}", LogLevel.Debug);

@@ -165,7 +165,6 @@ namespace UnifiedExperienceSystem
              || Game1.eventUp
              || Game1.dialogueUp
              || Game1.currentLocation?.currentEvent != null
-             || Game1.activeClickableMenu != null
              || Game1.currentMinigame != null
              || Game1.isFestival())
                 return;
