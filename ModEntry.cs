@@ -424,6 +424,12 @@ namespace UnifiedExperienceSystem
             );
 
 
+            gmcm.AddPageLink(
+                mod: ModManifest,
+                pageId: "Experience Setting",
+                text: () => T.Get("config.pageTitle.ExperienceSetting"),
+                tooltip: () => T.Get("config.pageTitle.ExperienceSetting")
+            );
 
             gmcm.AddPageLink(
                 mod: ModManifest,
