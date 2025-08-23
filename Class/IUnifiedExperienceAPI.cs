@@ -34,7 +34,14 @@ namespace UnifiedExperienceSystem
         // =========================================================
         //  Abilities
         // =========================================================
-        IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel)> ListRegisteredAbilities();
+        // Existing (keep as-is for compatibility)
+        IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel)>
+            ListRegisteredAbilities();
+
+        // New: includes iconPath and tags (normalized to non-null)
+        IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel, string? iconPath, string[] tags)>
+            ListRegisteredAbilitiesDetailed();
+
 
 
         /// <summary>

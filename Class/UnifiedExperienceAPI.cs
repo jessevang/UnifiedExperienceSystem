@@ -84,8 +84,15 @@ namespace UnifiedExperienceSystem
             = new(new ModAbilityKeyComparer());
 
 
-        public IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel)> ListRegisteredAbilities()
-    => _abilities.Values.Select(a => (a.ModId, a.AbilityId, a.DisplayName, a.Description, a.MaxLevel));
+        public IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel)> 
+            ListRegisteredAbilities()
+=>          _abilities.Values.Select(a => (a.ModId, a.AbilityId, a.DisplayName, a.Description, a.MaxLevel));
+
+        // New: detailed variant that includes icon/tags
+        public IEnumerable<(string modId, string abilityId, string displayName, string description, int maxLevel, string? iconPath, string[] tags)>
+            ListRegisteredAbilitiesDetailed()
+            => _abilities.Values.Select(a =>(a.ModId,a.AbilityId,a.DisplayName,a.Description,a.MaxLevel,a.IconPath,a.Tags ?? Array.Empty<string>()));
+
 
 
         private sealed class AbilityDef

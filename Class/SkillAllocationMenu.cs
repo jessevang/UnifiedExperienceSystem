@@ -82,13 +82,7 @@ namespace UnifiedExperienceSystem
             );
         }
 
-        private static string TruncateSpriteText(string s, int maxWidthPx)
-        {
-            // trim characters until it fits (no padding, no ellipsis)
-            while (s.Length > 0 && SpriteText.getWidthOfString(s) > maxWidthPx)
-                s = s.Substring(0, s.Length - 1);
-            return s;
-        }
+
 
 
         public override void draw(SpriteBatch b)

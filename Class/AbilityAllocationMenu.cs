@@ -47,6 +47,7 @@ namespace UnifiedExperienceSystem
             public long TotalExp = 0;
             public int Level = 0;
             public int MaxLevel = 0;
+            public string? IconPath { get; set; }
         }
 
         private sealed class AbilityGroupVM
@@ -74,7 +75,8 @@ namespace UnifiedExperienceSystem
             public int XpLevelTotal;
 
 
-            public Rectangle? ButtonBounds;
+            public string? IconPath { get; set; }
+            public Rectangle? IconSourceRect { get; set; }
         }
 
         private List<AbilityGroupVM> groups = new();
@@ -184,16 +186,14 @@ namespace UnifiedExperienceSystem
             Game1.drawDialogueBox(xPositionOnScreen, yPositionOnScreen, width, height, false, true);
 
             // === Mini "icon menu" to the LEFT, aligned to Ability menu top ===
-            // (same placement style as your skills screen)
             const int MiniW = 48;
             const int MiniH = 48;
-            const int MiniGap = -20;   // horizontal: 0 = touching; negative overlaps a bit
-            const int MiniYOffset = 85; // vertical offset from the menu's top
+            const int MiniGap = -20;   // 0 = touching; negative overlaps slightly
+            const int MiniYOffset = 85;
 
             int miniX = xPositionOnScreen - (MiniW + MiniGap);
             int miniY = yPositionOnScreen + MiniYOffset;
 
-            // draw a small menu-style box
             IClickableMenu.drawTextureBox(
                 b,
                 Game1.menuTexture,
@@ -204,20 +204,15 @@ namespace UnifiedExperienceSystem
                 drawShadow: false
             );
 
-            // draw the icon centered inside that box
             var cursorsTex = Game1.content.Load<Texture2D>("LooseSprites/Cursors");
-            Rectangle src = new Rectangle(391, 360, 11, 12); // provided icon
+            Rectangle miniSrc = new Rectangle(391, 360, 11, 12);
             int pad = 8;
-            float scale = Math.Min(
-                (MiniW - pad * 2f) / src.Width,
-                (MiniH - pad * 2f) / src.Height
-            );
-            int iconW = (int)Math.Round(src.Width * scale);
-            int iconH = (int)Math.Round(src.Height * scale);
-            int iconX = miniX + (MiniW - iconW) / 2;
-            int iconY = miniY + (MiniH - iconH) / 2;
-
-            b.Draw(cursorsTex, new Rectangle(iconX, iconY, iconW, iconH), src, Color.White);
+            float miniScale = Math.Min((MiniW - pad * 2f) / miniSrc.Width, (MiniH - pad * 2f) / miniSrc.Height);
+            int miniIconW = (int)Math.Round(miniSrc.Width * miniScale);
+            int miniIconH = (int)Math.Round(miniSrc.Height * miniScale);
+            int miniIconX = miniX + (MiniW - miniIconW) / 2;
+            int miniIconY = miniY + (MiniH - miniIconH) / 2;
+            b.Draw(cursorsTex, new Rectangle(miniIconX, miniIconY, miniIconW, miniIconH), miniSrc, Color.White);
             // === End mini icon menu ===
 
             int titleY = yPositionOnScreen + 40 + yOffset;
@@ -228,8 +223,6 @@ namespace UnifiedExperienceSystem
                 titleY
             );
 
-           
-
             var rows = BuildRowsForDraw();
             int maxScroll = Math.Max(0, rows.Count - MaxVisibleRows);
             scrollIndex = MathHelper.Clamp(scrollIndex, 0, maxScroll);
@@ -239,6 +232,12 @@ namespace UnifiedExperienceSystem
             int rowStartY = titleY + 100;
             int buttonSize = Math.Min(RowHeight - 10, 48);
 
+            // --- layout constants for per-row icon/text ---
+            const int ContentPadLeft = 40;   // inner padding from dialog edge
+            const int IconTextGap = 10;   // space between icon and text
+            const int RowVPad = 4;    // top/bottom padding inside each row
+            const int BaselineOffset = -16;  // tweak to visually match SpriteText baseline
+
             for (int i = 0; i < MaxVisibleRows && i + scrollIndex < rows.Count; i++)
             {
                 var row = rows[i + scrollIndex];
@@ -247,91 +246,122 @@ namespace UnifiedExperienceSystem
                 if (row.IsHeader)
                 {
                     SpriteText.drawString(b, row.HeaderText, xPositionOnScreen + 40, y, color: Color.DarkBlue);
+                    continue;
+                }
+
+                // 1) Resolve row icon (from row.IconPath with fallback to magnifying glass)
+                Texture2D rowIconTex;
+                Rectangle rowIconSrc;
+                if (!string.IsNullOrWhiteSpace(row.IconPath))
+                {
+                    try
+                    {
+                        rowIconTex = Game1.content.Load<Texture2D>(row.IconPath);
+                        rowIconSrc = new Rectangle(0, 0, rowIconTex.Width, rowIconTex.Height);
+                    }
+                    catch
+                    {
+                        // fallback on load failure
+                        rowIconTex = cursorsTex;
+                        rowIconSrc = new Rectangle(322, 498, 12, 12);
+                    }
                 }
                 else
                 {
-                    var name = row.AbilityName ?? "";
-                    var shortName = name.Length > 15 ? (name.Substring(0, 15) + "..") : name;
+                    rowIconTex = cursorsTex;
+                    rowIconSrc = new Rectangle(322, 498, 12, 12);
+                }
 
-                    if (shortName.Length < 15)
+                // 2) Scale and position the icon
+                int iconMaxHRow = Math.Max(12, RowHeight - RowVPad * 2);
+                float iconScaleRow = iconMaxHRow / (float)rowIconSrc.Height;
+                int rowIconW = (int)Math.Round(rowIconSrc.Width * iconScaleRow);
+                int rowIconH = (int)Math.Round(rowIconSrc.Height * iconScaleRow);
+                int rowIconX = xPositionOnScreen + ContentPadLeft;
+                int rowIconY = y + (RowHeight - rowIconH) / 2 + BaselineOffset;
+
+                b.Draw(rowIconTex, new Rectangle(rowIconX, rowIconY, rowIconW, rowIconH), rowIconSrc, Color.White);
+
+                // 3) Build the label text and draw it AFTER the icon
+                var name = row.AbilityName ?? "";
+                var shortName = name.Length > 15 ? (name.Substring(0, 15) + "..") : name;
+                if (shortName.Length < 15)
+                {
+                    int spacesToAdd = 15 - shortName.Length;
+                    if (spacesToAdd > 0) shortName = shortName + new string(' ', spacesToAdd);
+                }
+
+                bool showPlus = !row.AtMax;
+                string text = row.AtMax
+                    ? $"{shortName} (L{row.Level})"
+                    : $"{shortName} (L{row.Level})    Need {row.XpNeeded}XP";
+
+                // left edge for text is after the icon
+                int textX = rowIconX + rowIconW + IconTextGap;
+
+                // (click region for context help uses textX so it includes the icon offset)
+                var textRect = new Rectangle(textX, y, width - 200, RowHeight);
+
+                SpriteText.drawString(b, text, textX, y);
+
+                string key = $"{row.ModId}/{row.AbilityId}";
+                if (expandedRowKey == key)
+                    expandedTooltipToDraw = BuildAbilityTooltip(row);
+
+                // 4) Progress bar & [+] button (use textX for leftTextX so the bar doesn't overlap the icon)
+                if (showPlus)
+                {
+                    int barHeight = 50;
+                    int desiredBarWidth = 300;
+                    int maxBarWidth = 300;
+                    int rightEdgeOffset = 50;
+                    int gapFromButton = 8;
+
+                    int barOffsetY = -15;
+                    float barAlpha = 0.5f;
+                    float bgAlpha = 0.2f;
+                    float borderAlpha = 0.4f;
+
+                    int plusBtnSize = Math.Min(RowHeight - 10, 48);
+                    Rectangle plusBtn = new Rectangle(
+                        xPositionOnScreen + width - plusBtnSize - rightEdgeOffset,
+                        y - 6,
+                        plusBtnSize,
+                        plusBtnSize
+                    );
+
+                    int barRight = plusBtn.Left - gapFromButton;
+                    int leftTextX = textX; // honor icon
+                    int maxSpace = Math.Max(0, barRight - leftTextX);
+                    int barWidth = Math.Min(Math.Max(desiredBarWidth, 0), Math.Min(maxBarWidth, maxSpace));
+                    if (barWidth < 60) barWidth = Math.Min(60, maxSpace);
+
+                    int barY = y + (RowHeight - barHeight) / 2 + barOffsetY;
+                    barY = Math.Max(y, Math.Min(barY, y + RowHeight - barHeight));
+
+                    var barRect = new Rectangle(barRight - barWidth, barY, barWidth, barHeight);
+                    b.Draw(Game1.staminaRect, barRect, Color.Black * bgAlpha);
+
+                    if (row.AtMax)
                     {
-                        var spacesToAdd = 15 - shortName.Length;
-                        for (int j = 0; j < spacesToAdd; j++)
-                            shortName += " ";
+                        b.Draw(Game1.staminaRect, barRect, Color.Gold * barAlpha);
+                    }
+                    else if (row.XpLevelTotal > 0)
+                    {
+                        int fill = (int)(barRect.Width * (row.XpInto / (float)row.XpLevelTotal));
+                        if (fill > 0)
+                            b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, fill, barRect.Height), Color.Lime * barAlpha);
                     }
 
-                    string text = "";
-                    bool showPlus = !row.AtMax;
+                    Color bc = Color.Black * borderAlpha;
+                    b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, barRect.Width, 1), bc);
+                    b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y + barRect.Height - 1, barRect.Width, 1), bc);
+                    b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, 1, barRect.Height), bc);
+                    b.Draw(Game1.staminaRect, new Rectangle(barRect.Right - 1, barRect.Y, 1, barRect.Height), bc);
 
-                    text = row.AtMax
-                        ? $"{shortName} (Level: {row.Level})"
-                        : $"{shortName} (Level: {row.Level})    {row.XpNeeded}";
-
-                    var textRect = new Rectangle(xPositionOnScreen + 70, y, width - 200, RowHeight);
-
-                    SpriteText.drawString(b, text, xPositionOnScreen + 70, y);
-                    string key = $"{row.ModId}/{row.AbilityId}";
-                    if (expandedRowKey == key)
-                        expandedTooltipToDraw = BuildAbilityTooltip(row);
-
-                    if (showPlus)
-                    {
-                        // layout for Progress Bar
-                        int barHeight = 50;
-                        int desiredBarWidth = 300;
-                        int maxBarWidth = 300;
-                        int rightEdgeOffset = 50;
-                        int gapFromButton = 8;
-
-                        int barOffsetY = -15;
-                        float barAlpha = 0.5f;
-                        float bgAlpha = 0.2f;
-                        float borderAlpha = 0.4f;
-
-                        int plusBtnSize = Math.Min(RowHeight - 10, 48);
-                        Rectangle plusBtn = new Rectangle(
-                            xPositionOnScreen + width - plusBtnSize - rightEdgeOffset,
-                            y - 6,
-                            plusBtnSize,
-                            plusBtnSize
-                        );
-
-                        int barRight = plusBtn.Left - gapFromButton;
-                        int leftTextX = xPositionOnScreen + 70;
-                        int maxSpace = Math.Max(0, barRight - leftTextX);
-                        int barWidth = Math.Min(Math.Max(desiredBarWidth, 0), Math.Min(maxBarWidth, maxSpace));
-                        if (barWidth < 60) barWidth = Math.Min(60, maxSpace);
-
-                        int barY = y + (RowHeight - barHeight) / 2 + barOffsetY;
-                        barY = Math.Max(y, Math.Min(barY, y + RowHeight - barHeight));
-
-                        var barRect = new Rectangle(barRight - barWidth, barY, barWidth, barHeight);
-                        b.Draw(Game1.staminaRect, barRect, Color.Black * bgAlpha);
-
-                        if (row.AtMax)
-                        {
-                            b.Draw(Game1.staminaRect, barRect, Color.Gold * barAlpha);
-                        }
-                        else if (row.XpLevelTotal > 0)
-                        {
-                            int fill = (int)(barRect.Width * (row.XpInto / (float)row.XpLevelTotal));
-                            if (fill > 0)
-                                b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, fill, barRect.Height), Color.Lime * barAlpha);
-                        }
-
-                        Color bc = Color.Black * borderAlpha;
-                        b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, barRect.Width, 1), bc);
-                        b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y + barRect.Height - 1, barRect.Width, 1), bc);
-                        b.Draw(Game1.staminaRect, new Rectangle(barRect.X, barRect.Y, 1, barRect.Height), bc);
-                        b.Draw(Game1.staminaRect, new Rectangle(barRect.Right - 1, barRect.Y, 1, barRect.Height), bc);
-                    }
-
-                    // draw [+] button if Ability is not at Max Level
-                    if (showPlus)
-                    {
-                        Rectangle btn = new Rectangle(xPositionOnScreen + width - buttonSize - 50, y - 6, buttonSize, buttonSize);
-                        b.Draw(emojiTexture, btn, new Rectangle(108, 81, 9, 9), Color.White);
-                    }
+                    // draw [+] button (unchanged)
+                    Rectangle btn = new Rectangle(xPositionOnScreen + width - buttonSize - 50, y - 6, buttonSize, buttonSize);
+                    b.Draw(emojiTexture, btn, new Rectangle(108, 81, 9, 9), Color.White);
                 }
             }
 
@@ -342,6 +372,7 @@ namespace UnifiedExperienceSystem
                 IClickableMenu.drawHoverText(b, expandedTooltipToDraw, Game1.smallFont);
             drawMouse(b);
         }
+
 
 
         private string BuildAbilityTooltip(Row row)
