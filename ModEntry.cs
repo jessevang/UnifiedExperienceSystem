@@ -34,7 +34,7 @@ namespace UnifiedExperienceSystem
 
         public int MaxSkillLevel { get; set; } = 20;
         public int BaseStepBeyond10 { get; set; } = 5000;
-        public float Beyond10GrowthPercent { get; set; } = 0.10f;
+        public float Beyond10GrowthPercent { get; set; } = 0.00f;
         public bool AnchorPost10ToVanillaLevel10 { get; set; } = true;
 
         public bool ShowSkillPointButton { get; set; } = false;
@@ -454,7 +454,7 @@ namespace UnifiedExperienceSystem
         {
             ITranslationHelper T = Helper.Translation;
             gmcm.AddPage(mod: ModManifest, pageId: "Experience Setting", pageTitle: () => T.Get("config.pageTitle.ExperienceSetting"));
-            gmcm.AddParagraph(mod: ModManifest, text:() => "config.paragraph.ExperienceSetting");
+
 
             gmcm.AddNumberOption(
                 mod: ModManifest,
