@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using HarmonyLib;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -113,6 +114,7 @@ namespace UnifiedExperienceSystem
 
     public partial class ModEntry : Mod
     {
+        public static ModEntry? Instance { get; private set; }
         public ISpaceCoreApi spaceCoreApi { get; private set; }
         public const int EXP_PER_POINT = 100;
         public SaveData SaveData { get; private set; } = new SaveData();
@@ -159,7 +161,9 @@ namespace UnifiedExperienceSystem
                     Monitor.Log($"Energy => {_energy.Current}", LogLevel.Info);
                 }
             });
-
+            Instance = this;
+            var harmony = new Harmony(ModManifest.UniqueID);
+            harmony.PatchAll();
 
 
         }
