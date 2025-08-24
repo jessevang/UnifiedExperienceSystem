@@ -1,4 +1,7 @@
 ﻿{
+  "config.ShowEnergyBar.name": "에너지 바 표시",
+  "config.ShowEnergyBar.tooltip": "사용자 지정 에너지 바를 표시하거나 숨깁니다.",
+
   "config.pageTitle.ExperienceSetting": "경험치 설정",
   "config.maxSkillLevel.name": "최대 스킬 레벨",
   "config.maxSkillLevel.tooltip": "Unified Experience System으로 도달할 수 있는 최고 레벨입니다.",

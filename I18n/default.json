@@ -1,5 +1,8 @@
 {
 
+  "config.ShowEnergyBar.name": "Show Energy Bar",
+  "config.ShowEnergyBar.tooltip": "Toggle to show or hide the custom energy bar.",
+
   "config.pageTitle.ExperienceSetting": "Experience Setting",
   "config.maxSkillLevel.name": "Max skill level",
   "config.maxSkillLevel.tooltip": "Highest level you can reach with Unified Experience System.",

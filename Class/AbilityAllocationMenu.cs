@@ -4,6 +4,7 @@ using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Menus;
 using StardewModdingAPI;
+using UnifiedExperienceSystem.Class;
 
 
 namespace UnifiedExperienceSystem

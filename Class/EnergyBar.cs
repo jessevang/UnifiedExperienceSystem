@@ -159,7 +159,12 @@ namespace UnifiedExperienceSystem
 
         private void OnRenderingHud_EnergyBar(object? sender, RenderingHudEventArgs e)
         {
-            if (!Context.IsWorldReady) return;
+            if (!Context.IsWorldReady) 
+                return;
+
+            if (!Config.ShowEnergyBar)
+                return;
+          
 
             if (Game1.CurrentEvent != null
              || Game1.eventUp

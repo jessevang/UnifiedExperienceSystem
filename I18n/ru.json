@@ -1,4 +1,7 @@
 ﻿{
+  "config.ShowEnergyBar.name": "Показать индикатор энергии",
+  "config.ShowEnergyBar.tooltip": "Переключить отображение пользовательского индикатора энергии.",
+
   "config.pageTitle.ExperienceSetting": "Настройки опыта",
   "config.maxSkillLevel.name": "Максимальный уровень навыка",
   "config.maxSkillLevel.tooltip": "Наивысший уровень, которого можно достичь с Unified Experience System.",

@@ -1,4 +1,7 @@
 ﻿{
+  "config.ShowEnergyBar.name": "エネルギーバーを表示",
+  "config.ShowEnergyBar.tooltip": "カスタムのエネルギーバーを表示または非表示に切り替えます。",
+
   "config.pageTitle.ExperienceSetting": "経験の設定",
   "config.maxSkillLevel.name": "スキルの最大レベル",
   "config.maxSkillLevel.tooltip": "Unified Experience System で到達できる最高レベルです。",

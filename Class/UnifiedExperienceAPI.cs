@@ -5,7 +5,7 @@ using static UnifiedExperienceSystem.ModEntry;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace UnifiedExperienceSystem
+namespace UnifiedExperienceSystem.Class
 {
     public class UnifiedExperienceAPI : IUnifiedExperienceAPI
     {
@@ -492,14 +492,14 @@ namespace UnifiedExperienceSystem
                         int lo = 0, hi = cap;
                         while (lo < hi)
                         {
-                            int mid = (lo + hi + 1) >> 1;
+                            int mid = lo + hi + 1 >> 1;
                             if (S(mid, b, d) <= exp) lo = mid; else hi = mid - 1;
                         }
                         int L = lo;
                         bool maxed = L >= cap;
                         long spent = S(L, b, d);
                         int into = (int)Math.Max(0, exp - spent);
-                        int needed = maxed ? 0 : (int)(b + (long)L * d);
+                        int needed = maxed ? 0 : (int)(b + L * d);
                         return (L, into, needed, maxed);
                     }
 
@@ -513,7 +513,7 @@ namespace UnifiedExperienceSystem
                         int lo = 0, hi = capEff;
                         while (lo < hi)
                         {
-                            int mid = (lo + hi + 1) >> 1;
+                            int mid = lo + hi + 1 >> 1;
                             if (pref[mid] <= exp) lo = mid; else hi = mid - 1;
                         }
                         int L = lo;
@@ -547,7 +547,7 @@ namespace UnifiedExperienceSystem
                 {
                     int h1 = StringComparer.OrdinalIgnoreCase.GetHashCode(key.modId ?? string.Empty);
                     int h2 = StringComparer.OrdinalIgnoreCase.GetHashCode(key.abilityId ?? string.Empty);
-                    return (h1 * 397) ^ h2;
+                    return h1 * 397 ^ h2;
                 }
             }
         }

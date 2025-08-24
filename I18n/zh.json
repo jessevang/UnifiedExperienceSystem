@@ -1,4 +1,7 @@
 ﻿{
+  "config.ShowEnergyBar.name": "显示能量条",
+  "config.ShowEnergyBar.tooltip": "切换显示或隐藏自定义能量条。",
+
   "config.pageTitle.ExperienceSetting": "经验设置",
   "config.maxSkillLevel.name": "最高技能等级",
   "config.maxSkillLevel.tooltip": "使用 Unified Experience System 能达到的最高等级。",

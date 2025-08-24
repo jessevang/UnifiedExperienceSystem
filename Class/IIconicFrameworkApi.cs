@@ -3,7 +3,7 @@
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 
-namespace LeFauxMods.Common.Integrations.IconicFramework;
+namespace UnifiedExperienceSystem.Class;
 
 #pragma warning disable
 

@@ -1,4 +1,7 @@
 {
+  "config.ShowEnergyBar.name": "Energieleiste anzeigen",
+  "config.ShowEnergyBar.tooltip": "Ein- oder ausblenden der benutzerdefinierten Energieleiste.",
+
   "config.pageTitle.ExperienceSetting": "Erfahrungseinstellungen",
   "config.maxSkillLevel.name": "Maximale Fertigkeitsstufe",
   "config.maxSkillLevel.tooltip": "Höchste Stufe, die du mit Unified Experience System erreichen kannst.",

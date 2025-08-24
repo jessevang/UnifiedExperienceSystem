@@ -1,10 +1,9 @@
-﻿using GenericModConfigMenu;
-using LeFauxMods.Common.Integrations.IconicFramework;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using UnifiedExperienceSystem.Class;
 
 
 namespace UnifiedExperienceSystem
@@ -59,7 +58,10 @@ namespace UnifiedExperienceSystem
         public int? AbilityButtonPosX { get; set; } = 500;
         public int? AbilityButtonPosY { get; set; } = 432;
 
+        
+        //Energy Configrations
 
+        public bool ShowEnergyBar { get; set; } = true;
         public int EnergyBarX { get; set; } = 48;   
         public int EnergyBarY { get; set; } = 540;
 
@@ -70,11 +72,10 @@ namespace UnifiedExperienceSystem
         public bool EnergyBarUseRelativePos { get; set; } = true;
         public float EnergyBarRelX { get; set; } = 0.93f; 
         public float EnergyBarRelY { get; set; } = 0.97f;
-        public float EnergyRegenPerSecond { get; set; } = 0.5f;
-        public bool RegenOnlyOutdoors { get; set; } = false;
 
-        public bool EnergyBarFollowVanillaHud { get; set; } = true;  // new mode ON by default
-        public string EnergyBarAnchorTarget { get; set; } = "Health"; // "Health" or "Stamina"
+
+        public bool EnergyBarFollowVanillaHud { get; set; } = true;  
+        public string EnergyBarAnchorTarget { get; set; } = "Health";
 
         public int EnergyBarAnchorOffsetX { get; set; } = -140;
         public int EnergyBarAnchorOffsetY { get; set; } = -104;
@@ -147,6 +148,7 @@ namespace UnifiedExperienceSystem
             helper.Events.Input.ButtonReleased += OnButtonReleased;
 
             helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
+
             HookAbilityToolbarEvents(helper);
 
             Helper.ConsoleCommands.Add("ues_energy_set", "Set energy value 0..100 (e.g. ues_energy_set 55)", (n, a) =>
@@ -543,6 +545,14 @@ namespace UnifiedExperienceSystem
         {
             ITranslationHelper i18n = Helper.Translation;
             gmcm.AddPage(mod: ModManifest, pageId: "Energy Settings", pageTitle: () => i18n.Get("page.energySettings.title"));
+
+            gmcm.AddBoolOption(
+                mod: ModManifest,
+                name: () => Helper.Translation.Get("config.ShowEnergyBar.name"),
+                tooltip: () => Helper.Translation.Get("config.ShowEnergyBar.tooltip"),
+                getValue: () => Config.ShowEnergyBar,
+                setValue: value => Config.ShowEnergyBar = value
+            );
 
             gmcm.AddNumberOption(
                 this.ModManifest,

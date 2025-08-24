@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
-namespace UnifiedExperienceSystem
+namespace UnifiedExperienceSystem.Class
 {
     public interface IUnifiedExperienceAPI
     {
@@ -135,8 +135,8 @@ namespace UnifiedExperienceSystem
             string curveKind,
             IDictionary<string, object> curveData,
             int maxLevel,
-            Microsoft.Xna.Framework.Graphics.Texture2D? iconTexture,
-            Microsoft.Xna.Framework.Rectangle? iconSourceRect = null,
+            Texture2D? iconTexture,
+            Rectangle? iconSourceRect = null,
             string? iconPath = null,
             string[]? tags = null
         );

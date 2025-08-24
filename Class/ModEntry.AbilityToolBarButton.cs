@@ -51,6 +51,9 @@ namespace UnifiedExperienceSystem
             if (!Context.IsWorldReady || !Config.ShowAbilityButton)
                 return;
 
+
+       
+
             Rectangle bounds = AbilityGetButtonBoundsForUI();
 
             Color buttonColor = abilityIsHolding && abilityHoldTimer >= 0.25f ? Color.Green : Color.MistyRose;

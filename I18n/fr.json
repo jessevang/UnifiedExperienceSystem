@@ -1,4 +1,7 @@
 {
+  "config.ShowEnergyBar.name": "Afficher la barre d’énergie",
+  "config.ShowEnergyBar.tooltip": "Basculer pour afficher ou masquer la barre d’énergie personnalisée.",
+
   "config.pageTitle.ExperienceSetting": "Paramètres d’expérience",
   "config.maxSkillLevel.name": "Niveau de compétence maximal",
   "config.maxSkillLevel.tooltip": "Niveau le plus élevé que vous pouvez atteindre avec Unified Experience System.",

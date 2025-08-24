@@ -1,4 +1,6 @@
 ﻿{
+  "config.ShowEnergyBar.name": "Enerji çubuğunu göster",
+  "config.ShowEnergyBar.tooltip": "Özel enerji çubuğunu göstermek veya gizlemek için değiştir.",
 
   "config.pageTitle.ExperienceSetting": "Deneyim ayarları",
   "config.maxSkillLevel.name": "Maksimum beceri seviyesi",

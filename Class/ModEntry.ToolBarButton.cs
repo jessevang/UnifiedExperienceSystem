@@ -28,6 +28,7 @@ namespace UnifiedExperienceSystem
             if (!Context.IsWorldReady || !Config.ShowSkillPointButton)
                 return;
 
+
             Rectangle skillButtonBounds = GetButtonBoundsForUI();
 
             Color buttonColor = isHoldingButton && holdTimer >= 0.25f ? Color.Green : Color.White;
