@@ -33,7 +33,7 @@ namespace UnifiedExperienceSystem.Patches
             {
                 __state.initialized =
                     ReferenceEquals(__instance, Game1.player) &&
-                    which >= 0 && which <= 5; // vanilla only
+                    which >= 0 && which <= 4; // vanilla only without Luck (removed 5)
 
                 if (!__state.initialized)
                 {
@@ -60,7 +60,7 @@ namespace UnifiedExperienceSystem.Patches
 
         // Run LAST so we see final howMuch after other prefixes (even if original was skipped).
         [HarmonyPriority(Priority.VeryLow)]
-        [HarmonyAfter(new[] { "DaLion.Professions"})]
+        [HarmonyAfter(new[] { "DaLion.Professions" })]
         static void Postfix(Farmer __instance, int which, int howMuch, ref State __state)
         {
             try
@@ -68,39 +68,42 @@ namespace UnifiedExperienceSystem.Patches
                 if (!__state.initialized || which != __state.which)
                     return;
 
+                // vanilla only (0..4) (Luck 5 is ignored)
+                if (which < 0 || which > 4)
+                    return;
+
                 int preTotal = __state.preTotal;
                 int postTotal = __instance.experiencePoints[which];
 
                 int requested = Math.Max(0, howMuch);
                 int applied = Math.Max(0, postTotal - preTotal);
-                int blocked = Math.Max(0, requested - applied); 
+                int blocked = Math.Max(0, requested - applied);
 
-                if (ModEntry.Instance?.Config.DebugMode == true)
+                var mod = ModEntry.Instance;
+                if (mod?.Config.DebugMode == true)
                 {
-                    ModEntry.Instance.Monitor.Log(
-                        $"[UES/Postfix] skill={SkillName(which)} requested(final)={requested} applied={applied} "
-                        + $"preTotal={preTotal} -> postTotal={postTotal} => blocked/diverted={blocked}",
+                    mod.Monitor.Log(
+                        $"[UES/Postfix] skill={SkillName(which)} requested(final)={requested} applied={applied} " +
+                        $"preTotal={preTotal} -> postTotal={postTotal} => blocked={blocked}",
                         LogLevel.Debug);
                 }
 
-                if (blocked <= 0)
-                    return;
+                // Do NOT add to GlobalEXP here. Just buffer blocked to drain once per tick.
+                if (blocked > 0 && mod != null)
+                {
+                    mod._blockedXpBuffer[which] += blocked;
 
-                var mod = ModEntry.Instance;
-                if (mod == null)
-                    return;
-
-                mod.SaveData.GlobalEXP += blocked;
-
-                if (mod.Config.DebugMode)
-                    mod.Monitor.Log($"[UES/Diverted] skill={SkillName(which)} +{blocked} GlobalEXP => {mod.SaveData.GlobalEXP}",
-                        LogLevel.Debug);
+                    if (mod.Config.DebugMode)
+                        mod.Monitor.Log($"[UES/Postfix] buffered blocked XP: skill={SkillName(which)} +{blocked} (buffer now={mod._blockedXpBuffer[which]})",
+                            LogLevel.Trace);
+                }
             }
             catch (Exception ex)
             {
                 ModEntry.Instance?.Monitor.Log($"[UES/Postfix ERROR] {ex}", LogLevel.Error);
             }
         }
+
 
         private static string SkillName(int idx) => idx switch
         {
@@ -109,7 +112,6 @@ namespace UnifiedExperienceSystem.Patches
             2 => "Foraging",
             3 => "Mining",
             4 => "Combat",
-            5 => "Luck",
             _ => $"Skill{idx}"
         };
     }

@@ -8,10 +8,11 @@ namespace UnifiedExperienceSystem
 {
     public partial class ModEntry
     {
-
+        private int _lastProcessedTick = -1;
         private void OnDayStarted(object sender, DayStartedEventArgs e)
         {
 
+            Array.Clear(_blockedXpBuffer, 0, _blockedXpBuffer.Length);
             startOfDayExp.Clear();
             startOfDayLevel.Clear();
             manuallyAllocatedLevels.Clear();
@@ -52,85 +53,95 @@ namespace UnifiedExperienceSystem
             if (!Context.IsWorldReady)
                 return;
 
-            //use to update drawing the button being dragged
+            // drag UI handling (unchanged)
             if (isHoldingButton)
             {
                 holdTimer += (float)Game1.currentGameTime.ElapsedGameTime.TotalSeconds;
-
                 if (holdTimer >= HoldDelaySeconds)
-                {
                     CheckButtonDragging();
-                }
             }
-
-
 
             if (!e.IsMultipleOf((uint)Config.UpdateIntervalTicks))
                 return;
 
+            // guard: run conversion at most once per game tick
+            if (_lastProcessedTick == Game1.ticks)
+                return;
+            _lastProcessedTick = Game1.ticks;
 
+            // ---- Siphon APPLIED XP from skills ----
             foreach (var skill in skillList)
             {
                 int currentXP = GetExperience(Game1.player, skill);
                 int baseXP = startOfDayExp.GetValueOrDefault(skill.Id, -1);
-                int delta = 0;
+                if (baseXP < 0 || currentXP <= baseXP)
+                    continue;
 
-                if (currentXP > baseXP && baseXP != -1)
-                {
-                    delta = currentXP - baseXP;
-                }
+                int delta = currentXP - baseXP; // gained since day-start snapshot
 
-                if (delta > 0)
+                SaveData.GlobalEXP += delta;
+                Monitor.Log($"[Siphon] {skill.DisplayName}: delta={delta}, baseXP={baseXP}, currentXP={currentXP}", LogLevel.Alert);
+
+                if (Config.DebugMode)
+                    Monitor.Log($"[EXP Transfer] {skill.DisplayName}: +{delta} EXP => GlobalEXP = {SaveData.GlobalEXP}", LogLevel.Debug);
+
+                if (skill.IsVanilla && int.TryParse(skill.Id, out int skillIndex))
                 {
-                    SaveData.GlobalEXP += delta;
+                    // clamp vanilla raw levels back to expected (prevents vanilla level ups)
+                    int expectedLevel = startOfDayLevel.GetValueOrDefault(skill.Id, -1);
+                    if (expectedLevel >= 0)
+                    {
+                        if (skillIndex == 0 && Game1.player.farmingLevel.Get() > expectedLevel) Game1.player.farmingLevel.Set(expectedLevel);
+                        if (skillIndex == 1 && Game1.player.fishingLevel.Get() > expectedLevel) Game1.player.fishingLevel.Set(expectedLevel);
+                        if (skillIndex == 2 && Game1.player.foragingLevel.Get() > expectedLevel) Game1.player.foragingLevel.Set(expectedLevel);
+                        if (skillIndex == 3 && Game1.player.miningLevel.Get() > expectedLevel) Game1.player.miningLevel.Set(expectedLevel);
+                        if (skillIndex == 4 && Game1.player.combatLevel.Get() > expectedLevel) Game1.player.combatLevel.Set(expectedLevel);
+                        if (skillIndex == 5 && Game1.player.luckLevel.Get() > expectedLevel) Game1.player.luckLevel.Set(expectedLevel);
+                    }
+
+                    // revert skill XP back to baseline so future deltas are clean
+                    Game1.player.experiencePoints[skillIndex] = baseXP;
+
+                    // remove queued vanilla level-ups for this skill
+                    for (int i = Game1.player.newLevels.Count - 1; i >= 0; i--)
+                        if (Game1.player.newLevels[i].X == skillIndex)
+                            Game1.player.newLevels.RemoveAt(i);
 
                     if (Config.DebugMode)
-                        Monitor.Log($"[EXP Transfer] {skill.DisplayName}: +{delta} EXP => GlobalEXP = {SaveData.GlobalEXP}", LogLevel.Debug);
+                        Monitor.Log($"[EXP Revert] {skill.DisplayName} reset to {baseXP} EXP", LogLevel.Trace);
+                }
+                else if (!skill.IsVanilla && spaceCoreApi != null)
+                {
+                    // SpaceCore: actively subtract the delta we just siphoned
+                    spaceCoreApi.AddExperienceForCustomSkill(Game1.player, skill.Id, -delta);
 
-                    if (skill.IsVanilla)
-                    {
-                        int expectedLevel = startOfDayLevel.GetValueOrDefault(skill.Id, -1);
-
-                        if (expectedLevel >= 0)
-                        {
-                            if (skill.DisplayName.Equals("Farming") && Game1.player.farmingLevel.Get() > expectedLevel)
-                                Game1.player.farmingLevel.Set(expectedLevel);
-                            if (skill.DisplayName.Equals("Fishing") && Game1.player.fishingLevel.Get() > expectedLevel)
-                                Game1.player.fishingLevel.Set(expectedLevel);
-                            if (skill.DisplayName.Equals("Foraging") && Game1.player.foragingLevel.Get() > expectedLevel)
-                                Game1.player.foragingLevel.Set(expectedLevel);
-                            if (skill.DisplayName.Equals("Mining") && Game1.player.miningLevel.Get() > expectedLevel)
-                                Game1.player.miningLevel.Set(expectedLevel);
-                            if (skill.DisplayName.Equals("Combat") && Game1.player.combatLevel.Get() > expectedLevel)
-                                Game1.player.combatLevel.Set(expectedLevel);
-                            if (skill.DisplayName.Equals("Luck") && Game1.player.luckLevel.Get() > expectedLevel)
-                                Game1.player.luckLevel.Set(expectedLevel);
-                        }
-
-                        if ((skill.IsVanilla || !skill.IsVanilla) && int.TryParse(skill.Id, out int skillIndex))
-                        {
-                            Game1.player.experiencePoints[skillIndex] = baseXP;
-
-                            for (int i = Game1.player.newLevels.Count - 1; i >= 0; i--)
-                            {
-                                if (Game1.player.newLevels[i].X == skillIndex)
-                                    Game1.player.newLevels.RemoveAt(i);
-                            }
-
-                            if (Config.DebugMode)
-                                Monitor.Log($"[EXP Revert] {skill.DisplayName} reset to {baseXP} EXP", LogLevel.Trace);
-                        }
-                    }
-                    else if (!skill.IsVanilla && spaceCoreApi != null)
-                    {
-                        spaceCoreApi.AddExperienceForCustomSkill(Game1.player, skill.Id, -delta);
-
-                        if (Config.DebugMode)
-                            Monitor.Log($"[EXP Revert - Custom] {skill.DisplayName} reduced by {delta} EXP", LogLevel.Trace);
-                    }
+                    if (Config.DebugMode)
+                        Monitor.Log($"[EXP Revert - Custom] {skill.DisplayName} reduced by {delta} EXP", LogLevel.Trace);
                 }
             }
 
+            // ---- Drain BLOCKED XP buffered by the Harmony patch (once per tick) ----
+            int diverted = 0;
+            for (int i = 0; i <= 5; i++)
+            {
+                int b = _blockedXpBuffer[i];
+                if (b > 0)
+                {
+                    diverted += b;
+                    _blockedXpBuffer[i] = 0;
+                }
+            }
+
+            if (diverted > 0)
+            {
+                if (Config.DebugMode)
+                    Monitor.Log($"[Drain] diverted={diverted}", LogLevel.Alert);
+                SaveData.GlobalEXP += diverted;
+                if (Config.DebugMode)
+                    Monitor.Log($"[UES/DivertDrain] +{diverted} GlobalEXP from blocked buffer => GlobalEXP={SaveData.GlobalEXP}", LogLevel.Debug);
+            }
+
+            // ---- Convert GlobalEXP -> Points ----
             int pointsGained = 0;
             while (SaveData.GlobalEXP >= EXP_PER_POINT && !isAllocatingPoint)
             {
@@ -142,7 +153,6 @@ namespace UnifiedExperienceSystem
             if (pointsGained > 0 && Config.DebugMode)
                 Monitor.Log($"[Skill Point Conversion] {pointsGained} skill point(s) granted. Remaining GlobalEXP: {SaveData.GlobalEXP}. Total Unspent Points: {SaveData.UnspentSkillPoints}", LogLevel.Debug);
         }
-
 
 
 

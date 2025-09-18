@@ -136,6 +136,7 @@ namespace UnifiedExperienceSystem
         //Energy
         private bool EnergyCanRegenerateAgain = true;
 
+        internal readonly int[] _blockedXpBuffer = new int[6];
         public override void Entry(IModHelper helper)
         {
             Config = helper.ReadConfig<ModConfig>();
